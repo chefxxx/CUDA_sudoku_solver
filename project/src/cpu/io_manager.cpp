@@ -26,13 +26,14 @@ std::tuple<std::vector<std::string>, size_t> readInput(const std::string& t_inpu
     // ---------------------------------------------------
     size_t lineSize;
     size_t puzzleSize;
+
     switch (line.size()) {
-        case BOARD_9:
-            lineSize = BOARD_9;
+        case PUZZLE_9 * PUZZLE_9:
+            lineSize = PUZZLE_9 * PUZZLE_9;
             puzzleSize = PUZZLE_9;
             break;
-        case PUZZLE_16:
-            lineSize = PUZZLE_16;
+        case PUZZLE_16 * PUZZLE_16:
+            lineSize = PUZZLE_16 * PUZZLE_16;
             puzzleSize = PUZZLE_16;
             break;
         default:

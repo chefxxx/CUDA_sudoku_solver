@@ -15,15 +15,12 @@ constexpr size_t N_9 = 6;
 constexpr size_t N_16 = 16;
 constexpr size_t PUZZLE_9 = 9;
 constexpr size_t PUZZLE_16 = 16;
-constexpr size_t BOARD_9 = PUZZLE_9 * PUZZLE_9;
-constexpr size_t BOARD_16 = PUZZLE_16 * PUZZLE_16;
 
-template <size_t N>
-concept sudoku_board_size = N == PUZZLE_9 || N == PUZZLE_16;
-
-template <size_t PuzzleSize> requires sudoku_board_size<PuzzleSize>
+template <size_t PuzzleSize>
 struct Board
 {
+    static_assert(PuzzleSize == PUZZLE_9 || PuzzleSize == PUZZLE_16,
+        "Only 9x9 and 16x16 Sudoku boards are supported.");
     explicit Board(const std::string& t_line);
 
 private:
@@ -31,7 +28,7 @@ private:
     std::array<__uint64_t, N_INSIDE>  m_inside;
 };
 
-template <size_t PuzzleSize> requires sudoku_board_size<PuzzleSize> Board<PuzzleSize>::Board(const std::string &t_line)
+template <size_t PuzzleSize> Board<PuzzleSize>::Board(const std::string &t_line)
 {
     assert(t_line.size() == PuzzleSize * PuzzleSize);
     for (size_t i = 0; i < t_line.size(); i += PuzzleSize) {
