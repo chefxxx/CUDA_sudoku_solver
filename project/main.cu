@@ -19,7 +19,7 @@ int main(const int argc, const char **argv) {
     // -----------------------------
     // Divide input file into boards
     // -----------------------------
-    const auto encodedBoards = readInput(argv[1]);
+    const auto [encodedBoards, boardSize] = readInput(argv[1]);
 
     // -------------
     // Create boards

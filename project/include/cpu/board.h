@@ -15,6 +15,8 @@ constexpr size_t N_9 = 6;
 constexpr size_t N_16 = 16;
 constexpr size_t PUZZLE_9 = 9;
 constexpr size_t PUZZLE_16 = 16;
+constexpr size_t BOARD_9 = PUZZLE_9 * PUZZLE_9;
+constexpr size_t BOARD_16 = PUZZLE_16 * PUZZLE_16;
 
 template <size_t N>
 concept sudoku_board_size = N == PUZZLE_9 || N == PUZZLE_16;
