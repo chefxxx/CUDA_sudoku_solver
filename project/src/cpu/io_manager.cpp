@@ -2,13 +2,11 @@
 // Created by chefxx on 12.11.2025.
 //
 
-#include "io_manager.h"
-
 #include <tuple>
-
+#include "io_manager.h"
 #include "board.h"
 
-std::tuple<std::vector<std::string>, size_t> readInput(const std::string& t_inputFileName)
+std::tuple<std::vector<std::string>, size_t> readInput(const std::string &t_inputFileName)
 {
     std::ifstream inputFile(t_inputFileName);
     if (!inputFile.is_open()) {
@@ -17,7 +15,7 @@ std::tuple<std::vector<std::string>, size_t> readInput(const std::string& t_inpu
     }
 
     std::vector<std::string> lines;
-    std::string line;
+    std::string              line;
     std::getline(inputFile, line);
 
     // ---------------------------------------------------
@@ -28,17 +26,17 @@ std::tuple<std::vector<std::string>, size_t> readInput(const std::string& t_inpu
     size_t puzzleSize;
 
     switch (line.size()) {
-        case PUZZLE_9 * PUZZLE_9:
-            lineSize = PUZZLE_9 * PUZZLE_9;
-            puzzleSize = PUZZLE_9;
-            break;
-        case PUZZLE_16 * PUZZLE_16:
-            lineSize = PUZZLE_16 * PUZZLE_16;
-            puzzleSize = PUZZLE_16;
-            break;
-        default:
-            std::cerr << "ERROR: Not recognized board size in file " << t_inputFileName << "!\n";
-            exit(EXIT_FAILURE);
+    case PUZZLE_9 *PUZZLE_9:
+        lineSize   = PUZZLE_9 * PUZZLE_9;
+        puzzleSize = PUZZLE_9;
+        break;
+    case PUZZLE_16 *PUZZLE_16:
+        lineSize   = PUZZLE_16 * PUZZLE_16;
+        puzzleSize = PUZZLE_16;
+        break;
+    default:
+        std::cerr << "ERROR: Not recognized board size in file " << t_inputFileName << "!\n";
+        exit(EXIT_FAILURE);
     }
 
     lines.push_back(line);

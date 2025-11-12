@@ -1,6 +1,8 @@
 #include <iostream>
-#include "io_manager.h"
+
 #include "board.h"
+#include "io_manager.h"
+#include "solver_infra.h"
 
 void usage(const std::string& pname)
 {
@@ -19,13 +21,24 @@ int main(const int argc, const char **argv) {
     // -----------------------------
     // Divide input file into boards
     // -----------------------------
-    const auto [encodedBoards, boardSize] = readInput(argv[1]);
+    const auto [encodedBoards, puzzleSize] = readInput(argv[1]);
 
-    // -------------
-    // Create boards
-    // -------------
+    // -----------------------
+    // Run appropriate solvers
+    // -----------------------
     assert(encodedBoards.empty() == false);
 
+    switch (puzzleSize) {
+        case PUZZLE_9:
+            mainForGivenSize<PUZZLE_9>(encodedBoards);
+            break;
+        case PUZZLE_16:
+            mainForGivenSize<PUZZLE_16>(encodedBoards);
+            break;
+        default:
+            std::cerr << "Invalid board size: " << puzzleSize << " :(\n";
+            exit(EXIT_FAILURE);
+    }
 
     return EXIT_SUCCESS;
 }

@@ -25,7 +25,7 @@ struct Board
 
 private:
     static constexpr size_t N_INSIDE = PuzzleSize == PUZZLE_9 ? N_9 : N_16;
-    std::array<__uint64_t, N_INSIDE>  m_inside;
+    std::array<uint64_t, N_INSIDE>  m_inside;
 };
 
 template <size_t PuzzleSize> Board<PuzzleSize>::Board(const std::string &t_line)
