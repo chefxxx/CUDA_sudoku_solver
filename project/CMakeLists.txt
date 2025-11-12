@@ -80,9 +80,9 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
         message(FATAL_ERROR "Compiler " "${CXX_COMPILER_ID}" " is not supported.")
     endif ()
     target_compile_options(${CPU_LIB} PRIVATE
-            $<$<CXX_COMPILER_ID:GNU>:-g -fsanitize=undefined -fsanitize=address -O0 -Wall -Wextra -pedantic -Werror>
-            $<$<CXX_COMPILER_ID:Clang>:-g -fsanitize=undefined -fsanitize=address -O0 -Wall -Wextra -pedantic -Werror>
-            $<$<CXX_COMPILER_ID:MSVC>:/W4> 
+            $<$<CXX_COMPILER_ID:GNU>:-g -O0 -Wall -Wextra -pedantic -Wshadow -Wnon-virtual-dtor -Werror>
+            $<$<CXX_COMPILER_ID:Clang>:-g -O0 -Wall -Wextra -pedantic -Wshadow -Wnon-virtual-dtor -Werror>
+            $<$<CXX_COMPILER_ID:MSVC>:/W4>
     )
     target_compile_options(${CUDA_LIB} INTERFACE
             -v
@@ -120,5 +120,3 @@ elseif (CMAKE_BUILD_TYPE STREQUAL "Release")
 else()
     message(FATAL_ERROR "Unknown build type.")
 endif ()
-
-target_include_directories(${MAIN} PUBLIC tests)

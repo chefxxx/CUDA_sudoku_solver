@@ -1,4 +1,6 @@
 #include <iostream>
+#include "io_manager.h"
+#include "board.h"
 
 void usage(const std::string& pname)
 {
@@ -6,10 +8,24 @@ void usage(const std::string& pname)
     exit(EXIT_FAILURE);
 }
 
-int main(const int argc, const char ** argv) {
-
+int main(const int argc, const char **argv) {
+    // --------------
+    // Read arguments
+    // --------------
     if (argc < 3) {
         usage(argv[0]);
     }
-    return 0;
+
+    // -----------------------------
+    // Divide input file into boards
+    // -----------------------------
+    const auto encodedBoards = readInput(argv[1]);
+
+    // -------------
+    // Create boards
+    // -------------
+    assert(encodedBoards.empty() == false);
+
+
+    return EXIT_SUCCESS;
 }
