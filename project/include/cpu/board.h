@@ -18,6 +18,8 @@ struct Board
 {
     explicit Board(std::string_view t_line);
     void setValue(int t_idx, CELL_SZ t_num);
+    CELL_SZ getValue(int t_idx) const;
+    void printBoard() const;
 private:
     std::array<CELL_SZ, SUDOKU_9_N>  m_inside{ 0 };
 };

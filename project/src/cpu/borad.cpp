@@ -30,3 +30,32 @@ void Board::setValue(const int t_idx, const CELL_SZ t_num)
     const CELL_SZ mask = t_num << inArrayOffset;
     m_inside[arrayIdx] |= mask;
 }
+
+CELL_SZ Board::getValue(const int t_idx) const
+{
+    const int offset = t_idx << 2;
+    const int arrayIdx = offset >> 5;
+    const int inArrayOffset = offset % 32;
+    CELL_SZ value = m_inside[arrayIdx];
+    value = value >> inArrayOffset & 0xF;
+    return value;
+}
+
+void Board::printBoard() const
+{
+    constexpr std::string_view row = "+-------+-------+-------+\n";
+    std::cout << row;
+    for (int i = 0; i < 81; ++i) {
+        if (i % 9 == 0)
+            std::cout << '|';
+        const auto value = getValue(i);
+        std::cout << ' ';
+        value == 0 ? std::cout << '.' : std::cout << value;
+        if (i % 9 == 2 || i % 9 == 5)
+            std::cout << " |";
+        if ((i + 1) % 9 == 0)
+            std::cout << " |\n";
+        if ((i + 1) % 27 == 0)
+            std::cout << row;
+    }
+}
