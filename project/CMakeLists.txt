@@ -67,6 +67,12 @@ target_link_libraries(${MAIN} PRIVATE
 # Compilation settings #
 # ------------------------------------------------------------------------------ #
 
+# Set build type to RELEASE by default:
+if (NOT CMAKE_BUILD_TYPE)
+    message(STATUS "No build type provided, default to RELEASE.")
+    set(CMAKE_BUILD_TYPE "RELEASE")
+endif ()
+
 message("Build type: " "${CMAKE_BUILD_TYPE}")
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -84,7 +90,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
             $<$<CXX_COMPILER_ID:Clang>:-g -O0 -Wall -Wextra -pedantic -Wshadow -Wnon-virtual-dtor -Werror>
             $<$<CXX_COMPILER_ID:MSVC>:/W4>
     )
-    target_compile_options(${CUDA_LIB} INTERFACE
+    target_compile_options(${CUDA_LIB} PRIVATE
             -v
             --generate-line-info
             -g3
@@ -111,7 +117,7 @@ elseif (CMAKE_BUILD_TYPE STREQUAL "Release")
             $<$<CXX_COMPILER_ID:Clang>:-O3 -march=native -funroll-loops>
             $<$<CXX_COMPILER_ID:MSVC>:> 
     )
-    target_compile_options(${CUDA_LIB} INTERFACE
+    target_compile_options(${CUDA_LIB} PRIVATE
             -Xptxas -O3
             -Xcompiler -O3
             -Xcompiler -march=native

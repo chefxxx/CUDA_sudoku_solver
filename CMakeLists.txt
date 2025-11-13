@@ -27,3 +27,5 @@ set(CMAKE_CUDA_STANDARD_REQUIRED ON)
 
 add_subdirectory(project)
 add_subdirectory(dependencies)
+add_subdirectory(tests)
+enable_testing()

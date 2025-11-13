@@ -1,3 +1,4 @@
+#include <cassert>
 #include <iostream>
 
 #include "board.h"
@@ -28,8 +29,6 @@ int main(const int argc, const char **argv) {
     // --------------------
     assert(encodedBoards.empty() == false);
     const auto boards = createBoardsSerial(encodedBoards);
-
-    boards[0].printBoard();
 
     return EXIT_SUCCESS;
 }
