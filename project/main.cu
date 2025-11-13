@@ -21,24 +21,14 @@ int main(const int argc, const char **argv) {
     // -----------------------------
     // Divide input file into boards
     // -----------------------------
-    const auto [encodedBoards, puzzleSize] = readInput(argv[1]);
+    const auto encodedBoards = readInput(argv[1]);
 
-    // -----------------------
-    // Run appropriate solvers
-    // -----------------------
+    // --------------------
+    // Create boards on CPU
+    // --------------------
     assert(encodedBoards.empty() == false);
 
-    switch (puzzleSize) {
-        case PUZZLE_9:
-            mainForGivenSize<PUZZLE_9>(encodedBoards);
-            break;
-        case PUZZLE_16:
-            mainForGivenSize<PUZZLE_16>(encodedBoards);
-            break;
-        default:
-            std::cerr << "Invalid board size: " << puzzleSize << " :(\n";
-            exit(EXIT_FAILURE);
-    }
+
 
     return EXIT_SUCCESS;
 }
