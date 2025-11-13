@@ -27,7 +27,7 @@ int main(const int argc, const char **argv) {
     // Create boards on CPU
     // --------------------
     assert(encodedBoards.empty() == false);
-
+    const auto boards = createBoardsSerial(encodedBoards);
 
 
     return EXIT_SUCCESS;

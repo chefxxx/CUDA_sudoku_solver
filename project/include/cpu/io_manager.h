@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 #include <cassert>
+#include <iostream>
 
 std::vector<std::string> readInput(const std::string& t_inputFileName);
 void writeOutput(const std::string& t_outputFileName);

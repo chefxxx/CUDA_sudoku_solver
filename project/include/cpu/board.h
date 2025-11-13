@@ -8,15 +8,18 @@
 #include <array>
 #include <cstdint>
 #include <string>
+#include <cassert>
 
-constexpr size_t SUDOKU_9_N = 6;
-constexpr size_t SUDOKU_9 = 9;
+constexpr size_t SUDOKU_9_N      = 11;
+constexpr size_t SUDOKU_9        = 9;
+using     CELL_SZ                = uint32_t;
 
 struct Board
 {
-    explicit Board(const std::string& t_line);
+    explicit Board(std::string_view t_line);
+    void setValue(int t_idx, CELL_SZ t_num);
 private:
-    std::array<uint64_t, SUDOKU_9_N>  m_inside{ 0 };
+    std::array<CELL_SZ, SUDOKU_9_N>  m_inside{ 0 };
 };
 
 
