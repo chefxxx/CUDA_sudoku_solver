@@ -2,7 +2,7 @@
 // Created by chefxx on 13.11.2025.
 //
 
-#include <bitset>
+#include <cassert>
 #include <iostream>
 
 #include "board.h"
@@ -13,7 +13,7 @@ Board::Board(const std::string_view t_line)
     int idx = 0;
     for (size_t i = 0; i < t_line.size(); i += SUDOKU_9) {
         const auto row = t_line.substr(i, SUDOKU_9);
-        for (const auto& c : row) {
+        for (const auto &c : row) {
             const auto num = static_cast<CELL_SZ>(c - '0');
             assert(num <= 9);
             setValue(idx, num);
@@ -24,20 +24,20 @@ Board::Board(const std::string_view t_line)
 
 void Board::setValue(const int t_idx, const CELL_SZ t_num)
 {
-    const int offset = t_idx << 2;
-    const int arrayIdx = offset >> 5;
-    const int inArrayOffset = offset % 32;
-    const CELL_SZ mask = t_num << inArrayOffset;
+    const int     offset        = t_idx << 2;
+    const int     arrayIdx      = offset >> 5;
+    const int     inArrayOffset = offset % 32;
+    const CELL_SZ mask          = t_num << inArrayOffset;
     m_inside[arrayIdx] |= mask;
 }
 
 CELL_SZ Board::getValue(const int t_idx) const
 {
-    const int offset = t_idx << 2;
-    const int arrayIdx = offset >> 5;
+    const int offset        = t_idx << 2;
+    const int arrayIdx      = offset >> 5;
     const int inArrayOffset = offset % 32;
-    CELL_SZ value = m_inside[arrayIdx];
-    value = value >> inArrayOffset & 0xF;
+    CELL_SZ   value         = m_inside[arrayIdx];
+    value                   = value >> inArrayOffset & 0xF;
     return value;
 }
 

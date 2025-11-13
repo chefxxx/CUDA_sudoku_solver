@@ -2,14 +2,19 @@
 // Created by chefxx on 12.11.2025.
 //
 
-#include "board.h"
 #include "io_manager.h"
+
+#include <cassert>
+#include <fstream>
+#include <iostream>
+
+#include "board.h"
 
 std::vector<std::string> readInput(const std::string &t_inputFileName)
 {
     std::ifstream inputFile(t_inputFileName);
     if (!inputFile.is_open()) {
-        std::cerr << "ERROR: Could not open file " << t_inputFileName << "\n";
+        std::cerr << "ERROR: Could not open file " << t_inputFileName << '\n';
         exit(EXIT_FAILURE);
     }
 
