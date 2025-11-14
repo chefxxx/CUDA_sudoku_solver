@@ -21,7 +21,8 @@ add_executable(${TEST} ${TEST_SOURCES})
 target_link_libraries(${TEST} PRIVATE
         ${CPU_LIB}
         ${CUDA_LIB}
-        GTest::gtest_main)
+        GTest::gtest_main
+)
 
 include(GoogleTest)
 gtest_discover_tests(${TEST})

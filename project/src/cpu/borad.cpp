@@ -56,3 +56,11 @@ void Board::printBoard() const
             std::cout << row;
     }
 }
+
+std::tuple<int, int, int> BoardConstraints::getConstraintsIndexes(const int t_BoardIdx)
+{
+    int rowIdx = t_BoardIdx / SUDOKU_SIZE;
+    int colIdx = t_BoardIdx % SUDOKU_SIZE;
+    int squareIdx = rowIdx / 3 * 3 + colIdx / 3;
+    return std::make_tuple(rowIdx, colIdx, squareIdx);
+}

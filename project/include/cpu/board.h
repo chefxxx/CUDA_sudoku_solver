@@ -8,6 +8,7 @@
 #include <array>
 #include <cstdint>
 #include <string>
+#include <tuple>
 
 constexpr int SUDOKU_BITPACK_N = 11;
 constexpr int SUDOKU_SIZE      = 9;
@@ -19,9 +20,9 @@ constexpr int OFFSET_BITS_LOG2 = 2;
 
 struct Board
 {
-    explicit Board(std::string_view t_line);
-    void    setValue(int t_idx, CELL_TYPE t_num);
-    void    printBoard() const;
+    explicit  Board(std::string_view t_line);
+    void      setValue(int t_idx, CELL_TYPE t_num);
+    void      printBoard() const;
     CELL_TYPE getValue(int t_idx) const;
 
 private:
@@ -33,6 +34,8 @@ struct BoardConstraints
     short squares[SUDOKU_SIZE];
     short rows[SUDOKU_SIZE];
     short cols[SUDOKU_SIZE];
+
+    static std::tuple<int, int, int> getConstraintsIndexes(int t_BoardIdx);
 };
 
 
