@@ -30,7 +30,10 @@ class BoardConstraintsTest : public testing::Test
 
 protected:
     BoardConstraints m_constraints;
-    BoardConstraintsTest() : m_constraints(convertLineToNumbers(boardStr).value()) {}
+    BoardConstraintsTest()
+        : m_constraints(convertLineToNumbers(boardStr).value())
+    {
+    }
 };
 
 TEST_F(BoardConstraintsTest, doesConstraintsIndexesMatch)
@@ -71,8 +74,7 @@ TEST_F(BoardConstraintsTest, areRowConstraintsValid)
         0b0000000110001010  // Row 8: 1,3,7,8
     };
 
-    for (int i = 0; i < SUDOKU_SIZE; ++i)
-    {
+    for (int i = 0; i < SUDOKU_SIZE; ++i) {
         EXPECT_EQ(std::bitset<16>(m_constraints.rows[i]), expectedRows[i]) << "Row " << i << " failed";
     }
 }
@@ -94,8 +96,7 @@ TEST_F(BoardConstraintsTest, areColConstraintsValid)
         0b0000000101010010  // Column 8: 1,4,6,8
     };
 
-    for (int i = 0; i < SUDOKU_SIZE; ++i)
-    {
+    for (int i = 0; i < SUDOKU_SIZE; ++i) {
         EXPECT_EQ(std::bitset<16>(m_constraints.cols[i]), expectedCols[i]) << "Column " << i << " failed";
     }
 }

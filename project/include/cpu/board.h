@@ -31,6 +31,7 @@ private:
     std::array<CELL_TYPE, SUDOKU_BITPACK_N> m_inside{0};
 };
 
+// TODO: add validness flag to detect invalid boards
 struct BoardConstraints
 {
     uint16_t squares[SUDOKU_SIZE];
