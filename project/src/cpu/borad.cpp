@@ -7,16 +7,10 @@
 #include "bit_operations.h"
 #include "board.h"
 
-Board::Board(const std::string_view t_line)
+Board::Board(const std::vector<CELL_TYPE> &t_numbers)
 {
-    int idx = 0;
-    for (size_t i = 0; i < t_line.size(); i += SUDOKU_SIZE) {
-        const auto row = t_line.substr(i, SUDOKU_SIZE);
-        for (const auto &c : row) {
-            const auto num = static_cast<CELL_TYPE>(c - '0');
-            setValue(idx, num);
-            idx++;
-        }
+    for (int i = 0 ; i < SUDOKU_SIZE * SUDOKU_SIZE; ++i) {
+        setValue(i, t_numbers[i]);
     }
 }
 

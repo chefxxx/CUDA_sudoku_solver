@@ -21,8 +21,7 @@ constexpr int OFFSET_BITS_LOG2 = 2;
 
 struct Board
 {
-    // TODO: change so constructor takes std::vector<CELL_TYPE>
-    explicit Board(std::string_view t_line);
+    explicit Board(const std::vector<CELL_TYPE> &t_numbers);
     void                    setValue(int t_idx, CELL_TYPE t_num);
     void                    printBoard() const;
     [[nodiscard]] CELL_TYPE getValue(int t_idx) const;
@@ -31,7 +30,6 @@ private:
     std::array<CELL_TYPE, SUDOKU_BITPACK_N> m_inside{0};
 };
 
-// TODO: add validness flag to detect invalid boards
 struct BoardConstraints
 {
     uint16_t squares[SUDOKU_SIZE];
