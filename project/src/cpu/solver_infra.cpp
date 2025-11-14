@@ -23,9 +23,9 @@ std::optional<std::vector<CELL_TYPE>> convertLineToNumbers(const std::string_vie
 {
     std::vector<CELL_TYPE> numbers;
     for (const auto &c : t_line) {
-        const auto num = static_cast<CELL_TYPE>(c - '0');
-        if (num > 9) {
-            std::cerr << "ERROR: convertLineToNumbers() - Line contains unknown character!\n";
+        const auto num = c - '0';
+        if (num < 0 || num > 9) {
+            std::cerr << "ERROR: convertLineToNumbers() - some line contains not valid character!\n";
             return std::nullopt;
         }
         numbers.emplace_back(num);
