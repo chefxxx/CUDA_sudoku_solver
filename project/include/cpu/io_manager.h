@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-std::vector<std::string> readInput(const std::string &t_inputFileName);
+std::vector<std::string> readInput(const std::string &t_inputFileName, int t_count);
 void                     writeOutput(const std::string &t_outputFileName);
 
 #endif // CUDA_SUDOKU_INPUT_READER_H

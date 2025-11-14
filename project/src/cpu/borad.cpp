@@ -9,13 +9,11 @@
 
 Board::Board(const std::string_view t_line)
 {
-    assert(t_line.size() == SUDOKU_9 * SUDOKU_9);
     int idx = 0;
     for (size_t i = 0; i < t_line.size(); i += SUDOKU_9) {
         const auto row = t_line.substr(i, SUDOKU_9);
         for (const auto &c : row) {
             const auto num = static_cast<CELL_SZ>(c - '0');
-            assert(num <= 9);
             setValue(idx, num);
             idx++;
         }

@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------------------ #
 
 cmake_minimum_required(VERSION 3.30)
-set(PROJECT_NAME "CUDA_sudoku")
+set(PROJECT_NAME "sudoku")
 
 set(MAIN ${PROJECT_NAME})
 set(TEST ${PROJECT_NAME}_test)
