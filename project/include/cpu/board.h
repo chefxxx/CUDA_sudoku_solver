@@ -38,6 +38,8 @@ struct BoardConstraints
     uint16_t rows[SUDOKU_SIZE];
     uint16_t cols[SUDOKU_SIZE];
 
+    bool isValid = true;
+
     explicit BoardConstraints(const std::vector<CELL_TYPE> &t_numbers);
     [[nodiscard]] static std::tuple<int, int, int> getConstraintsIndexes(int t_BoardIdx);
 };

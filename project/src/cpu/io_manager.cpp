@@ -25,18 +25,17 @@ std::vector<std::string> readInput(const std::string &t_inputFileName, const int
     int                      readIdx = 0;
     while (std::getline(inputFile, line) && readIdx < t_count) {
         if (line.size() != SUDOKU_SIZE * SUDOKU_SIZE) {
-            spdlog::warn("readInput() - LINE:{} has inconsistent number of entries!", lineIdx);
+            spdlog::warn("readInput() - Inconsistent number of characters in the line {}!", lineIdx);
             --readIdx; // this way we ensure to read "count" number of sudoku boards
         }
         else {
+            line = std::to_string(lineIdx) + " " + line;
             lines.push_back(line);
             ++readIdx;
         }
         lineIdx++;
     }
-    if (static_cast<int>(lines.size()) < t_count)
-        spdlog::warn("readInput() - Input file contains just {} line(s) that have proper length out of {} to be read.",
-                     lines.size(),
-                     t_count);
+    if (lineIdx < t_count)
+        spdlog::warn("readInput() - Input file contains too few encoded boards!");
     return lines;
 }

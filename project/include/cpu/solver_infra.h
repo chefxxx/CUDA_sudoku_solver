@@ -11,6 +11,6 @@
 #include "board.h"
 
 std::vector<BoardConstraints>         createBoardsConstraintsSerial(const std::vector<std::string> &t_encodedBoards);
-std::optional<std::vector<CELL_TYPE>> convertLineToNumbers(std::string_view t_line);
+std::optional<std::vector<CELL_TYPE>> convertLineToNumbers(std::string_view t_line, std::string_view t_lineNumber);
 
 #endif // CUDA_SUDOKU_SOLVER_H

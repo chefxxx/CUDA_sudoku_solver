@@ -67,6 +67,8 @@ BoardConstraints::BoardConstraints(const std::vector<CELL_TYPE> &t_numbers)
         const auto num                  = t_numbers[i];
         auto [rowIdx, colIdx, squareIdx] = getConstraintsIndexes(i);
         if (num > 0) {
+            if (checkBitAtIdx(rows[rowIdx], num) || checkBitAtIdx(cols[colIdx], num) || checkBitAtIdx(squares[squareIdx], num))
+                isValid = false;
             setBitAtIdx(rows[rowIdx], num);
             setBitAtIdx(cols[colIdx], num);
             setBitAtIdx(squares[squareIdx], num);
