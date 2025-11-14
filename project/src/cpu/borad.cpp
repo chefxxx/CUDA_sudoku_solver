@@ -2,7 +2,6 @@
 // Created by chefxx on 13.11.2025.
 //
 
-#include <cassert>
 #include <iostream>
 
 #include "board.h"
@@ -10,31 +9,31 @@
 Board::Board(const std::string_view t_line)
 {
     int idx = 0;
-    for (size_t i = 0; i < t_line.size(); i += SUDOKU_9) {
-        const auto row = t_line.substr(i, SUDOKU_9);
+    for (size_t i = 0; i < t_line.size(); i += SUDOKU_SIZE) {
+        const auto row = t_line.substr(i, SUDOKU_SIZE);
         for (const auto &c : row) {
-            const auto num = static_cast<CELL_SZ>(c - '0');
+            const auto num = static_cast<CELL_TYPE>(c - '0');
             setValue(idx, num);
             idx++;
         }
     }
 }
 
-void Board::setValue(const int t_idx, const CELL_SZ t_num)
+void Board::setValue(const int t_idx, const CELL_TYPE t_num)
 {
-    const int     offset        = t_idx << 2;
-    const int     arrayIdx      = offset >> 5;
-    const int     inArrayOffset = offset % 32;
-    const CELL_SZ mask          = t_num << inArrayOffset;
+    const int     offset        = t_idx << OFFSET_BITS_LOG2;
+    const int     arrayIdx      = offset >> CELL_BITS_LOG2;
+    const int     inArrayOffset = offset % CELL_BITS_LOG2;
+    const CELL_TYPE mask        = t_num << inArrayOffset;
     m_inside[arrayIdx] |= mask;
 }
 
-CELL_SZ Board::getValue(const int t_idx) const
+CELL_TYPE Board::getValue(const int t_idx) const
 {
-    const int offset        = t_idx << 2;
-    const int arrayIdx      = offset >> 5;
-    const int inArrayOffset = offset % 32;
-    CELL_SZ   value         = m_inside[arrayIdx];
+    const int offset        = t_idx << OFFSET_BITS_LOG2;
+    const int arrayIdx      = offset >> CELL_BITS_LOG2;
+    const int inArrayOffset = offset % CELL_BITS_SZ;
+    CELL_TYPE   value       = m_inside[arrayIdx];
     value                   = value >> inArrayOffset & 0xF;
     return value;
 }

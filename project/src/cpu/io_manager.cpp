@@ -20,19 +20,21 @@ std::vector<std::string> readInput(const std::string &t_inputFileName, const int
 
     std::vector<std::string> lines;
     std::string              line;
-    int                      line_idx = 0;
-    while (std::getline(inputFile, line) && line_idx < t_count) {
-        if (line.size() != SUDOKU_9 * SUDOKU_9) {
-            std::cerr << "WARNING: readInput() - Line has inconsistent number of entries!\n";
-            --line_idx; // this way we ensure to read "count" number of sudoku boards
+    int                      lineIdx = 1;
+    int                      readIdx = 0;
+    while (std::getline(inputFile, line) && readIdx < t_count) {
+        if (line.size() != SUDOKU_SIZE * SUDOKU_SIZE) {
+            std::cerr << "WARNING: readInput() - LINE:" << lineIdx << " has inconsistent number of entries!\n";
+            --readIdx; // this way we ensure to read "count" number of sudoku boards
         }
         else {
             lines.push_back(line);
-            ++line_idx;
+            ++readIdx;
         }
+        lineIdx++;
     }
     if (static_cast<int>(lines.size()) < t_count)
-        std::cerr << "WARNING: Input file contains just " << lines.size() << " valid line(s) out of " << t_count
+        std::cerr << "WARNING: readInput() - Input file contains just " << lines.size() << " valid line(s) out of " << t_count
                   << " to be read..\n";
     return lines;
 }
