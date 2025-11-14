@@ -34,7 +34,7 @@ std::vector<std::string> readInput(const std::string &t_inputFileName, const int
         lineIdx++;
     }
     if (static_cast<int>(lines.size()) < t_count)
-        std::cerr << "WARNING: readInput() - Input file contains just " << lines.size() << " valid line(s) out of " << t_count
-                  << " to be read..\n";
+        std::cerr << "WARNING: readInput() - Input file contains just " << lines.size() << " valid line(s) out of "
+                  << t_count << " to be read..\n";
     return lines;
 }

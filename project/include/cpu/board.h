@@ -22,9 +22,9 @@ constexpr int OFFSET_BITS_LOG2 = 2;
 struct Board
 {
     // TODO: change so constructor takes std::vector<CELL_TYPE>
-    explicit  Board(std::string_view t_line);
-    void      setValue(int t_idx, CELL_TYPE t_num);
-    void      printBoard() const;
+    explicit Board(std::string_view t_line);
+    void                    setValue(int t_idx, CELL_TYPE t_num);
+    void                    printBoard() const;
     [[nodiscard]] CELL_TYPE getValue(int t_idx) const;
 
 private:

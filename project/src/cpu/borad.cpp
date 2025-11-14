@@ -3,8 +3,9 @@
 //
 
 #include <iostream>
-#include "board.h"
+
 #include "bit_operations.h"
+#include "board.h"
 
 Board::Board(const std::string_view t_line)
 {
@@ -21,10 +22,10 @@ Board::Board(const std::string_view t_line)
 
 void Board::setValue(const int t_idx, const CELL_TYPE t_num)
 {
-    const int     offset        = t_idx << OFFSET_BITS_LOG2;
-    const int     arrayIdx      = offset >> CELL_BITS_LOG2;
-    const int     inArrayOffset = offset % CELL_BITS_LOG2;
-    const CELL_TYPE mask        = t_num << inArrayOffset;
+    const int       offset        = t_idx << OFFSET_BITS_LOG2;
+    const int       arrayIdx      = offset >> CELL_BITS_LOG2;
+    const int       inArrayOffset = offset % CELL_BITS_LOG2;
+    const CELL_TYPE mask          = t_num << inArrayOffset;
     m_inside[arrayIdx] |= mask;
 }
 
@@ -33,7 +34,7 @@ CELL_TYPE Board::getValue(const int t_idx) const
     const int offset        = t_idx << OFFSET_BITS_LOG2;
     const int arrayIdx      = offset >> CELL_BITS_LOG2;
     const int inArrayOffset = offset % CELL_BITS_SZ;
-    CELL_TYPE   value       = m_inside[arrayIdx];
+    CELL_TYPE value         = m_inside[arrayIdx];
     value                   = value >> inArrayOffset & 0xF;
     return value;
 }
@@ -58,19 +59,23 @@ void Board::printBoard() const
 }
 
 BoardConstraints::BoardConstraints(const std::vector<CELL_TYPE> &t_numbers)
+    : squares{0}
+    , rows{0}
+    , cols{0}
 {
     for (int i = 0; i < SUDOKU_SIZE * SUDOKU_SIZE; ++i) {
-        const auto num = t_numbers[i];
+        const auto num                   = t_numbers[i];
         auto [rowIdx, colIdx, squareIdx] = getConstraintsIndexes(i);
         setBitAtIdx(rows[rowIdx], num);
-
+        setBitAtIdx(cols[colIdx], num);
+        setBitAtIdx(squares[squareIdx], num);
     }
 }
 
 std::tuple<int, int, int> BoardConstraints::getConstraintsIndexes(const int t_BoardIdx)
 {
-    int rowIdx = t_BoardIdx / SUDOKU_SIZE;
-    int colIdx = t_BoardIdx % SUDOKU_SIZE;
+    int rowIdx    = t_BoardIdx / SUDOKU_SIZE;
+    int colIdx    = t_BoardIdx % SUDOKU_SIZE;
     int squareIdx = rowIdx / 3 * 3 + colIdx / 3;
     return std::make_tuple(rowIdx, colIdx, squareIdx);
 }
