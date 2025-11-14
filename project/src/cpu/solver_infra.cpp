@@ -2,11 +2,9 @@
 // Created by chefxx on 13.11.2025.
 //
 
-#include "solver_infra.h"
-
-#include <cassert>
-#include <iostream>
 #include <spdlog/spdlog.h>
+
+#include "solver_infra.h"
 
 std::vector<BoardConstraints> createBoardsConstraintsSerial(const std::vector<std::string> &t_encodedBoards)
 {

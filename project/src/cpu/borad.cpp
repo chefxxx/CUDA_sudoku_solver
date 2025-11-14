@@ -66,9 +66,11 @@ BoardConstraints::BoardConstraints(const std::vector<CELL_TYPE> &t_numbers)
     for (int i = 0; i < SUDOKU_SIZE * SUDOKU_SIZE; ++i) {
         const auto num                   = t_numbers[i];
         auto [rowIdx, colIdx, squareIdx] = getConstraintsIndexes(i);
-        setBitAtIdx(rows[rowIdx], num);
-        setBitAtIdx(cols[colIdx], num);
-        setBitAtIdx(squares[squareIdx], num);
+        if (num > 0) {
+            setBitAtIdx(rows[rowIdx], num);
+            setBitAtIdx(cols[colIdx], num);
+            setBitAtIdx(squares[squareIdx], num);
+        }
     }
 }
 
