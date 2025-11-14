@@ -18,7 +18,7 @@ int main(const int argc, const char **argv) {
     if (argc < 5)
         usage(argv[0]);
     const std::string method = argv[1];
-    if (method.compare("gpu") != 0 && method.compare("cpu") != 0)
+    if (method != "gpu" && method != "cpu")
         usage(argv[0]);
     const int count = std::stoi(argv[2]);
     if (count < 1)

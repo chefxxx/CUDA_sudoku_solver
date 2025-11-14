@@ -3,8 +3,8 @@
 //
 
 #include <iostream>
-
 #include "board.h"
+#include "bit_operations.h"
 
 Board::Board(const std::string_view t_line)
 {
@@ -54,6 +54,16 @@ void Board::printBoard() const
             std::cout << " |\n";
         if ((i + 1) % 27 == 0)
             std::cout << row;
+    }
+}
+
+BoardConstraints::BoardConstraints(const std::vector<CELL_TYPE> &t_numbers)
+{
+    for (int i = 0; i < SUDOKU_SIZE * SUDOKU_SIZE; ++i) {
+        const auto num = t_numbers[i];
+        auto [rowIdx, colIdx, squareIdx] = getConstraintsIndexes(i);
+        setBitAtIdx(rows[rowIdx], num);
+
     }
 }
 
