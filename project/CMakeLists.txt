@@ -28,7 +28,7 @@ target_include_directories(${CUDA_LIB} PUBLIC
         "${CMAKE_CURRENT_SOURCE_DIR}/include/cuda_utils"
 )
 
-target_link_libraries(${CUDA_LIB} INTERFACE spdlog::spdlog)
+target_link_libraries(${CUDA_LIB} PUBLIC spdlog::spdlog)
 
 # When this property is ON, CMake passes the '-dc' flag to nvcc, which compiles
 # each CUDA source file into relocatable device code. This allows device functions
@@ -51,7 +51,7 @@ message("Loading CXX library...")
 add_library(${CPU_LIB} STATIC ${CXX_SOURCES})
 target_include_directories(${CPU_LIB} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include/cpu")
 
-target_link_libraries(${CPU_LIB} INTERFACE spdlog::spdlog)
+target_link_libraries(${CPU_LIB} PUBLIC spdlog::spdlog)
 
 # ------------------------------------------------------------------------------ #
 # Define executable #

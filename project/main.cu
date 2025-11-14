@@ -1,13 +1,13 @@
-#include <cassert>
 #include <iostream>
 
 #include "board.h"
 #include "io_manager.h"
 #include "solver_infra.h"
+#include "spdlog/spdlog.h"
 
-void usage(const std::string &pname)
+void usage()
 {
-    std::cerr << "USAGE: " << pname << "<method> <count> <input.txt> <output.txt>\n";
+    std::cerr << "USAGE: ./sudoku <method> <count> <input.txt> <output.txt>\n";
     exit(EXIT_FAILURE);
 }
 
@@ -16,13 +16,13 @@ int main(const int argc, const char **argv) {
     // Read arguments
     // --------------
     if (argc < 5)
-        usage(argv[0]);
+        usage();
     const std::string method = argv[1];
     if (method != "gpu" && method != "cpu")
-        usage(argv[0]);
+        usage();
     const int count = std::stoi(argv[2]);
     if (count < 1)
-        usage(argv[0]);
+        usage();
     const std::string inputFileName = argv[3];
     const std::string outputFileName = argv[4];
 
@@ -35,7 +35,6 @@ int main(const int argc, const char **argv) {
     // Create boards on CPU
     // --------------------
     const auto boards = createBoardsConstraintsSerial(encodedBoards);
-    std::cout << "INFO: Created " << boards.size() << " out of " << count << " boards.\n";
-
+    spdlog::info("Created {} out of {} boards.", boards.size(), count);
     return EXIT_SUCCESS;
 }

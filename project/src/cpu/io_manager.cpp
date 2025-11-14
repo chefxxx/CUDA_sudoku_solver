@@ -7,6 +7,7 @@
 #include <cassert>
 #include <fstream>
 #include <iostream>
+#include <spdlog/spdlog.h>
 
 #include "board.h"
 
@@ -14,7 +15,7 @@ std::vector<std::string> readInput(const std::string &t_inputFileName, const int
 {
     std::ifstream inputFile(t_inputFileName);
     if (!inputFile.is_open()) {
-        std::cerr << "ERROR: Could not open file " << t_inputFileName << '\n';
+        spdlog::error("Could not open the file {}", t_inputFileName);
         exit(EXIT_FAILURE);
     }
 
@@ -24,7 +25,7 @@ std::vector<std::string> readInput(const std::string &t_inputFileName, const int
     int                      readIdx = 0;
     while (std::getline(inputFile, line) && readIdx < t_count) {
         if (line.size() != SUDOKU_SIZE * SUDOKU_SIZE) {
-            std::cerr << "WARNING: readInput() - LINE:" << lineIdx << " has inconsistent number of entries!\n";
+            spdlog::warn("readInput() - LINE:{} has inconsistent number of entries!", lineIdx);
             --readIdx; // this way we ensure to read "count" number of sudoku boards
         }
         else {
@@ -34,7 +35,8 @@ std::vector<std::string> readInput(const std::string &t_inputFileName, const int
         lineIdx++;
     }
     if (static_cast<int>(lines.size()) < t_count)
-        std::cerr << "WARNING: readInput() - Input file contains just " << lines.size() << " line(s) that contain proper lenght out of "
-                  << t_count << " to be read.\n";
+        spdlog::warn("readInput() - Input file contains just {} line(s) that have proper length out of {} to be read.",
+                     lines.size(),
+                     t_count);
     return lines;
 }

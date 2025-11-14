@@ -6,6 +6,7 @@
 
 #include <cassert>
 #include <iostream>
+#include <spdlog/spdlog.h>
 
 std::vector<BoardConstraints> createBoardsConstraintsSerial(const std::vector<std::string> &t_encodedBoards)
 {
@@ -25,7 +26,7 @@ std::optional<std::vector<CELL_TYPE>> convertLineToNumbers(const std::string_vie
     for (const auto &c : t_line) {
         const auto num = c - '0';
         if (num < 0 || num > 9) {
-            std::cerr << "ERROR: convertLineToNumbers() - some line contains not valid character!\n";
+            spdlog::error("convertLineToNumbers() - Some line contains not valid character!");
             return std::nullopt;
         }
         numbers.emplace_back(num);
