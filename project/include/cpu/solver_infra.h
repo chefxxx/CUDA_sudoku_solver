@@ -11,15 +11,16 @@
 #include "board.h"
 
 std::optional<std::vector<CELL_TYPE>> convertLineToNumbers(std::string_view t_line);
-std::tuple<std::vector<CELL_TYPE>, std::vector<uint16_t>, int> convertAndAlignSerial(const std::vector<std::string> &t_encodedBoards);
-void saveConstraintsToBuffer(uint16_t         *t_buff,
+std::tuple<std::vector<CELL_TYPE>, std::vector<uint16_t>, int>
+     convertAndAlignSerial(const std::vector<std::string> &t_encodedBoards);
+void saveConstraintsToBuffer(uint16_t               *t_buff,
                              size_t                  t_constraintOffset,
                              size_t                  t_boardsSize,
                              size_t                  t_globalIdx,
                              const BoardConstraints &t_currConstraints);
 void createAndSaveBoardToBuffer(CELL_TYPE                    *t_buff,
-                               size_t                        t_boardsSize,
-                               size_t                        t_globalIdx,
-                               const std::vector<CELL_TYPE> &t_values);
+                                size_t                        t_boardsSize,
+                                size_t                        t_globalIdx,
+                                const std::vector<CELL_TYPE> &t_values);
 
 #endif // CUDA_SUDOKU_SOLVER_H

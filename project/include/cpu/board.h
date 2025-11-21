@@ -7,7 +7,6 @@
 
 #include <array>
 #include <cstdint>
-#include <string>
 #include <tuple>
 #include <vector>
 
@@ -32,10 +31,9 @@ struct Board
 
 constexpr int CONSTRAINTS_N = 3;
 
-enum constraints_indexes
-{
-    row = 0,
-    col = 1,
+enum constraints_indexes {
+    row    = 0,
+    col    = 1,
     square = 2,
 };
 
