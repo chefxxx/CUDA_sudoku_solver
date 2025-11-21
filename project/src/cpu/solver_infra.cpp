@@ -3,7 +3,7 @@
 //
 
 #include "solver_infra.h"
-
+#include "io_manager.h"
 #include "spdlog_macros.h"
 
 std::optional<std::vector<CELL_TYPE>> convertLineToNumbers(const std::string_view t_line)
@@ -70,4 +70,15 @@ void createAndSaveBoardToBuffer(CELL_TYPE                    *t_buff,
     for (int i = 0; i < SUDOKU_BITPACK_N; ++i) {
         t_buff[t_globalIdx + i * t_boardsSize] = tmpB.inside[i];
     }
+}
+
+void solve(const std::string_view t_method, const std::string_view t_inputFileName, const int t_count)
+{
+    if (t_method == "cpu")
+        return;
+
+    // ---------------------
+    // Read boards from file
+    // ---------------------
+    const auto encodedBoards = readInput(t_inputFileName, t_count);
 }

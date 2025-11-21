@@ -1,9 +1,5 @@
 #include <iostream>
-
-#include "board.h"
-#include "io_manager.h"
 #include "solver_infra.h"
-#include "spdlog/spdlog.h"
 
 void usage()
 {
@@ -26,15 +22,9 @@ int main(const int argc, const char **argv) {
     const std::string inputFileName = argv[3];
     const std::string outputFileName = argv[4];
 
-    // ------------------------------
-    // Divide input file into strings
-    // ------------------------------
-    const auto encodedBoards = readInput(inputFileName, count);
-
-    // --------------------
-    // Create boards on CPU
-    // --------------------
-
-
+    // ----------
+    // Run solver
+    // ----------
+    solve(method, inputFileName, count);
     return EXIT_SUCCESS;
 }
