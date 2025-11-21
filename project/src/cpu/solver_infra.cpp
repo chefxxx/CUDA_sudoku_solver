@@ -74,6 +74,7 @@ void createAndSaveBoardToBuffer(CELL_TYPE                    *t_buff,
 
 void solve(const std::string_view t_method, const std::string_view t_inputFileName, const int t_count)
 {
+    // TODO: CPU solver
     if (t_method == "cpu")
         return;
 
