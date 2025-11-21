@@ -29,9 +29,9 @@ class BoardConstraintsTest : public testing::Test
     const std::string boardStr = "000260701680070090190004500820100040004602900050003028009300074040050036703018000";
 
 protected:
-    BoardConstraints m_constraints;
+    BoardConstraints boradC;
     BoardConstraintsTest()
-        : m_constraints(convertLineToNumbers(boardStr).value())
+        : boradC(convertLineToNumbers(boardStr).value())
     {
     }
 };
@@ -75,7 +75,7 @@ TEST_F(BoardConstraintsTest, areRowConstraintsValid)
     };
 
     for (int i = 0; i < SUDOKU_SIZE; ++i) {
-        EXPECT_EQ(std::bitset<16>(m_constraints.rows[i]), expectedRows[i]) << "Row " << i << " failed";
+        EXPECT_EQ(std::bitset<16>(boradC.constraints[row][i]), expectedRows[i]) << "Row " << i << " failed";
     }
 }
 
@@ -97,6 +97,6 @@ TEST_F(BoardConstraintsTest, areColConstraintsValid)
     };
 
     for (int i = 0; i < SUDOKU_SIZE; ++i) {
-        EXPECT_EQ(std::bitset<16>(m_constraints.cols[i]), expectedCols[i]) << "Column " << i << " failed";
+        EXPECT_EQ(std::bitset<16>(boradC.constraints[col][i]), expectedCols[i]) << "Column " << i << " failed";
     }
 }
