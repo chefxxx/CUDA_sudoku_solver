@@ -35,19 +35,36 @@ std::tuple<std::vector<CELL_TYPE>, std::vector<uint16_t>, int> convertAndAlignSe
             else {
                 // save constraints to buffer
                 const size_t offset = t_encodedBoards.size() * SUDOKU_SIZE;
-                for (int i = 0; i < CONSTRAINTS_N; ++i) {
-                    for (int k = 0; k < SUDOKU_SIZE; ++k) {
-                        globalConstraints[globalIdx + i * offset + k * t_encodedBoards.size()] = tmpC.constraints[i][k];
-                    }
-                }
+                saveConstraintsToBuffer(globalConstraints.data(), offset, t_encodedBoards.size(), globalIdx, tmpC);
+
                 // create board and save it to buffer
-                const Board tmpB(values.value());
-                for (int i = 0; i < SUDOKU_BITPACK_N; ++i) {
-                    globalBoards[globalIdx + i * t_encodedBoards.size()] = tmpB.inside[i];
-                }
+                createAndSaveBoardToBuffer(globalBoards.data(), t_encodedBoards.size(), globalIdx, values.value());
                 globalIdx++;
             }
         }
     }
     return std::make_tuple(globalBoards, globalConstraints, globalIdx);
+}
+
+void saveConstraintsToBuffer(uint16_t               *t_buff,
+                             const size_t            t_constraintOffset,
+                             const size_t            t_boardsSize,
+                             const size_t            t_globalIdx,
+                             const BoardConstraints &t_currConstraints)
+{
+    for (int i = 0; i < CONSTRAINTS_N; ++i) {
+        for (int k = 0; k < SUDOKU_SIZE; ++k) {
+            t_buff[t_globalIdx + i * t_constraintOffset + k * t_boardsSize] = t_currConstraints.constraints[i][k];
+        }
+    }
+}
+void createAndSaveBoardToBuffer(CELL_TYPE                    *t_buff,
+                       const size_t                  t_boardsSize,
+                       const size_t                  t_globalIdx,
+                       const std::vector<CELL_TYPE> &t_values)
+{
+    const Board tmpB(t_values);
+    for (int i = 0; i < SUDOKU_BITPACK_N; ++i) {
+        t_buff[t_globalIdx + i * t_boardsSize] = tmpB.inside[i];
+    }
 }
