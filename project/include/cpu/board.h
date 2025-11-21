@@ -13,6 +13,7 @@
 
 constexpr int SUDOKU_BITPACK_N = 11;
 constexpr int SUDOKU_SIZE      = 9;
+constexpr int SUDOKU_OFFSET    = 81;
 using CELL_TYPE                = uint32_t;
 constexpr int CELL_BITS_SZ     = sizeof(CELL_TYPE) * 8;
 constexpr int CELL_BITS_LOG2   = 5;
@@ -26,8 +27,14 @@ struct Board
     void                    printBoard() const;
     [[nodiscard]] CELL_TYPE getValue(int t_idx) const;
 
-private:
-    std::array<CELL_TYPE, SUDOKU_BITPACK_N> m_inside{0};
+    std::array<CELL_TYPE, SUDOKU_BITPACK_N> inside{0};
+};
+
+enum class constraints
+{
+    row = 0,
+    col = 1,
+    square = 2,
 };
 
 struct BoardConstraints
@@ -35,6 +42,8 @@ struct BoardConstraints
     uint16_t squares[SUDOKU_SIZE];
     uint16_t rows[SUDOKU_SIZE];
     uint16_t cols[SUDOKU_SIZE];
+
+    std::array<std::array<uint16_t, SUDOKU_SIZE>, 3> constraints;
 
     bool isValid = true;
 

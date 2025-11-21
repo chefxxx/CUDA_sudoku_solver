@@ -12,20 +12,20 @@ namespace myLog {
 
 inline void warn(std::string_view msg, const std::source_location loc = std::source_location::current())
 {
-    spdlog::warn("{}:{} {}", loc.file_name(), loc.line(),msg);
+    spdlog::warn("{}:{} {}", loc.file_name(), loc.line(), msg);
 }
 
 inline void err(std::string_view msg, const std::source_location loc = std::source_location::current())
 {
-    spdlog::error("{}:{} {}", loc.file_name(), loc.line(),msg);
+    spdlog::error("{}:{} {}", loc.file_name(), loc.line(), msg);
 }
 
 inline void info(std::string_view msg, const std::source_location loc = std::source_location::current())
 {
-    spdlog::info("{}:{} {}", loc.file_name(), loc.line(),msg);
+    spdlog::info("{}:{} {}", loc.file_name(), loc.line(), msg);
 }
 
-}
+} // namespace myLog
 
 
 #endif // SUDOKU_SPDLOG_MACROS_H

@@ -9,7 +9,7 @@
 
 Board::Board(const std::vector<CELL_TYPE> &t_numbers)
 {
-    for (int i = 0 ; i < SUDOKU_SIZE * SUDOKU_SIZE; ++i) {
+    for (int i = 0; i < SUDOKU_SIZE * SUDOKU_SIZE; ++i) {
         setValue(i, t_numbers[i]);
     }
 }
