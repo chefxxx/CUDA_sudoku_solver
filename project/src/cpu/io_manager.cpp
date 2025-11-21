@@ -6,36 +6,40 @@
 
 #include <cassert>
 #include <fstream>
-#include <iostream>
-#include <spdlog/spdlog.h>
+#include "spdlog_macros.h"
 
 #include "board.h"
 
 std::vector<std::string> readInput(const std::string &t_inputFileName, const int t_count)
 {
-    std::ifstream inputFile(t_inputFileName);
-    if (!inputFile.is_open()) {
-        spdlog::error("Could not open the file {}", t_inputFileName);
+    char *line = nullptr;
+    size_t len = 0;
+    ssize_t read;
+
+    FILE *fp = fopen(t_inputFileName.c_str(), "r");
+    if (fp == nullptr) {
+        myLog::err("Could not open the file " + t_inputFileName + "!");
         exit(EXIT_FAILURE);
     }
 
     std::vector<std::string> lines;
-    std::string              line;
-    int                      lineIdx = 1;
-    int                      readIdx = 0;
-    while (std::getline(inputFile, line) && readIdx < t_count) {
-        if (line.size() != SUDOKU_SIZE * SUDOKU_SIZE) {
-            spdlog::warn("readInput() - Inconsistent number of characters in the line {}!", lineIdx);
-            --readIdx; // this way we ensure to read "count" number of sudoku boards
-        }
-        else {
-            line = std::to_string(lineIdx) + " " + line;
-            lines.push_back(line);
-            ++readIdx;
-        }
-        lineIdx++;
+    int lineIdx = 1;
+    int readIdx = 0;
+    while ((read = getline(&line, &len, fp)) != -1 && readIdx < t_count - 1) {
+       if (read != SUDOKU_SIZE * SUDOKU_SIZE) {
+           myLog::warn("Wrong number of characters in line " + std::to_string(lineIdx) + " of the input file!");
+       }
+       else {
+           lines.emplace_back(line);
+           ++readIdx;
+       }
+        ++lineIdx;
     }
-    if (lineIdx < t_count)
-        spdlog::warn("readInput() - Input file contains too few encoded boards!");
+    fclose(fp);
+    if (line)
+        free(line);
+    if (readIdx < t_count - 1) {
+        myLog::warn("Too few valid lines in the input file!");
+    }
     return lines;
 }
