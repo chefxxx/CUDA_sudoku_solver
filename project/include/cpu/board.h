@@ -27,10 +27,10 @@ struct Board
     void                    printBoard() const;
     [[nodiscard]] CELL_TYPE getValue(int t_idx) const;
 
-    std::array<CELL_TYPE, SUDOKU_BITPACK_N> inside{0};
+    std::array<CELL_TYPE, SUDOKU_BITPACK_N> inside{};
 };
 
-enum class constraints
+enum constraints_indexes
 {
     row = 0,
     col = 1,
@@ -39,11 +39,7 @@ enum class constraints
 
 struct BoardConstraints
 {
-    uint16_t squares[SUDOKU_SIZE];
-    uint16_t rows[SUDOKU_SIZE];
-    uint16_t cols[SUDOKU_SIZE];
-
-    std::array<std::array<uint16_t, SUDOKU_SIZE>, 3> constraints;
+    std::array<std::array<uint16_t, SUDOKU_SIZE>, 3> constraints{{{}, {}, {}}};
 
     bool isValid = true;
 

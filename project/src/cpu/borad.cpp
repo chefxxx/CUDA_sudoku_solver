@@ -20,7 +20,7 @@ void Board::setValue(const int t_idx, const CELL_TYPE t_num)
     const int       arrayIdx      = offset >> CELL_BITS_LOG2;
     const int       inArrayOffset = offset % CELL_BITS_LOG2;
     const CELL_TYPE mask          = t_num << inArrayOffset;
-    m_inside[arrayIdx] |= mask;
+    inside[arrayIdx] |= mask;
 }
 
 CELL_TYPE Board::getValue(const int t_idx) const
@@ -28,7 +28,7 @@ CELL_TYPE Board::getValue(const int t_idx) const
     const int offset        = t_idx << OFFSET_BITS_LOG2;
     const int arrayIdx      = offset >> CELL_BITS_LOG2;
     const int inArrayOffset = offset % CELL_BITS_SZ;
-    CELL_TYPE value         = m_inside[arrayIdx];
+    CELL_TYPE value         = inside[arrayIdx];
     value                   = value >> inArrayOffset & 0xF;
     return value;
 }
@@ -53,20 +53,17 @@ void Board::printBoard() const
 }
 
 BoardConstraints::BoardConstraints(const std::vector<CELL_TYPE> &t_numbers)
-    : squares{0}
-    , rows{0}
-    , cols{0}
 {
     for (int i = 0; i < SUDOKU_SIZE * SUDOKU_SIZE; ++i) {
-        const auto num                   = t_numbers[i];
+        const auto num                  = t_numbers[i];
         auto [rowIdx, colIdx, squareIdx] = getConstraintsIndexes(i);
         if (num > 0) {
-            if (checkBitAtIdx(rows[rowIdx], num) || checkBitAtIdx(cols[colIdx], num)
-                || checkBitAtIdx(squares[squareIdx], num))
+            if (checkBitAtIdx(constraints[row][rowIdx], num) || checkBitAtIdx(constraints[col][colIdx], num)
+                || checkBitAtIdx(constraints[square][squareIdx], num))
                 isValid = false;
-            setBitAtIdx(rows[rowIdx], num);
-            setBitAtIdx(cols[colIdx], num);
-            setBitAtIdx(squares[squareIdx], num);
+            setBitAtIdx(constraints[row][rowIdx], num);
+            setBitAtIdx(constraints[col][colIdx], num);
+            setBitAtIdx(constraints[square][squareIdx], num);
         }
     }
 }
