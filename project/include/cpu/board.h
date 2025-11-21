@@ -30,6 +30,8 @@ struct Board
     std::array<CELL_TYPE, SUDOKU_BITPACK_N> inside{};
 };
 
+constexpr int CONSTRAINTS_N = 3;
+
 enum constraints_indexes
 {
     row = 0,

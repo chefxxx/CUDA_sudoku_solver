@@ -23,7 +23,7 @@ std::tuple<std::vector<CELL_TYPE>, std::vector<uint16_t>, int> convertAndAlignSe
 {
     int globalIdx = 0;
     std::vector<CELL_TYPE> globalBoards(SUDOKU_BITPACK_N * t_encodedBoards.size(), 0);
-    std::vector<uint16_t> globalConstraints(3 * SUDOKU_SIZE * t_encodedBoards.size(), 0);
+    std::vector<uint16_t> globalConstraints(CONSTRAINTS_N * SUDOKU_SIZE * t_encodedBoards.size(), 0);
 
     for (const auto& board : t_encodedBoards) {
         const auto values = convertLineToNumbers(board);
@@ -34,7 +34,12 @@ std::tuple<std::vector<CELL_TYPE>, std::vector<uint16_t>, int> convertAndAlignSe
             }
             else {
                 // save constraints to buffer
-
+                const size_t offset = t_encodedBoards.size() * SUDOKU_SIZE;
+                for (int i = 0; i < CONSTRAINTS_N; ++i) {
+                    for (int k = 0; k < SUDOKU_SIZE; ++k) {
+                        globalConstraints[globalIdx + i * offset + k * t_encodedBoards.size()] = tmpC.constraints[i][k];
+                    }
+                }
                 // create board and save it to buffer
                 const Board tmpB(values.value());
                 for (int i = 0; i < SUDOKU_BITPACK_N; ++i) {
