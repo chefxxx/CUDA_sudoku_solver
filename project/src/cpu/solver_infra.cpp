@@ -3,18 +3,20 @@
 //
 
 #include "solver_infra.h"
-#include "io_manager.h"
-#include "spdlog_macros.h"
-#include "memory_cuda.cuh"
 
-constexpr int MAX_GEN_BOARDS = 1048576;
+#include "io_manager.h"
+#include "memory_cuda.cuh"
+#include "spdlog_macros.h"
+
+constexpr int MAX_GEN_BOARDS  = 1048576;
+constexpr int MAX_GENERATIONS = 3;
 
 std::optional<std::vector<CELL_TYPE>> convertLineToNumbers(const std::string_view t_line)
 {
     std::vector<CELL_TYPE> numbers;
     // t_line has '\n' at the end, so we loop over first 81 elements
     for (int i = 0; i < SUDOKU_SIZE * SUDOKU_SIZE; ++i) {
-        const auto c = t_line[i];
+        const auto c   = t_line[i];
         const auto num = c - '0';
         if (num < 0 || num > 9) {
             myLog::warn(fmt::format("Not valid character {} found!", num));
@@ -91,19 +93,37 @@ void solve(const std::string_view t_method, const std::string_view t_inputFileNa
     // ---------------------
     // Create buffers on CPU
     // ---------------------
-    const auto [boardsBuff, constraintsBuff, createdNum] = convertAndAlignSerial(encodedBoards);
-    myLog::info(fmt::format("Created {} boards out of {}.", createdNum, t_count));
+    const auto [h_boardsBuff, h_constraintsBuff, h_createdNum] = convertAndAlignSerial(encodedBoards);
+    myLog::info(fmt::format("Created {} boards out of {}.", h_createdNum, t_count));
 
     // -------------------------------------------------------------------------------
-    // Allocate memory on GPU, then copy
+    // Allocate memory on GPU
     //
-    // MAX_GEN_BOARDS = 1048576
     // Preallocate big buffers in order to unique resizing when generating new boards.
     // Two buffers are used to read current boards and write new children.
     // -------------------------------------------------------------------------------
-    auto d_boardsBuff_A = cuda::make_unique<CELL_TYPE>(MAX_GEN_BOARDS * SUDOKU_BITPACK_N);
-    auto d_boardsBuff_B = cuda::make_unique<CELL_TYPE>(MAX_GEN_BOARDS * SUDOKU_BITPACK_N);
-    auto d_constraintsBuff_A = cuda::make_unique<uint16_t>(MAX_GEN_BOARDS * CONSTRAINTS_N * SUDOKU_SIZE);
-    auto d_constraintsBuff_B = cuda::make_unique<uint16_t>(MAX_GEN_BOARDS * CONSTRAINTS_N * SUDOKU_SIZE);
-    auto d_boardsInBuff = cuda::make_unique<int>();
+    myLog::info("Allocating GPU memory...");
+    const auto d_boardsBuff_A      = cuda::make_unique<CELL_TYPE>(MAX_GEN_BOARDS * SUDOKU_BITPACK_N);
+    const auto d_boardsBuff_B      = cuda::make_unique<CELL_TYPE>(MAX_GEN_BOARDS * SUDOKU_BITPACK_N);
+    const auto d_constraintsBuff_A = cuda::make_unique<uint16_t>(MAX_GEN_BOARDS * CONSTRAINTS_N * SUDOKU_SIZE);
+    const auto d_constraintsBuff_B = cuda::make_unique<uint16_t>(MAX_GEN_BOARDS * CONSTRAINTS_N * SUDOKU_SIZE);
+    const auto d_childrenCountBuff = cuda::make_unique<uint16_t>(MAX_GEN_BOARDS);
+    const auto d_BuffSize          = cuda::make_unique<int>();
+
+    // ------------------
+    // Copy memory to GPU
+    // ------------------
+    myLog::info("Copying data to GPU...");
+    const size_t generatedBoards_sz      = sizeof(CELL_TYPE) * h_boardsBuff.size();
+    const size_t generatedConstraints_sz = sizeof(uint16_t) * h_constraintsBuff.size();
+    checkCudaErrors(cudaMemcpy(d_boardsBuff_A.get(), h_boardsBuff.data(), generatedBoards_sz, cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMemcpy(
+        d_constraintsBuff_A.get(), h_constraintsBuff.data(), generatedConstraints_sz, cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMemcpy(d_BuffSize.get(), &h_createdNum, sizeof(int), cudaMemcpyHostToDevice));
+
+    // -----------------------
+    // Execute generation loop
+    // -----------------------
+    for (int i = 0; i < MAX_GENERATIONS; ++i) {
+    }
 }

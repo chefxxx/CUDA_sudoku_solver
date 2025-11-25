@@ -28,9 +28,9 @@ class BoardConstraintsTest : public testing::Test
 {
 public:
     const std::string boardStr = "000260701680070090190004500820100040004602900050003028009300074040050036703018000";
-    BoardConstraints boardC;
-protected:
+    BoardConstraints  boardC;
 
+protected:
     BoardConstraintsTest()
         : boardC(convertLineToNumbers(boardStr).value())
     {

@@ -16,7 +16,8 @@ public:
 
     std::vector<std::string> test1;
     std::vector<std::string> test2;
-    protected:
+
+protected:
     void SetUp() override
     {
         test1.push_back(boardStr1);
@@ -54,7 +55,8 @@ TEST_F(BufferTest, does_convertAndAlignSerial_PreserveConstraintsStructure)
     constexpr int secondOffset = 1;
     for (int i = 0; i < CONSTRAINTS_N; ++i) {
         for (int k = 0; k < SUDOKU_SIZE; ++k) {
-            ASSERT_EQ(expected.constraints[i][k], constraintsBuff[secondOffset + i * 3 * SUDOKU_SIZE + k * 3]) << fmt::format("Failed at i={}, k={}", i , k);
+            ASSERT_EQ(expected.constraints[i][k], constraintsBuff[secondOffset + i * 3 * SUDOKU_SIZE + k * 3])
+                << fmt::format("Failed at i={}, k={}", i, k);
         }
     }
 }
