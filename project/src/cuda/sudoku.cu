@@ -2,10 +2,10 @@
 // Created by chefxx on 25.11.2025.
 //
 
-#include "memory_cuda.cuh"
 #include "generate_boards.cuh"
-#include "solver_infra.h"
 #include "io_manager.h"
+#include "memory_cuda.cuh"
+#include "solver_infra.h"
 #include "spdlog_macros.h"
 
 constexpr int MAX_GEN_BOARDS  = 1048576;
@@ -60,5 +60,7 @@ void solve(const std::string_view t_method, const std::string_view t_inputFileNa
     for (int i = 0; i < MAX_GENERATIONS; ++i) {
         checkCudaErrors(cudaDeviceSynchronize());
         chooseChildren<<<1, 1>>>(d_boardsBuff_A.get(), d_constraintsBuff_A.get(), d_childrenCountBuff.get());
+        getLastCudaError("chooseChildren kernel failed!");
+        checkCudaErrors(cudaDeviceSynchronize());
     }
 }

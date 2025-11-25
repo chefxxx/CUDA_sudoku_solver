@@ -15,9 +15,7 @@ message("Loading CUDA library...")
 
 add_library(${CUDA_LIB} STATIC ${CUDA_SOURCES})
 
-if (NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
-    set(CMAKE_CUDA_ARCHITECTURES 60 61)
-endif ()
+set(CMAKE_CUDA_ARCHITECTURES 60 61)
 
 # CUDA Architecture setting
 set_property(TARGET ${CUDA_LIB} PROPERTY CUDA_ARCHITECTURES ${CMAKE_CUDA_ARCHITECTURES})
@@ -28,7 +26,7 @@ target_include_directories(${CUDA_LIB} PUBLIC
         "${CMAKE_CURRENT_SOURCE_DIR}/include/cuda_utils"
 )
 
-target_link_libraries(${CUDA_LIB} PUBLIC spdlog::spdlog CUDA::cudart ${CPU_LIB})
+target_link_libraries(${CUDA_LIB} PUBLIC CUDA::cudart ${CPU_LIB})
 
 # When this property is ON, CMake passes the '-dc' flag to nvcc, which compiles
 # each CUDA source file into relocatable device code. This allows device functions

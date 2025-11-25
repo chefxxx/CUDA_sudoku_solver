@@ -1,5 +1,7 @@
 #include <iostream>
 #include "sudoku.cuh"
+#include "generate_boards.cuh"
+#include "helper_cuda.h"
 
 void usage()
 {
@@ -26,5 +28,6 @@ int main(const int argc, const char **argv) {
     // Run solver
     // ----------
     solve(method, inputFileName, count);
+
     return EXIT_SUCCESS;
 }
