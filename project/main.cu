@@ -1,5 +1,5 @@
 #include <iostream>
-#include "solver_infra.h"
+#include "sudoku.cuh"
 
 void usage()
 {

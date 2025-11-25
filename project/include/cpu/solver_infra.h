@@ -23,6 +23,5 @@ void createAndSaveBoardToBuffer(CELL_TYPE                    *t_buff,
                                 size_t                        t_boardsSize,
                                 size_t                        t_globalIdx,
                                 const std::vector<CELL_TYPE> &t_values);
-void solve(std::string_view t_method, std::string_view t_inputFileName, int t_count);
 
 #endif // CUDA_SUDOKU_SOLVER_H
