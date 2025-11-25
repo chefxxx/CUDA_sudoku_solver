@@ -5,8 +5,8 @@
 #include <bitset>
 #include <gtest/gtest.h>
 
+#include "../project/include/cuda/solver_infra.cuh"
 #include "board.h"
-#include "solver_infra.h"
 
 /**
  * @brief This test checks whether row constraints are set properly.

@@ -2,8 +2,11 @@
 // Created by chefxx on 13.11.2025.
 //
 
+#include <optional>
+
+#include "solver_infra.cuh"
+#include "board_infra.cuh"
 #include "spdlog_macros.h"
-#include "solver_infra.h"
 
 std::optional<std::vector<CELL_TYPE>> convertLineToNumbers(const std::string_view t_line)
 {

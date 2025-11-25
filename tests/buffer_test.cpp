@@ -4,7 +4,7 @@
 
 #include <gtest/gtest.h>
 
-#include "solver_infra.h"
+#include "../project/include/cuda/solver_infra.cuh"
 #include "spdlog/fmt/bundled/ranges.h"
 
 class BufferTest : public ::testing::Test

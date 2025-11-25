@@ -26,7 +26,7 @@ target_include_directories(${CUDA_LIB} PUBLIC
         "${CMAKE_CURRENT_SOURCE_DIR}/include/cuda_utils"
 )
 
-target_link_libraries(${CUDA_LIB} PUBLIC CUDA::cudart ${CPU_LIB})
+target_link_libraries(${CUDA_LIB} PUBLIC CUDA::cudart ${HOST_LIB})
 
 # When this property is ON, CMake passes the '-dc' flag to nvcc, which compiles
 # each CUDA source file into relocatable device code. This allows device functions
@@ -46,10 +46,9 @@ set_target_properties(${CUDA_LIB} PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
 message("Loading CXX library...")
 
-add_library(${CPU_LIB} STATIC ${CXX_SOURCES})
-target_include_directories(${CPU_LIB} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include/cpu")
-
-target_link_libraries(${CPU_LIB} PUBLIC spdlog::spdlog)
+add_library(${HOST_LIB} STATIC ${CXX_SOURCES})
+target_include_directories(${HOST_LIB} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include/cpu")
+target_link_libraries(${HOST_LIB} PUBLIC spdlog::spdlog)
 
 # ------------------------------------------------------------------------------ #
 # Define executable #
@@ -60,7 +59,7 @@ add_executable(${MAIN} main.cu)
 # The main executable also launches CUDA kernels and may contain
 # device code, so we enable separable compilation here as well.
 set_target_properties(${MAIN} PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
-target_link_libraries(${MAIN} PRIVATE ${CUDA_LIB} ${CPU_LIB})
+target_link_libraries(${MAIN} PUBLIC ${CUDA_LIB})
 
 # ------------------------------------------------------------------------------ #
 # Compilation settings #
@@ -84,7 +83,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     else ()
         message(FATAL_ERROR "Compiler " "${CXX_COMPILER_ID}" " is not supported.")
     endif ()
-    target_compile_options(${CPU_LIB} PRIVATE
+    target_compile_options(${HOST_LIB} PRIVATE
             $<$<CXX_COMPILER_ID:GNU>:-g -O0 -Wall -Wextra -pedantic -Wshadow -Wnon-virtual-dtor -Werror>
             $<$<CXX_COMPILER_ID:Clang>:-g -O0 -Wall -Wextra -pedantic -Wshadow -Wnon-virtual-dtor -Werror>
             $<$<CXX_COMPILER_ID:MSVC>:/W4>
@@ -111,7 +110,7 @@ elseif (CMAKE_BUILD_TYPE STREQUAL "Release")
     else ()
         message(FATAL_ERROR "Compiler " "${CXX_COMPILER_ID}" " is not supported.")
     endif ()
-    target_compile_options(${CPU_LIB} PRIVATE
+    target_compile_options(${HOST_LIB} PRIVATE
             $<$<CXX_COMPILER_ID:GNU>:-O3 -march=native -funroll-loops>
             $<$<CXX_COMPILER_ID:Clang>:-O3 -march=native -funroll-loops>
             $<$<CXX_COMPILER_ID:MSVC>:> 

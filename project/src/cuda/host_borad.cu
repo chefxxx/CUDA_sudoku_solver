@@ -4,34 +4,14 @@
 
 #include <iostream>
 
+#include "host_board.cuh"
 #include "bit_operations.h"
-#include "board.h"
 
-Board::Board(const std::vector<CELL_TYPE> &t_numbers)
-{
-    for (int i = 0; i < SUDOKU_SIZE * SUDOKU_SIZE; ++i) {
-        setValue(i, t_numbers[i]);
-    }
-}
+Board::Board(const std::vector<CELL_TYPE> &t_numbers) {}
 
-void Board::setValue(const int t_idx, const CELL_TYPE t_num)
-{
-    const int       offset        = t_idx << OFFSET_BITS_LOG2;
-    const int       arrayIdx      = offset >> CELL_BITS_LOG2;
-    const int       inArrayOffset = offset % CELL_BITS_LOG2;
-    const CELL_TYPE mask          = t_num << inArrayOffset;
-    inside[arrayIdx] |= mask;
-}
+void Board::setValue(const int t_idx, const CELL_TYPE t_num) {}
 
-CELL_TYPE Board::getValue(const int t_idx) const
-{
-    const int offset        = t_idx << OFFSET_BITS_LOG2;
-    const int arrayIdx      = offset >> CELL_BITS_LOG2;
-    const int inArrayOffset = offset % CELL_BITS_SZ;
-    CELL_TYPE value         = inside[arrayIdx];
-    value                   = value >> inArrayOffset & 0xF;
-    return value;
-}
+CELL_TYPE Board::getValue(const int t_idx) const {}
 
 void Board::printBoard() const
 {
@@ -68,10 +48,4 @@ BoardConstraints::BoardConstraints(const std::vector<CELL_TYPE> &t_numbers)
     }
 }
 
-std::tuple<int, int, int> BoardConstraints::getConstraintsIndexes(const int t_BoardIdx)
-{
-    int rowIdx    = t_BoardIdx / SUDOKU_SIZE;
-    int colIdx    = t_BoardIdx % SUDOKU_SIZE;
-    int squareIdx = rowIdx / 3 * 3 + colIdx / 3;
-    return std::make_tuple(rowIdx, colIdx, squareIdx);
-}
+std::tuple<int, int, int> BoardConstraints::getConstraintsIndexes(const int t_BoardIdx) {}

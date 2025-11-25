@@ -1,7 +1,7 @@
 #include <iostream>
-#include "sudoku.cuh"
-#include "generate_boards.cuh"
-#include "helper_cuda.h"
+
+#include "include/cuda/sudoku.cuh"
+
 
 void usage()
 {

@@ -2,13 +2,12 @@
 // Created by chefxx on 12.11.2025.
 //
 
-#include "io_manager.h"
-
 #include <cassert>
 #include <fstream>
 
-#include "board.h"
 #include "spdlog_macros.h"
+#include "io_manager.h"
+#include "board_defines.h"
 
 std::vector<std::string> readInput(std::string_view t_inputFileName, const int t_count)
 {

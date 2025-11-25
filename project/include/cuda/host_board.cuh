@@ -10,14 +10,7 @@
 #include <tuple>
 #include <vector>
 
-constexpr int SUDOKU_BITPACK_N = 11;
-constexpr int SUDOKU_SIZE      = 9;
-constexpr int SUDOKU_OFFSET    = 81;
-using CELL_TYPE                = uint32_t;
-constexpr int CELL_BITS_SZ     = sizeof(CELL_TYPE) * 8;
-constexpr int CELL_BITS_LOG2   = 5;
-constexpr int OFFSET_BITS_SZ   = 4;
-constexpr int OFFSET_BITS_LOG2 = 2;
+#include "board_infra.cuh"
 
 struct Board
 {
@@ -27,14 +20,6 @@ struct Board
     [[nodiscard]] CELL_TYPE getValue(int t_idx) const;
 
     std::array<CELL_TYPE, SUDOKU_BITPACK_N> inside{};
-};
-
-constexpr int CONSTRAINTS_N = 3;
-
-enum constraints_indexes {
-    row    = 0,
-    col    = 1,
-    square = 2,
 };
 
 struct BoardConstraints
