@@ -148,7 +148,7 @@ namespace cuda
     };
 
     /**
-      * Constructs @param count objects of type T and allocates them on GPU
+      * Constructs count objects of type T and allocates them on GPU
       * using cudaMalloc() function. Then wraps them into cuda::unique_ptr.
       *
       * @param count number of objects to allocate on GPU.
@@ -337,7 +337,7 @@ namespace cuda
     };
 
     /**
-      * Constructs @param count objects of type T and allocates them on GPU
+      * Constructs count objects of type T and allocates them on GPU
       * using cudaMalloc() function. Then wraps them into cuda::shared_ptr.
       *
       * @param count number of objects to allocate on GPU.

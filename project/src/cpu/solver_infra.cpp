@@ -5,14 +5,19 @@
 #include "solver_infra.h"
 #include "io_manager.h"
 #include "spdlog_macros.h"
+#include "memory_cuda.cuh"
+
+constexpr int MAX_GEN_BOARDS = 1048576;
 
 std::optional<std::vector<CELL_TYPE>> convertLineToNumbers(const std::string_view t_line)
 {
     std::vector<CELL_TYPE> numbers;
-    for (const auto &c : t_line) {
+    // t_line has '\n' at the end, so we loop over first 81 elements
+    for (int i = 0; i < SUDOKU_SIZE * SUDOKU_SIZE; ++i) {
+        const auto c = t_line[i];
         const auto num = c - '0';
         if (num < 0 || num > 9) {
-            myLog::warn("Not valid character found!");
+            myLog::warn(fmt::format("Not valid character {} found!", num));
             return std::nullopt;
         }
         numbers.emplace_back(num);
@@ -82,4 +87,23 @@ void solve(const std::string_view t_method, const std::string_view t_inputFileNa
     // Read boards from file
     // ---------------------
     const auto encodedBoards = readInput(t_inputFileName, t_count);
+
+    // ---------------------
+    // Create buffers on CPU
+    // ---------------------
+    const auto [boardsBuff, constraintsBuff, createdNum] = convertAndAlignSerial(encodedBoards);
+    myLog::info(fmt::format("Created {} boards out of {}.", createdNum, t_count));
+
+    // -------------------------------------------------------------------------------
+    // Allocate memory on GPU, then copy
+    //
+    // MAX_GEN_BOARDS = 1048576
+    // Preallocate big buffers in order to unique resizing when generating new boards.
+    // Two buffers are used to read current boards and write new children.
+    // -------------------------------------------------------------------------------
+    auto d_boardsBuff_A = cuda::make_unique<CELL_TYPE>(MAX_GEN_BOARDS * SUDOKU_BITPACK_N);
+    auto d_boardsBuff_B = cuda::make_unique<CELL_TYPE>(MAX_GEN_BOARDS * SUDOKU_BITPACK_N);
+    auto d_constraintsBuff_A = cuda::make_unique<uint16_t>(MAX_GEN_BOARDS * CONSTRAINTS_N * SUDOKU_SIZE);
+    auto d_constraintsBuff_B = cuda::make_unique<uint16_t>(MAX_GEN_BOARDS * CONSTRAINTS_N * SUDOKU_SIZE);
+    auto d_boardsInBuff = cuda::make_unique<int>();
 }

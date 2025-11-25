@@ -24,8 +24,8 @@ std::vector<std::string> readInput(std::string_view t_inputFileName, const int t
     std::vector<std::string> lines;
     int                      lineIdx = 1;
     int                      readIdx = 0;
-    while ((read = getline(&line, &len, fp)) != -1 && readIdx < t_count - 1) {
-        if (read != SUDOKU_SIZE * SUDOKU_SIZE) {
+    while ((read = getline(&line, &len, fp)) != -1 && readIdx < t_count) {
+        if (read != SUDOKU_SIZE * SUDOKU_SIZE + 1) {
             myLog::warn(fmt::format("Wrong number of characters in the line {} of the input file!", lineIdx));
         }
         else {
@@ -34,6 +34,7 @@ std::vector<std::string> readInput(std::string_view t_inputFileName, const int t
         }
         ++lineIdx;
     }
+
     fclose(fp);
     if (line)
         free(line);
