@@ -5,7 +5,7 @@ message(STATUS "Loading tests target...")
 # ------------------------------------------------------------------------------ #
 
 file(GLOB TEST_SOURCES
-        "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/*.cu"
 )
 
 # ------------------------------------------------------------------------------ #
@@ -19,10 +19,9 @@ add_executable(${TEST} ${TEST_SOURCES})
 # ------------------------------------------------------------------------------ #
 
 target_link_libraries(${TEST} PRIVATE
-        ${CPU_LIB}
         ${CUDA_LIB}
         GTest::gtest_main
 )
 
+set_target_properties(${TEST} PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 include(GoogleTest)
-gtest_discover_tests(${TEST})

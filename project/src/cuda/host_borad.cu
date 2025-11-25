@@ -6,12 +6,24 @@
 
 #include "host_board.cuh"
 #include "bit_operations.h"
+#include "board_infra.cuh"
 
-Board::Board(const std::vector<CELL_TYPE> &t_numbers) {}
+Board::Board(const std::vector<CELL_TYPE> &t_numbers)
+{
+    for (int i = 0; i < SUDOKU_SIZE * SUDOKU_SIZE; ++i) {
+        setValue(i, t_numbers[i]);
+    }
+}
 
-void Board::setValue(const int t_idx, const CELL_TYPE t_num) {}
+void Board::setValue(const int t_idx, const CELL_TYPE t_num)
+{
+    setValueInfra(inside.data(), t_idx, t_num);
+}
 
-CELL_TYPE Board::getValue(const int t_idx) const {}
+CELL_TYPE Board::getValue(const int t_idx) const
+{
+    return getValueInfra(inside.data(), t_idx);
+}
 
 void Board::printBoard() const
 {
@@ -48,4 +60,8 @@ BoardConstraints::BoardConstraints(const std::vector<CELL_TYPE> &t_numbers)
     }
 }
 
-std::tuple<int, int, int> BoardConstraints::getConstraintsIndexes(const int t_BoardIdx) {}
+std::tuple<int, int, int> BoardConstraints::getConstraintsIndexes(const int t_BoardIdx)
+{
+    const auto coords = getConstraintsIndexesInfra(t_BoardIdx);
+    return std::make_tuple(coords.row, coords.col, coords.square);
+}

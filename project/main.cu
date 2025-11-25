@@ -1,7 +1,5 @@
 #include <iostream>
-
-#include "include/cuda/sudoku.cuh"
-
+#include "sudoku.cuh"
 
 void usage()
 {

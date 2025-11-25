@@ -12,7 +12,7 @@
 // -----------------------------
 struct ConstraintsCoordinates
 {
-    ConstraintsCoordinates(const int t_row, const int t_col, const int t_square) : row(t_row), col(t_col), square(t_square) {}
+    __device__ __host__ ConstraintsCoordinates(const int t_row, const int t_col, const int t_square) : row(t_row), col(t_col), square(t_square) {}
     int row;
     int col;
     int square;
@@ -30,7 +30,7 @@ enum constraints_indexes {
 // ---------
 // Functions
 // ---------
-__device__ __host__ __forceinline__ void setValueBoard(CELL_TYPE *t_board, const int t_idx, const CELL_TYPE t_num)
+__device__ __host__ __forceinline__ void setValueInfra(CELL_TYPE *t_board, const int t_idx, const CELL_TYPE t_num)
 {
     const int       offset        = t_idx << OFFSET_BITS_LOG2;
     const int       arrayIdx      = offset >> CELL_BITS_LOG2;
@@ -39,7 +39,7 @@ __device__ __host__ __forceinline__ void setValueBoard(CELL_TYPE *t_board, const
     t_board[arrayIdx] |= mask;
 }
 
-__device__ __host__ __forceinline__ CELL_TYPE getValueBoard(const CELL_TYPE *t_board, const int t_idx)
+__device__ __host__ __forceinline__ CELL_TYPE getValueInfra(const CELL_TYPE *t_board, const int t_idx)
 {
     const int offset        = t_idx << OFFSET_BITS_LOG2;
     const int arrayIdx      = offset >> CELL_BITS_LOG2;
@@ -49,7 +49,7 @@ __device__ __host__ __forceinline__ CELL_TYPE getValueBoard(const CELL_TYPE *t_b
     return value;
 }
 
-__device__ __host__ __forceinline__ ConstraintsCoordinates getConstraintsIndexes(const int t_BoardIdx)
+__device__ __host__ __forceinline__ ConstraintsCoordinates getConstraintsIndexesInfra(const int t_BoardIdx)
 {
     const int rowIdx    = t_BoardIdx / SUDOKU_SIZE;
     const int colIdx    = t_BoardIdx % SUDOKU_SIZE;
