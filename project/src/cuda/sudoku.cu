@@ -59,7 +59,7 @@ void solve(const std::string_view t_method, const std::string_view t_inputFileNa
     myLog::info("Executing board generation loop...");
     for (int i = 0; i < MAX_GENERATIONS; ++i) {
         checkCudaErrors(cudaDeviceSynchronize());
-        chooseChildren<<<1, 1>>>(d_boardsBuff_A.get(), d_constraintsBuff_A.get(), d_childrenCountBuff.get());
+        chooseChildren<<<1, 1>>>(d_boardsBuff_A.get(), d_constraintsBuff_A.get(), d_childrenCountBuff.get(), TODO);
         getLastCudaError("chooseChildren kernel failed!");
         checkCudaErrors(cudaDeviceSynchronize());
     }
