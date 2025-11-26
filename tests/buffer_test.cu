@@ -56,7 +56,8 @@ TEST_F(BufferTest, does_convertAndAlignSerial_PreserveConstraintsStructure)
     constexpr int secondOffset = 1;
     for (int i = 0; i < CONSTRAINTS_N; ++i) {
         for (int k = 0; k < SUDOKU_SIZE; ++k) {
-            ASSERT_EQ(expected.constraints[i][k], constraintsBuff[secondOffset + i * MAX_GEN_BOARDS * SUDOKU_SIZE + k * MAX_GEN_BOARDS])
+            ASSERT_EQ(expected.constraints[i][k],
+                      constraintsBuff[secondOffset + i * MAX_GEN_BOARDS * SUDOKU_SIZE + k * MAX_GEN_BOARDS])
                 << fmt::format("Failed at i={}, k={}", i, k);
         }
     }

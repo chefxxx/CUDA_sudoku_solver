@@ -12,7 +12,12 @@
 // -----------------------------
 struct ConstraintsCoordinates
 {
-    __device__ __host__ ConstraintsCoordinates(const int t_row, const int t_col, const int t_square) : row(t_row), col(t_col), square(t_square) {}
+    __device__ __host__ ConstraintsCoordinates(const int t_row, const int t_col, const int t_square)
+        : row(t_row)
+        , col(t_col)
+        , square(t_square)
+    {
+    }
     int row;
     int col;
     int square;

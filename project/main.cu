@@ -1,4 +1,5 @@
 #include <iostream>
+
 #include "sudoku.cuh"
 
 void usage()
@@ -7,7 +8,8 @@ void usage()
     exit(EXIT_FAILURE);
 }
 
-int main(const int argc, const char **argv) {
+int main(const int argc, const char **argv)
+{
     // --------------
     // Read arguments
     // --------------
@@ -19,7 +21,7 @@ int main(const int argc, const char **argv) {
     const int count = std::stoi(argv[2]);
     if (count < 1)
         usage();
-    const std::string inputFileName = argv[3];
+    const std::string inputFileName  = argv[3];
     const std::string outputFileName = argv[4];
 
     // ----------

@@ -5,8 +5,8 @@
 #include <bitset>
 #include <gtest/gtest.h>
 
-#include "solver_infra.cuh"
 #include "host_board.cuh"
+#include "solver_infra.cuh"
 
 /**
  * @brief This test checks whether row constraints are set properly.

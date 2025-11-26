@@ -10,12 +10,6 @@ __device__ DeviceBoard::DeviceBoard(CELL_TYPE *t_board)
     for ()
 }
 
-__device__ void DeviceBoard::setValue(int t_idx, CELL_TYPE t_num)
-{
+__device__ void DeviceBoard::setValue(int t_idx, CELL_TYPE t_num) {}
 
-}
-
-__device__ CELL_TYPE DeviceBoard::getValue(int t_idx) const
-{
-
-}
+__device__ CELL_TYPE DeviceBoard::getValue(int t_idx) const {}

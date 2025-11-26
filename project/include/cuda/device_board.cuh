@@ -17,7 +17,7 @@ struct DeviceBoard
 
 struct DeviceConstraints
 {
-    CONSTRAINTS_TYPE cells[CONSTRAINTS_N][SUDOKU_SIZE];
+    CONSTRAINTS_TYPE                         cells[CONSTRAINTS_N][SUDOKU_SIZE];
     __device__ static ConstraintsCoordinates getConstraintsIndexes(int t_boardIdx);
 };
 

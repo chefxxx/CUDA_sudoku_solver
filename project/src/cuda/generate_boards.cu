@@ -20,7 +20,7 @@ __global__ void chooseChildren(const CELL_TYPE        *t_boardsBuff,
 
     for (size_t work = tid; work < N; work += workOffset) {
         const auto board = createDeviceBoard(work, t_boardsBuff);
-
+        storeDeviceConstraints(work, t_constraintsBuff, constraints, tid);
     }
 }
 
@@ -34,4 +34,19 @@ __device__ DeviceBoard createDeviceBoard(const size_t t_workId, const CELL_TYPE 
         board.cells[k] = t_boardsBuff[t_workId + k * MAX_GEN_BOARDS];
     }
     return board;
+}
+
+__device__ void storeDeviceConstraints(const size_t            t_workId,
+                                       const CONSTRAINTS_TYPE *t_constraintsBuff,
+                                       DeviceConstraints      *t_sharedConstraintsBuff,
+                                       const size_t            t_tid)
+{
+#pragma unroll
+    for (int i = 0; i < CONSTRAINTS_N; ++i) {
+#pragma unroll
+        for (size_t k = 0; k < SUDOKU_SIZE; ++k) {
+            t_sharedConstraintsBuff[t_tid].cells[i][k] =
+                t_constraintsBuff[t_workId + i * MAX_GEN_BOARDS * SUDOKU_SIZE + k * MAX_GEN_BOARDS];
+        }
+    }
 }

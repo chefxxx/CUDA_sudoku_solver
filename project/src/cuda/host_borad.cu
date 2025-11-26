@@ -4,9 +4,9 @@
 
 #include <iostream>
 
-#include "host_board.cuh"
 #include "bit_operations.h"
 #include "board_infra.cuh"
+#include "host_board.cuh"
 
 Board::Board(const std::vector<CELL_TYPE> &t_numbers)
 {
@@ -15,15 +15,9 @@ Board::Board(const std::vector<CELL_TYPE> &t_numbers)
     }
 }
 
-void Board::setValue(const int t_idx, const CELL_TYPE t_num)
-{
-    setValueInfra(inside.data(), t_idx, t_num);
-}
+void Board::setValue(const int t_idx, const CELL_TYPE t_num) { setValueInfra(inside.data(), t_idx, t_num); }
 
-CELL_TYPE Board::getValue(const int t_idx) const
-{
-    return getValueInfra(inside.data(), t_idx);
-}
+CELL_TYPE Board::getValue(const int t_idx) const { return getValueInfra(inside.data(), t_idx); }
 
 void Board::printBoard() const
 {

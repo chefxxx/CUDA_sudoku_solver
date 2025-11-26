@@ -10,4 +10,3 @@
 void solve(std::string_view t_method, std::string_view t_inputFileName, int t_count);
 
 #endif
-

@@ -4,8 +4,8 @@
 
 #include <optional>
 
-#include "solver_infra.cuh"
 #include "board_infra.cuh"
+#include "solver_infra.cuh"
 #include "spdlog_macros.h"
 
 __host__ std::optional<std::vector<CELL_TYPE>> convertLineToNumbers(const std::string_view t_line)
@@ -25,10 +25,10 @@ __host__ std::optional<std::vector<CELL_TYPE>> convertLineToNumbers(const std::s
 }
 
 __host__ std::tuple<std::vector<CELL_TYPE>, std::vector<uint16_t>, int>
-convertAndAlignSerial(const std::vector<std::string> &t_encodedBoards)
+         convertAndAlignSerial(const std::vector<std::string> &t_encodedBoards)
 {
     int                    globalIdx = 0;
-    std::vector<CELL_TYPE> globalBoards(MAX_GEN_BOARDS * SUDOKU_BITPACK_N , 0);
+    std::vector<CELL_TYPE> globalBoards(MAX_GEN_BOARDS * SUDOKU_BITPACK_N, 0);
     std::vector<uint16_t>  globalConstraints(MAX_GEN_BOARDS * CONSTRAINTS_N * SUDOKU_SIZE, 0);
 
     for (const auto &board : t_encodedBoards) {
@@ -64,9 +64,7 @@ void saveConstraintsToBuffer(uint16_t               *t_buff,
     }
 }
 
-void createAndSaveBoardToBuffer(CELL_TYPE                    *t_buff,
-                                const size_t                  t_globalIdx,
-                                const std::vector<CELL_TYPE> &t_values)
+void createAndSaveBoardToBuffer(CELL_TYPE *t_buff, const size_t t_globalIdx, const std::vector<CELL_TYPE> &t_values)
 {
     const Board tmpB(t_values);
     for (int i = 0; i < SUDOKU_BITPACK_N; ++i) {

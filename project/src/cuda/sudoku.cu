@@ -2,10 +2,10 @@
 // Created by chefxx on 25.11.2025.
 //
 
-#include "solver_infra.cuh"
 #include "generate_boards.cuh"
 #include "io_manager.h"
 #include "memory_cuda.cuh"
+#include "solver_infra.cuh"
 #include "spdlog_macros.h"
 
 

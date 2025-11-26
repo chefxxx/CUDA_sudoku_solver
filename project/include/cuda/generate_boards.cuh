@@ -18,7 +18,9 @@ __global__ void chooseChildren(const CELL_TYPE        *t_boardsBuff,
 __global__ void createChildren();
 
 __device__ DeviceBoard createDeviceBoard(size_t t_workId, const CELL_TYPE *t_boardsBuff);
+__device__ void        storeDeviceConstraints(size_t                  t_workId,
+                                              const CONSTRAINTS_TYPE *t_constraintsBuff,
+                                              DeviceConstraints      *t_sharedConstraintsBuff,
+                                              size_t                  t_tid);
 
 #endif
-
-
