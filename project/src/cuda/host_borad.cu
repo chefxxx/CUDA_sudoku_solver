@@ -29,7 +29,7 @@ void Board::printBoard() const
 {
     constexpr std::string_view row = "+-------+-------+-------+\n";
     std::cout << row;
-    for (int i = 0; i < 81; ++i) {
+    for (int i = 0; i < SUDOKU_SIZE * SUDOKU_SIZE; ++i) {
         if (i % 9 == 0)
             std::cout << '|';
         const auto value = getValue(i);

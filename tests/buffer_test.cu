@@ -5,6 +5,7 @@
 #include <gtest/gtest.h>
 
 #include "../project/include/cuda/solver_infra.cuh"
+#include "helper_cuda.h"
 #include "spdlog/fmt/bundled/ranges.h"
 
 class BufferTest : public ::testing::Test
@@ -31,8 +32,8 @@ TEST_F(BufferTest, does_convertAndAlignSerial_When_OneBoardSupplied_ReturnedValu
 {
     const auto [boardsBuff, constraintsBuff, createdNumber] = convertAndAlignSerial(test1);
     ASSERT_EQ(createdNumber, 1);
-    ASSERT_EQ(boardsBuff.size(), 11);
-    ASSERT_EQ(constraintsBuff.size(), 27);
+    ASSERT_EQ(boardsBuff.size(), 11 * MAX_GEN_BOARDS);
+    ASSERT_EQ(constraintsBuff.size(), 27 * MAX_GEN_BOARDS);
 }
 
 TEST_F(BufferTest, does_convertAndAlignSerial_PreserveBoardStructure)
@@ -43,7 +44,7 @@ TEST_F(BufferTest, does_convertAndAlignSerial_PreserveBoardStructure)
     // ReSharper disable once CppTooWideScope
     constexpr int secondOffset = 1;
     for (int i = 0; i < SUDOKU_BITPACK_N; ++i) {
-        ASSERT_EQ(expected.inside[i], boardsBuff[secondOffset + i * 3]);
+        ASSERT_EQ(expected.inside[i], boardsBuff[secondOffset + i * MAX_GEN_BOARDS]);
     }
 }
 
@@ -55,7 +56,7 @@ TEST_F(BufferTest, does_convertAndAlignSerial_PreserveConstraintsStructure)
     constexpr int secondOffset = 1;
     for (int i = 0; i < CONSTRAINTS_N; ++i) {
         for (int k = 0; k < SUDOKU_SIZE; ++k) {
-            ASSERT_EQ(expected.constraints[i][k], constraintsBuff[secondOffset + i * 3 * SUDOKU_SIZE + k * 3])
+            ASSERT_EQ(expected.constraints[i][k], constraintsBuff[secondOffset + i * MAX_GEN_BOARDS * SUDOKU_SIZE + k * MAX_GEN_BOARDS])
                 << fmt::format("Failed at i={}, k={}", i, k);
         }
     }

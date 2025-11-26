@@ -2,14 +2,12 @@
 // Created by chefxx on 25.11.2025.
 //
 
-#include "../../include/cuda/solver_infra.cuh"
+#include "solver_infra.cuh"
 #include "generate_boards.cuh"
 #include "io_manager.h"
 #include "memory_cuda.cuh"
 #include "spdlog_macros.h"
 
-constexpr int MAX_GEN_BOARDS  = 1048576;
-constexpr int MAX_GENERATIONS = 3;
 
 void solve(const std::string_view t_method, const std::string_view t_inputFileName, const int t_count)
 {

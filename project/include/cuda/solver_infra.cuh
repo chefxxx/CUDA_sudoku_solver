@@ -12,16 +12,17 @@
 #include "board_infra.cuh"
 #include "host_board.cuh"
 
+constexpr int MAX_GEN_BOARDS  = 1048576;
+constexpr int MAX_GENERATIONS = 3;
+
 std::optional<std::vector<CELL_TYPE>> convertLineToNumbers(std::string_view t_line);
 std::tuple<std::vector<CELL_TYPE>, std::vector<uint16_t>, int>
      convertAndAlignSerial(const std::vector<std::string> &t_encodedBoards);
 void saveConstraintsToBuffer(uint16_t               *t_buff,
                              size_t                  t_constraintOffset,
-                             size_t                  t_boardsSize,
                              size_t                  t_globalIdx,
                              const BoardConstraints &t_currConstraints);
 void createAndSaveBoardToBuffer(CELL_TYPE                    *t_buff,
-                                size_t                        t_boardsSize,
                                 size_t                        t_globalIdx,
                                 const std::vector<CELL_TYPE> &t_values);
 
