@@ -8,7 +8,7 @@
 #include "board_infra.cuh"
 #include "spdlog_macros.h"
 
-std::optional<std::vector<CELL_TYPE>> convertLineToNumbers(const std::string_view t_line)
+__host__ std::optional<std::vector<CELL_TYPE>> convertLineToNumbers(const std::string_view t_line)
 {
     std::vector<CELL_TYPE> numbers;
     // t_line has '\n' at the end, so we loop over first 81 elements
@@ -24,7 +24,7 @@ std::optional<std::vector<CELL_TYPE>> convertLineToNumbers(const std::string_vie
     return std::make_optional(numbers);
 }
 
-std::tuple<std::vector<CELL_TYPE>, std::vector<uint16_t>, int>
+__host__ std::tuple<std::vector<CELL_TYPE>, std::vector<uint16_t>, int>
 convertAndAlignSerial(const std::vector<std::string> &t_encodedBoards)
 {
     int                    globalIdx = 0;
