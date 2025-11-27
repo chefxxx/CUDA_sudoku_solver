@@ -12,6 +12,7 @@ struct DeviceBoard
     DeviceBoard() = default;
     __device__ void                    setValue(int t_idx, CELL_TYPE t_num);
     __device__ [[nodiscard]] CELL_TYPE getValue(int t_idx) const;
+    __device__ __forceinline__ void    initBoard(size_t t_workId, const CELL_TYPE *t_boardsBuff, size_t t_stride);
     CELL_TYPE                          cells[SUDOKU_BITPACK_N];
 };
 
@@ -19,6 +20,7 @@ struct DeviceConstraints
 {
     CONSTRAINTS_TYPE                         cells[CONSTRAINTS_N][SUDOKU_SIZE];
     __device__ static ConstraintsCoordinates getConstraintsIndexes(int t_boardIdx);
+    __device__ __forceinline__ void          initConstraints(size_t t_workId, const CONSTRAINTS_TYPE *t_constraintsBuff, size_t t_stride);
 };
 
 

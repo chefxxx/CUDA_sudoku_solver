@@ -40,11 +40,10 @@ __host__ std::tuple<std::vector<CELL_TYPE>, std::vector<uint16_t>, int>
             }
             else {
                 // save constraints to buffer
-                constexpr size_t offset = MAX_GEN_BOARDS * SUDOKU_SIZE;
-                saveConstraintsToBuffer(globalConstraints.data(), offset, globalIdx, tmpC);
+                saveConstraintsToBuffer(globalConstraints.data(), MAX_GEN_BOARDS * SUDOKU_SIZE, globalIdx, tmpC, MAX_GEN_BOARDS);
 
                 // create board and save it to buffer
-                createAndSaveBoardToBuffer(globalBoards.data(), globalIdx, values.value());
+                createAndSaveBoardToBuffer(globalBoards.data(), globalIdx, values.value(), MAX_GEN_BOARDS);
                 globalIdx++;
             }
         }
@@ -55,19 +54,23 @@ __host__ std::tuple<std::vector<CELL_TYPE>, std::vector<uint16_t>, int>
 void saveConstraintsToBuffer(uint16_t               *t_buff,
                              const size_t            t_constraintOffset,
                              const size_t            t_globalIdx,
-                             const BoardConstraints &t_currConstraints)
+                             const BoardConstraints &t_currConstraints,
+                             const size_t            t_stride)
 {
     for (int i = 0; i < CONSTRAINTS_N; ++i) {
         for (int k = 0; k < SUDOKU_SIZE; ++k) {
-            t_buff[t_globalIdx + i * t_constraintOffset + k * MAX_GEN_BOARDS] = t_currConstraints.constraints[i][k];
+            t_buff[t_globalIdx + i * t_constraintOffset + k * t_stride] = t_currConstraints.constraints[i][k];
         }
     }
 }
 
-void createAndSaveBoardToBuffer(CELL_TYPE *t_buff, const size_t t_globalIdx, const std::vector<CELL_TYPE> &t_values)
+void createAndSaveBoardToBuffer(CELL_TYPE                    *t_buff,
+                                const size_t                  t_globalIdx,
+                                const std::vector<CELL_TYPE> &t_values,
+                                const size_t                  t_stride)
 {
     const Board tmpB(t_values);
     for (int i = 0; i < SUDOKU_BITPACK_N; ++i) {
-        t_buff[t_globalIdx + i * MAX_GEN_BOARDS] = tmpB.inside[i];
+        t_buff[t_globalIdx + i * t_stride] = tmpB.inside[i];
     }
 }

@@ -35,8 +35,8 @@ void solve(const std::string_view t_method, const std::string_view t_inputFileNa
     myLog::info("Allocating GPU memory...");
     const auto d_boardsBuff_A      = cuda::make_unique<CELL_TYPE>(MAX_GEN_BOARDS * SUDOKU_BITPACK_N);
     const auto d_boardsBuff_B      = cuda::make_unique<CELL_TYPE>(MAX_GEN_BOARDS * SUDOKU_BITPACK_N);
-    const auto d_constraintsBuff_A = cuda::make_unique<uint16_t>(MAX_GEN_BOARDS * CONSTRAINTS_N * SUDOKU_SIZE);
-    const auto d_constraintsBuff_B = cuda::make_unique<uint16_t>(MAX_GEN_BOARDS * CONSTRAINTS_N * SUDOKU_SIZE);
+    const auto d_constraintsBuff_A = cuda::make_unique<CONSTRAINTS_TYPE>(MAX_GEN_BOARDS * CONSTRAINTS_N * SUDOKU_SIZE);
+    const auto d_constraintsBuff_B = cuda::make_unique<CONSTRAINTS_TYPE>(MAX_GEN_BOARDS * CONSTRAINTS_N * SUDOKU_SIZE);
     const auto d_childrenCountBuff = cuda::make_unique<uint16_t>(MAX_GEN_BOARDS);
     const auto d_BuffSize          = cuda::make_unique<int>();
 
@@ -44,8 +44,8 @@ void solve(const std::string_view t_method, const std::string_view t_inputFileNa
     // Copy memory to GPU
     // ------------------
     myLog::info("Copying data to GPU...");
-    const size_t generatedBoards_sz      = sizeof(CELL_TYPE) * h_boardsBuff.size();
-    const size_t generatedConstraints_sz = sizeof(uint16_t) * h_constraintsBuff.size();
+    constexpr size_t generatedBoards_sz      = sizeof(CELL_TYPE) * MAX_GEN_BOARDS;
+    constexpr size_t generatedConstraints_sz = sizeof(CONSTRAINTS_TYPE) * MAX_GEN_BOARDS;
     checkCudaErrors(cudaMemcpy(d_boardsBuff_A.get(), h_boardsBuff.data(), generatedBoards_sz, cudaMemcpyHostToDevice));
     checkCudaErrors(cudaMemcpy(
         d_constraintsBuff_A.get(), h_constraintsBuff.data(), generatedConstraints_sz, cudaMemcpyHostToDevice));

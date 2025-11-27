@@ -11,7 +11,7 @@
 // Used types
 // ----------
 using CELL_TYPE        = uint32_t;
-using CONSTRAINTS_TYPE = uint16_t;
+using CONSTRAINTS_TYPE = uint32_t;
 
 // --------------------------------
 // Constants for board manipulation

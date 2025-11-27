@@ -24,7 +24,7 @@ struct Board
 
 struct BoardConstraints
 {
-    std::array<std::array<uint16_t, SUDOKU_SIZE>, 3> constraints{{{}, {}, {}}};
+    std::array<std::array<CONSTRAINTS_TYPE, SUDOKU_SIZE>, 3> constraints{{{}, {}, {}}};
 
     bool isValid = true;
 
