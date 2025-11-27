@@ -40,7 +40,8 @@ __host__ std::tuple<std::vector<CELL_TYPE>, std::vector<uint16_t>, int>
             }
             else {
                 // save constraints to buffer
-                saveConstraintsToBuffer(globalConstraints.data(), MAX_GEN_BOARDS * SUDOKU_SIZE, globalIdx, tmpC, MAX_GEN_BOARDS);
+                saveConstraintsToBuffer(
+                    globalConstraints.data(), MAX_GEN_BOARDS * SUDOKU_SIZE, globalIdx, tmpC, MAX_GEN_BOARDS);
 
                 // create board and save it to buffer
                 createAndSaveBoardToBuffer(globalBoards.data(), globalIdx, values.value(), MAX_GEN_BOARDS);

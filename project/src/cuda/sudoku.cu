@@ -38,6 +38,7 @@ void solve(const std::string_view t_method, const std::string_view t_inputFileNa
     const auto d_constraintsBuff_A = cuda::make_unique<CONSTRAINTS_TYPE>(MAX_GEN_BOARDS * CONSTRAINTS_N * SUDOKU_SIZE);
     const auto d_constraintsBuff_B = cuda::make_unique<CONSTRAINTS_TYPE>(MAX_GEN_BOARDS * CONSTRAINTS_N * SUDOKU_SIZE);
     const auto d_childrenCountBuff = cuda::make_unique<uint16_t>(MAX_GEN_BOARDS);
+    const auto d_cellNumsBuff = cuda::make_unique<uint16_t>(MAX_GEN_BOARDS);
     const auto d_BuffSize          = cuda::make_unique<int>();
 
     // ------------------
@@ -58,7 +59,7 @@ void solve(const std::string_view t_method, const std::string_view t_inputFileNa
     for (int i = 0; i < MAX_GENERATIONS; ++i) {
         checkCudaErrors(cudaDeviceSynchronize());
         chooseChildren<<<1, 1>>>(
-            d_boardsBuff_A.get(), d_constraintsBuff_A.get(), d_childrenCountBuff.get(), d_BuffSize.get());
+            d_boardsBuff_A.get(), d_constraintsBuff_A.get(), d_childrenCountBuff.get(), TODO, d_BuffSize.get());
         getLastCudaError("chooseChildren kernel failed!");
         checkCudaErrors(cudaDeviceSynchronize());
     }

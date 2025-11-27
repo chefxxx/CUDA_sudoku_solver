@@ -2,21 +2,16 @@
 // Created by chefxx on 26.11.2025.
 //
 
+#include "board_infra.cuh"
 #include "device_board.cuh"
 #include "solver_infra.cuh"
-#include "board_infra.cuh"
 
-__device__ void DeviceBoard::setValue(const int t_idx, const CELL_TYPE t_num)
-{
-    setValueInfra(cells, t_idx, t_num);
-}
+__device__ void DeviceBoard::setValue(const int t_idx, const CELL_TYPE t_num) { setValueInfra(cells, t_idx, t_num); }
 
-__device__ CELL_TYPE DeviceBoard::getValue(const int t_idx) const
-{
-    return getValueInfra(cells, t_idx);
-}
+__device__ CELL_TYPE DeviceBoard::getValue(const int t_idx) const { return getValueInfra(cells, t_idx); }
 
-__device__ __forceinline__ void DeviceBoard::initBoard(const size_t t_workId, const CELL_TYPE *t_boardsBuff, const size_t t_stride)
+__device__ __forceinline__ void
+DeviceBoard::initBoard(const size_t t_workId, const CELL_TYPE *t_boardsBuff, const size_t t_stride)
 {
 #pragma unroll
     for (size_t k = 0; k < SUDOKU_BITPACK_N; ++k) {

@@ -14,6 +14,7 @@ __global__ void createChildren();
 __global__ void chooseChildren(const CELL_TYPE        *t_boardsBuff,
                                const CONSTRAINTS_TYPE *t_constraintsBuff,
                                uint16_t               *t_childrenBuff,
+                               uint16_t               *t_cellNumsBuff,
                                const int              *t_boardCount);
 
 __device__ __forceinline__ void storeDeviceConstraints(size_t                  t_workId,
@@ -21,7 +22,9 @@ __device__ __forceinline__ void storeDeviceConstraints(size_t                  t
                                                        DeviceConstraints      *t_sharedConstraintsBuff,
                                                        size_t                  t_tid);
 
-__device__ __forceinline__ [[nodiscard]] uint16_t findMostConstrainedCell(const DeviceBoard       &t_board,
-                                                                          const DeviceConstraints &t_constraints);
+__device__ __forceinline__ [[nodiscard]] void findMostConstrainedCell(const DeviceBoard       &t_board,
+                                                                      const DeviceConstraints &t_constraints,
+                                                                      uint16_t                &t_cellIdx,
+                                                                      uint16_t                &t_minChildNum);
 
 #endif
