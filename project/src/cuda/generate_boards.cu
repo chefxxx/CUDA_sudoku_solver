@@ -30,10 +30,10 @@ __global__ void chooseChildren(const CELL_TYPE        *t_boardsBuff,
     }
 }
 
-__device__ __forceinline__ void findMostConstrainedCell(const DeviceBoard       &t_board,
-                                                        const DeviceConstraints &t_constraints,
-                                                        uint16_t                &t_cellIdx,
-                                                        uint16_t                &t_minChildNum)
+__device__ void findMostConstrainedCell(const DeviceBoard       &t_board,
+                                        const DeviceConstraints &t_constraints,
+                                        uint16_t                &t_cellIdx,
+                                        uint16_t                &t_minChildNum)
 {
     t_cellIdx = 0;
     t_minChildNum = 10;
@@ -52,10 +52,10 @@ __device__ __forceinline__ void findMostConstrainedCell(const DeviceBoard       
     }
 }
 
-__device__ __forceinline__ void storeDeviceConstraints(const size_t            t_workId,
-                                                       const CONSTRAINTS_TYPE *t_constraintsBuff,
-                                                       DeviceConstraints      *t_sharedConstraintsBuff,
-                                                       const size_t            t_tid)
+__device__ void storeDeviceConstraints(const size_t            t_workId,
+                                       const CONSTRAINTS_TYPE *t_constraintsBuff,
+                                       DeviceConstraints      *t_sharedConstraintsBuff,
+                                       const size_t            t_tid)
 {
     for (int i = 0; i < CONSTRAINTS_N; ++i) {
         for (size_t k = 0; k < SUDOKU_SIZE; ++k) {
