@@ -28,9 +28,9 @@ __host__ std::optional<std::vector<CELL_TYPE>> convertLineToNumbers(const std::s
 __host__ std::tuple<std::vector<CELL_TYPE>, std::vector<CONSTRAINTS_TYPE>, int>
          convertAndAlignSerial(const std::vector<std::string> &t_encodedBoards, const size_t t_stride)
 {
-    int                    globalIdx = 0;
-    std::vector<CELL_TYPE> globalBoards(t_stride * SUDOKU_BITPACK_N, 0);
-    std::vector<CONSTRAINTS_TYPE>  globalConstraints(t_stride * CONSTRAINTS_N * SUDOKU_SIZE, 0);
+    int                           globalIdx = 0;
+    std::vector<CELL_TYPE>        globalBoards(t_stride * SUDOKU_BITPACK_N, 0);
+    std::vector<CONSTRAINTS_TYPE> globalConstraints(t_stride * CONSTRAINTS_N * SUDOKU_SIZE, 0);
 
     for (const auto &board : t_encodedBoards) {
         const auto values = convertLineToNumbers(board);
@@ -41,8 +41,7 @@ __host__ std::tuple<std::vector<CELL_TYPE>, std::vector<CONSTRAINTS_TYPE>, int>
             }
             else {
                 // save constraints to buffer
-                saveConstraintsToBuffer(
-                    globalConstraints.data(), t_stride * SUDOKU_SIZE, globalIdx, tmpC, t_stride);
+                saveConstraintsToBuffer(globalConstraints.data(), t_stride * SUDOKU_SIZE, globalIdx, tmpC, t_stride);
 
                 // create board and save it to buffer
                 createAndSaveBoardToBuffer(globalBoards.data(), globalIdx, values.value(), t_stride);

@@ -22,29 +22,30 @@ __global__ void chooseChildren(const CELL_TYPE        *t_boardsBuff,
         board.initBoard(work, t_boardsBuff, MAX_GEN_BOARDS);
         constraints.initConstraints(work, t_constraintsBuff, MAX_GEN_BOARDS);
         uint16_t cellIdx, minChildNum;
-        findMostConstrainedCell(board, constraints, cellIdx, minChildNum);
+        findMostConstrainedCell(&board, &constraints, &cellIdx, &minChildNum);
         t_childrenBuff[work] = minChildNum;
         t_cellNumsBuff[work] = cellIdx;
     }
 }
 
-__device__ void findMostConstrainedCell(const DeviceBoard       &t_board,
-                                        const DeviceConstraints &t_constraints,
-                                        uint16_t                &t_cellIdx,
-                                        uint16_t                &t_minChildNum)
+__device__ void findMostConstrainedCell(const DeviceBoard       *t_board,
+                                        const DeviceConstraints *t_constraints,
+                                        uint16_t                *t_cellIdx,
+                                        uint16_t                *t_minChildNum)
 {
-    t_cellIdx = 0;
-    t_minChildNum = 10;
+    *t_cellIdx     = 0;
+    *t_minChildNum = 10;
+#pragma unroll
     for (int i = 0; i < SUDOKU_SIZE * SUDOKU_SIZE; ++i) {
-        const auto value = t_board.getValue(i);
+        const auto value = t_board->getValue(i);
         if (!value) {
-            const auto idx = getConstraintsIndexesInfra(i);
-            const auto mask = t_constraints.cells[row][idx.row] & t_constraints.cells[col][idx.col]
-                            & t_constraints.cells[square][idx.square];
+            const auto idx  = getConstraintsIndexesInfra(i);
+            const auto mask = t_constraints->cells[row][idx.row] & t_constraints->cells[col][idx.col]
+                            & t_constraints->cells[square][idx.square];
             const auto childNum = __popc(mask);
-            if (childNum < t_minChildNum) {
-                t_minChildNum = childNum;
-                t_cellIdx = i;
+            if (childNum < *t_minChildNum) {
+                *t_minChildNum = childNum;
+                *t_cellIdx     = i;
             }
         }
     }

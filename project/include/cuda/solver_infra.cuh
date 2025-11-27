@@ -14,7 +14,7 @@
 
 __host__ std::optional<std::vector<CELL_TYPE>> convertLineToNumbers(std::string_view t_line);
 __host__                                       std::tuple<std::vector<CELL_TYPE>, std::vector<CONSTRAINTS_TYPE>, int>
-                                               convertAndAlignSerial(const std::vector<std::string> &t_encodedBoards, size_t t_stride);
+convertAndAlignSerial(const std::vector<std::string> &t_encodedBoards, size_t t_stride);
 
 void saveConstraintsToBuffer(CONSTRAINTS_TYPE       *t_buff,
                              size_t                  t_constraintOffset,

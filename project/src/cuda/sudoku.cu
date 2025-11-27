@@ -37,7 +37,7 @@ void solve(const std::string_view t_method, const std::string_view t_inputFileNa
     const auto d_constraintsBuff_A = cuda::make_unique<CONSTRAINTS_TYPE>(MAX_GEN_BOARDS * CONSTRAINTS_N * SUDOKU_SIZE);
     const auto d_constraintsBuff_B = cuda::make_unique<CONSTRAINTS_TYPE>(MAX_GEN_BOARDS * CONSTRAINTS_N * SUDOKU_SIZE);
     const auto d_childrenCountBuff = cuda::make_unique<uint16_t>(MAX_GEN_BOARDS);
-    const auto d_cellNumsBuff = cuda::make_unique<uint16_t>(MAX_GEN_BOARDS);
+    const auto d_cellNumsBuff      = cuda::make_unique<uint16_t>(MAX_GEN_BOARDS);
     const auto d_BuffSize          = cuda::make_unique<int>();
 
     // ------------------
@@ -47,7 +47,8 @@ void solve(const std::string_view t_method, const std::string_view t_inputFileNa
     constexpr size_t generatedBoards_sz      = sizeof(CELL_TYPE) * MAX_GEN_BOARDS * SUDOKU_BITPACK_N;
     constexpr size_t generatedConstraints_sz = sizeof(CONSTRAINTS_TYPE) * MAX_GEN_BOARDS * CONSTRAINTS_N * SUDOKU_SIZE;
     checkCudaErrors(cudaMemcpy(d_boardsBuff_A.get(), h_boardsBuff.data(), generatedBoards_sz, cudaMemcpyHostToDevice));
-    checkCudaErrors(cudaMemcpy(d_constraintsBuff_A.get(), h_constraintsBuff.data(), generatedConstraints_sz, cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMemcpy(
+        d_constraintsBuff_A.get(), h_constraintsBuff.data(), generatedConstraints_sz, cudaMemcpyHostToDevice));
     checkCudaErrors(cudaMemcpy(d_BuffSize.get(), &h_createdNum, sizeof(int), cudaMemcpyHostToDevice));
 
     // -----------------------
@@ -56,8 +57,11 @@ void solve(const std::string_view t_method, const std::string_view t_inputFileNa
     myLog::info("Executing board generation loop...");
     for (int i = 0; i < MAX_GENERATIONS; ++i) {
         checkCudaErrors(cudaDeviceSynchronize());
-        chooseChildren<<<1, 1>>>(
-            d_boardsBuff_A.get(), d_constraintsBuff_A.get(), d_childrenCountBuff.get(), d_cellNumsBuff.get(), d_BuffSize.get());
+        chooseChildren<<<1, 1>>>(d_boardsBuff_A.get(),
+                                 d_constraintsBuff_A.get(),
+                                 d_childrenCountBuff.get(),
+                                 d_cellNumsBuff.get(),
+                                 d_BuffSize.get());
         getLastCudaError("chooseChildren kernel failed!");
         checkCudaErrors(cudaDeviceSynchronize());
     }

@@ -64,15 +64,15 @@ TEST_F(BoardConstraintsTest, areRowConstraintsValid)
 {
     // ReSharper disable once CppTooWideScope
     const std::bitset<16> expectedRows[SUDOKU_SIZE] = {
-        0b0000001100111000,  // 0, Not used: 3,4,5,8,9
-        0b0000000000111110,  // 1, Not used: 1,2,3,4,5
-        0b0000000111001100,  // 2, Not used: 2,3,6,7,8
-        0b0000001011101000,  // 3, Not used: 3,5,6,7,9
-        0b0000000110101010,  // 4, Not used: 1,3,5,7,8
-        0b0000001011010010,  // 5, Not used: 1,4,6,7,9
-        0b0000000101100110,  // 6, Not used: 1,2,5,6,8
-        0b0000001110000110,  // 7, Not used: 1,2,7,8,9
-        0b0000001001110100   // 8, Not used: 2,4,5,6,9
+        0b0000001100111000, // 0, Not used: 3,4,5,8,9
+        0b0000000000111110, // 1, Not used: 1,2,3,4,5
+        0b0000000111001100, // 2, Not used: 2,3,6,7,8
+        0b0000001011101000, // 3, Not used: 3,5,6,7,9
+        0b0000000110101010, // 4, Not used: 1,3,5,7,8
+        0b0000001011010010, // 5, Not used: 1,4,6,7,9
+        0b0000000101100110, // 6, Not used: 1,2,5,6,8
+        0b0000001110000110, // 7, Not used: 1,2,7,8,9
+        0b0000001001110100  // 8, Not used: 2,4,5,6,9
     };
 
     for (int i = 0; i < SUDOKU_SIZE; ++i) {

@@ -90,7 +90,6 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     )
     target_compile_options(${CUDA_LIB} PRIVATE
             -v
-            --generate-line-info
             -g3
             -fno-omit-frame-pointer
             -G

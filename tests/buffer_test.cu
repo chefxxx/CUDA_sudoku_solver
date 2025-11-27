@@ -51,7 +51,7 @@ TEST_F(BufferTest, does_convertAndAlignSerial_PreserveBoardStructure)
 
 TEST_F(BufferTest, does_convertAndAlignSerial_PreserveConstraintsStructure)
 {
-    constexpr int test_stride = 3;
+    constexpr int          test_stride = 3;
     const BoardConstraints expected(convertLineToNumbers(boardStr2).value());
     const auto [boardsBuff, constraintsBuff, createdNumber] = convertAndAlignSerial(test2, test_stride);
     // ReSharper disable once CppTooWideScope
