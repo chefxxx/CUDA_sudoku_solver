@@ -16,17 +16,25 @@ __global__ void chooseChildren(const CELL_TYPE        *t_boardsBuff,
     const size_t workOffset = gridDim.x * blockDim.x;
     const size_t N          = *t_boardCount;
 
-    __shared__ DeviceConstraints constraints[THREADS_PER_BLOCK];
+    DeviceBoard board;
+    DeviceConstraints constraints;
 
     for (size_t work = tid; work < N; work += workOffset) {
-        const auto board = createDeviceBoard(work, t_boardsBuff);
-        storeDeviceConstraints(work, t_constraintsBuff, constraints, tid);
+        board.initBoard(work, t_boardsBuff, MAX_GEN_BOARDS);
+        constraints.initConstraints(work, t_constraintsBuff, MAX_GEN_BOARDS);
+        const auto minIdx = findMostConstrainedCell(board, constraints);
     }
 }
 
-__global__ void createChildren() {}
+__device__ __forceinline__ uint16_t findMostConstrainedCell(const DeviceBoard       &t_board,
+                                                            const DeviceConstraints &t_constraints)
+{
+    for (int i = 0; i < SUDOKU_SIZE * SUDOKU_SIZE; ++i) {
+        const auto value = t_board.getValue(i);
+    }
+}
 
-__device__ void storeDeviceConstraints(const size_t            t_workId,
+__device__ __forceinline__ void storeDeviceConstraints(const size_t            t_workId,
                                        const CONSTRAINTS_TYPE *t_constraintsBuff,
                                        DeviceConstraints      *t_sharedConstraintsBuff,
                                        const size_t            t_tid)

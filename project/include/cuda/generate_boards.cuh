@@ -21,6 +21,7 @@ __device__ __forceinline__ void storeDeviceConstraints(size_t                  t
                                                        DeviceConstraints      *t_sharedConstraintsBuff,
                                                        size_t                  t_tid);
 
-__device__ [[nodiscard]] uint16_t findMostConstrainedCell();
+__device__ __forceinline__ [[nodiscard]] uint16_t findMostConstrainedCell(const DeviceBoard       &t_board,
+                                                                          const DeviceConstraints &t_constraints);
 
 #endif
