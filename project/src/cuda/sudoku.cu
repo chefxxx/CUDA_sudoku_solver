@@ -47,8 +47,7 @@ void solve(const std::string_view t_method, const std::string_view t_inputFileNa
     constexpr size_t generatedBoards_sz      = sizeof(CELL_TYPE) * MAX_GEN_BOARDS * SUDOKU_BITPACK_N;
     constexpr size_t generatedConstraints_sz = sizeof(CONSTRAINTS_TYPE) * MAX_GEN_BOARDS * CONSTRAINTS_N * SUDOKU_SIZE;
     checkCudaErrors(cudaMemcpy(d_boardsBuff_A.get(), h_boardsBuff.data(), generatedBoards_sz, cudaMemcpyHostToDevice));
-    checkCudaErrors(cudaMemcpy(
-        d_constraintsBuff_A.get(), h_constraintsBuff.data(), generatedConstraints_sz, cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMemcpy(d_constraintsBuff_A.get(), h_constraintsBuff.data(), generatedConstraints_sz, cudaMemcpyHostToDevice));
     checkCudaErrors(cudaMemcpy(d_BuffSize.get(), &h_createdNum, sizeof(int), cudaMemcpyHostToDevice));
 
     // -----------------------

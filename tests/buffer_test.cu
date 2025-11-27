@@ -30,34 +30,36 @@ protected:
 
 TEST_F(BufferTest, does_convertAndAlignSerial_When_OneBoardSupplied_ReturnedValuesSizesMatch)
 {
-    const auto [boardsBuff, constraintsBuff, createdNumber] = convertAndAlignSerial(test1, TODO);
+    const auto [boardsBuff, constraintsBuff, createdNumber] = convertAndAlignSerial(test1, 1);
     ASSERT_EQ(createdNumber, 1);
-    ASSERT_EQ(boardsBuff.size(), 11 * MAX_GEN_BOARDS);
-    ASSERT_EQ(constraintsBuff.size(), 27 * MAX_GEN_BOARDS);
+    ASSERT_EQ(boardsBuff.size(), 11);
+    ASSERT_EQ(constraintsBuff.size(), 27);
 }
 
 TEST_F(BufferTest, does_convertAndAlignSerial_PreserveBoardStructure)
 {
+    constexpr int test_stride = 3;
     // We are checking here if second board in buffer is the same as expected one
     const Board expected(convertLineToNumbers(boardStr2).value());
-    const auto [boardsBuff, constraintsBuff, createdNumber] = convertAndAlignSerial(test2, TODO);
+    const auto [boardsBuff, constraintsBuff, createdNumber] = convertAndAlignSerial(test2, test_stride);
     // ReSharper disable once CppTooWideScope
     constexpr int secondOffset = 1;
     for (int i = 0; i < SUDOKU_BITPACK_N; ++i) {
-        ASSERT_EQ(expected.inside[i], boardsBuff[secondOffset + i * MAX_GEN_BOARDS]);
+        ASSERT_EQ(expected.inside[i], boardsBuff[secondOffset + i * test_stride]);
     }
 }
 
 TEST_F(BufferTest, does_convertAndAlignSerial_PreserveConstraintsStructure)
 {
+    constexpr int test_stride = 3;
     const BoardConstraints expected(convertLineToNumbers(boardStr2).value());
-    const auto [boardsBuff, constraintsBuff, createdNumber] = convertAndAlignSerial(test2, TODO);
+    const auto [boardsBuff, constraintsBuff, createdNumber] = convertAndAlignSerial(test2, test_stride);
     // ReSharper disable once CppTooWideScope
     constexpr int secondOffset = 1;
     for (int i = 0; i < CONSTRAINTS_N; ++i) {
         for (int k = 0; k < SUDOKU_SIZE; ++k) {
             ASSERT_EQ(expected.constraints[i][k],
-                      constraintsBuff[secondOffset + i * MAX_GEN_BOARDS * SUDOKU_SIZE + k * MAX_GEN_BOARDS])
+                      constraintsBuff[secondOffset + i * test_stride * SUDOKU_SIZE + k * test_stride])
                 << fmt::format("Failed at i={}, k={}", i, k);
         }
     }

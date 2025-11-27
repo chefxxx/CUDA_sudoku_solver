@@ -28,17 +28,12 @@ struct DeviceBoard
             printf("%d\n", cells[k]);
         }
     }
-    CELL_TYPE                       cells[SUDOKU_BITPACK_N];
+    CELL_TYPE cells[SUDOKU_BITPACK_N];
 };
 
 struct DeviceConstraints
 {
     __device__ DeviceConstraints() = default;
-    __device__ __forceinline__ static
-    ConstraintsCoordinates getConstraintsIndexes(const int t_boardIdx)
-    {
-        return getConstraintsIndexesInfra(t_boardIdx);
-    }
     __device__ __forceinline__ void
     initConstraints(const size_t t_workId, const CONSTRAINTS_TYPE *t_constraintsBuff, const size_t t_stride)
     {

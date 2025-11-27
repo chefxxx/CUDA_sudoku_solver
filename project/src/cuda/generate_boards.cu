@@ -38,7 +38,7 @@ __device__ void findMostConstrainedCell(const DeviceBoard       &t_board,
     for (int i = 0; i < SUDOKU_SIZE * SUDOKU_SIZE; ++i) {
         const auto value = t_board.getValue(i);
         if (!value) {
-            const auto idx = t_constraints.getConstraintsIndexes(i);
+            const auto idx = getConstraintsIndexesInfra(i);
             const auto mask = t_constraints.cells[row][idx.row] & t_constraints.cells[col][idx.col]
                             & t_constraints.cells[square][idx.square];
             const auto childNum = __popc(mask);
