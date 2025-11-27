@@ -52,9 +52,4 @@ __device__ void findMostConstrainedCell(const DeviceBoard       *t_board,
     }
 }
 
-__global__ void createChildren()
-{
-
-}
-
-
+__global__ void createChildren() {}

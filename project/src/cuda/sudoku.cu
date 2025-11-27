@@ -70,6 +70,5 @@ void solve(const std::string_view t_method, const std::string_view t_inputFileNa
         currentNum = thrust::reduce(thrust::device, d_childrenCountBuff.get(), d_childrenCountBuff.get() + currentNum);
         thrust::exclusive_scan(thrust::device, d_childrenCountBuff.get(), d_childrenCountBuff.get() + currentNum, d_childrenCountBuff.get());
 
-        std::cout << "Here is current number of boards to create:" << currentNum << std::endl;
     }
 }

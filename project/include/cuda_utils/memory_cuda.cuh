@@ -374,6 +374,6 @@ template <cuda_pointerable_type T> shared_ptr<T> make_shared(const size_t count 
  */
 template <disallowed_known_bound T, class... Args> void make_shared(Args &&...) = delete;
 
-} // namespace cuda
+} // namespace mem_cuda
 
 #endif
