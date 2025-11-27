@@ -30,7 +30,7 @@ protected:
 
 TEST_F(BufferTest, does_convertAndAlignSerial_When_OneBoardSupplied_ReturnedValuesSizesMatch)
 {
-    const auto [boardsBuff, constraintsBuff, createdNumber] = convertAndAlignSerial(test1);
+    const auto [boardsBuff, constraintsBuff, createdNumber] = convertAndAlignSerial(test1, TODO);
     ASSERT_EQ(createdNumber, 1);
     ASSERT_EQ(boardsBuff.size(), 11 * MAX_GEN_BOARDS);
     ASSERT_EQ(constraintsBuff.size(), 27 * MAX_GEN_BOARDS);
@@ -40,7 +40,7 @@ TEST_F(BufferTest, does_convertAndAlignSerial_PreserveBoardStructure)
 {
     // We are checking here if second board in buffer is the same as expected one
     const Board expected(convertLineToNumbers(boardStr2).value());
-    const auto [boardsBuff, constraintsBuff, createdNumber] = convertAndAlignSerial(test2);
+    const auto [boardsBuff, constraintsBuff, createdNumber] = convertAndAlignSerial(test2, TODO);
     // ReSharper disable once CppTooWideScope
     constexpr int secondOffset = 1;
     for (int i = 0; i < SUDOKU_BITPACK_N; ++i) {
@@ -51,7 +51,7 @@ TEST_F(BufferTest, does_convertAndAlignSerial_PreserveBoardStructure)
 TEST_F(BufferTest, does_convertAndAlignSerial_PreserveConstraintsStructure)
 {
     const BoardConstraints expected(convertLineToNumbers(boardStr2).value());
-    const auto [boardsBuff, constraintsBuff, createdNumber] = convertAndAlignSerial(test2);
+    const auto [boardsBuff, constraintsBuff, createdNumber] = convertAndAlignSerial(test2, TODO);
     // ReSharper disable once CppTooWideScope
     constexpr int secondOffset = 1;
     for (int i = 0; i < CONSTRAINTS_N; ++i) {

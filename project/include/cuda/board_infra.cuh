@@ -38,7 +38,7 @@ enum constraints_indexes {
 __device__ __host__ __forceinline__ void setValueInfra(CELL_TYPE *t_board, const int t_idx, const CELL_TYPE t_num)
 {
     const int       arrayIdx      = t_idx >> 3;
-    const int       inArrayOffset = t_idx % 8 * 4;
+    const int       inArrayOffset = (t_idx & 7) << 2;
     const CELL_TYPE mask          = t_num << inArrayOffset;
     t_board[arrayIdx] |= mask;
 }
@@ -46,7 +46,7 @@ __device__ __host__ __forceinline__ void setValueInfra(CELL_TYPE *t_board, const
 __device__ __host__ __forceinline__ CELL_TYPE getValueInfra(const CELL_TYPE *t_board, const int t_idx)
 {
     const int arrayIdx      = t_idx >> 3;
-    const int inArrayOffset = t_idx % 8 * 4;
+    const int inArrayOffset = (t_idx & 7) << 2;
     CELL_TYPE value         = t_board[arrayIdx];
     value                   = value >> inArrayOffset & 0x0000000F;
     return value;

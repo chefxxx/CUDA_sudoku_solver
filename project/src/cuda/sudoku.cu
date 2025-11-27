@@ -8,7 +8,6 @@
 #include "solver_infra.cuh"
 #include "spdlog_macros.h"
 
-
 void solve(const std::string_view t_method, const std::string_view t_inputFileName, const int t_count)
 {
     // TODO: CPU solver
@@ -23,7 +22,7 @@ void solve(const std::string_view t_method, const std::string_view t_inputFileNa
     // ---------------------
     // Create buffers on CPU
     // ---------------------
-    const auto [h_boardsBuff, h_constraintsBuff, h_createdNum] = convertAndAlignSerial(encodedBoards);
+    const auto [h_boardsBuff, h_constraintsBuff, h_createdNum] = convertAndAlignSerial(encodedBoards, MAX_GEN_BOARDS);
     myLog::info(fmt::format("Created {} boards out of {}.", h_createdNum, t_count));
 
     // -------------------------------------------------------------------------------
