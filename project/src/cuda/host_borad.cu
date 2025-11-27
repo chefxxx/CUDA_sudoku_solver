@@ -40,6 +40,8 @@ void Board::printBoard() const
 
 BoardConstraints::BoardConstraints(const std::vector<CELL_TYPE> &t_numbers)
 {
+    // First I assign the bits to 1, where a value is present,
+    // this way I can check whether the board is a valid one.
     for (int i = 0; i < SUDOKU_SIZE * SUDOKU_SIZE; ++i) {
         const auto num                   = t_numbers[i];
         auto [rowIdx, colIdx, squareIdx] = getConstraintsIndexes(i);
@@ -50,6 +52,12 @@ BoardConstraints::BoardConstraints(const std::vector<CELL_TYPE> &t_numbers)
             setBitAtIdx(constraints[row][rowIdx], num);
             setBitAtIdx(constraints[col][colIdx], num);
             setBitAtIdx(constraints[square][squareIdx], num);
+        }
+    }
+    // Then I flip the bits to get actual constraints.
+    for (int i = 0; i < CONSTRAINTS_N; ++i) {
+        for (int k = 0; k < SUDOKU_SIZE; ++k) {
+            constraints[i][k] = ~constraints[i][k] & 0x000003FE;
         }
     }
 }
