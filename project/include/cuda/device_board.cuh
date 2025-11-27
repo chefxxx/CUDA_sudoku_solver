@@ -35,7 +35,7 @@ struct DeviceConstraints
 {
     __device__ DeviceConstraints() = default;
     __device__ __forceinline__ static
-    ConstraintsCoordinates getConstraintsIndexes(int t_boardIdx)
+    ConstraintsCoordinates getConstraintsIndexes(const int t_boardIdx)
     {
         return getConstraintsIndexesInfra(t_boardIdx);
     }

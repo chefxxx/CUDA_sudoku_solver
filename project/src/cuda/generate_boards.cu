@@ -22,6 +22,10 @@ __global__ void chooseChildren(const CELL_TYPE        *t_boardsBuff,
 
     for (size_t work = tid; work < N; work += workOffset) {
         board.initBoard(work, t_boardsBuff, MAX_GEN_BOARDS);
+        printf("After init\n");
+        for (int i = 0; i < SUDOKU_BITPACK_N; ++i) {
+            printf("%d\n", board.cells[i]);
+        }
         constraints.initConstraints(work, t_constraintsBuff, MAX_GEN_BOARDS);
         uint16_t cellIdx, minChildNum;
         findMostConstrainedCell(board, constraints, cellIdx, minChildNum);
@@ -36,9 +40,13 @@ __device__ void findMostConstrainedCell(const DeviceBoard       &t_board,
                                         uint16_t                &t_cellIdx,
                                         uint16_t                &t_minChildNum)
 {
+    printf("In function\n");
+    for (int i = 0; i < SUDOKU_BITPACK_N; ++i) {
+        printf("%d\n", t_board.cells[i]);
+    }
     t_cellIdx = 0;
     t_minChildNum = 10;
-    for (uint16_t i = 0; i < SUDOKU_SIZE * SUDOKU_SIZE; ++i) {
+    for (int i = 0; i < SUDOKU_SIZE * SUDOKU_SIZE; ++i) {
         const auto value = t_board.getValue(i);
         if (!value) {
             printf("Hello from cell %d! with value %d\n", i, value);
