@@ -2,6 +2,7 @@
 // Created by chefxx on 13.11.2025.
 //
 
+#include <iostream>
 #include <optional>
 
 #include "board_infra.cuh"
@@ -24,12 +25,12 @@ __host__ std::optional<std::vector<CELL_TYPE>> convertLineToNumbers(const std::s
     return std::make_optional(numbers);
 }
 
-__host__ std::tuple<std::vector<CELL_TYPE>, std::vector<uint16_t>, int>
+__host__ std::tuple<std::vector<CELL_TYPE>, std::vector<CONSTRAINTS_TYPE>, int>
          convertAndAlignSerial(const std::vector<std::string> &t_encodedBoards)
 {
     int                    globalIdx = 0;
     std::vector<CELL_TYPE> globalBoards(MAX_GEN_BOARDS * SUDOKU_BITPACK_N, 0);
-    std::vector<uint16_t>  globalConstraints(MAX_GEN_BOARDS * CONSTRAINTS_N * SUDOKU_SIZE, 0);
+    std::vector<CONSTRAINTS_TYPE>  globalConstraints(MAX_GEN_BOARDS * CONSTRAINTS_N * SUDOKU_SIZE, 0);
 
     for (const auto &board : t_encodedBoards) {
         const auto values = convertLineToNumbers(board);
@@ -52,7 +53,7 @@ __host__ std::tuple<std::vector<CELL_TYPE>, std::vector<uint16_t>, int>
     return std::make_tuple(globalBoards, globalConstraints, globalIdx);
 }
 
-void saveConstraintsToBuffer(uint16_t               *t_buff,
+void saveConstraintsToBuffer(CONSTRAINTS_TYPE       *t_buff,
                              const size_t            t_constraintOffset,
                              const size_t            t_globalIdx,
                              const BoardConstraints &t_currConstraints,

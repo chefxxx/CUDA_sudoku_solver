@@ -5,24 +5,27 @@
 #ifndef SUDOKU_DEVICE_BOARD_CUH
 #define SUDOKU_DEVICE_BOARD_CUH
 
+#include <iostream>
 #include "board_infra.cuh"
 
 struct DeviceBoard
 {
     __device__ DeviceBoard() = default;
-    __device__ __forceinline__ void setValue(int t_idx, CELL_TYPE t_num)
+    __device__ __forceinline__ void setValue(const int t_idx, CELL_TYPE const t_num)
     {
         setValueInfra(cells, t_idx, t_num);
     }
-    [[nodiscard]] __device__ __forceinline__ CELL_TYPE getValue(int t_idx) const
+    [[nodiscard]] __device__ __forceinline__ CELL_TYPE getValue(const int t_idx) const
     {
         return getValueInfra(cells, t_idx);
     }
     __device__ __forceinline__ void initBoard(const size_t t_workId, const CELL_TYPE *t_boardsBuff, const size_t t_stride)
     {
+        printf("\nGPU\n");
 #pragma unroll
         for (size_t k = 0; k < SUDOKU_BITPACK_N; ++k) {
             cells[k] = t_boardsBuff[t_workId + k * t_stride];
+            printf("%d\n", cells[k]);
         }
     }
     CELL_TYPE                       cells[SUDOKU_BITPACK_N];
