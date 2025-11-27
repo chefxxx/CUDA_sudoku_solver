@@ -115,6 +115,7 @@ elseif (CMAKE_BUILD_TYPE STREQUAL "Release")
             $<$<CXX_COMPILER_ID:MSVC>:> 
     )
     target_compile_options(${CUDA_LIB} PRIVATE
+            --ptxas-options=-v
             -Xptxas -O3
             -Xcompiler -O3
             -Xcompiler -march=native

@@ -20,13 +20,7 @@ __global__ void chooseChildren(const CELL_TYPE        *t_boardsBuff,
                                const CONSTRAINTS_TYPE *t_constraintsBuff,
                                uint16_t               *t_childrenBuff,
                                uint16_t               *t_cellNumsBuff,
-                               const int              *t_boardCount);
-
-__device__ void storeDeviceConstraints(size_t                  t_workId,
-                                       const CONSTRAINTS_TYPE *t_constraintsBuff,
-                                       DeviceConstraints      *t_sharedConstraintsBuff,
-                                       size_t                  t_tid);
-
+                               int                     t_boardCount);
 __device__ void findMostConstrainedCell(const DeviceBoard       *t_board,
                                         const DeviceConstraints *t_constraints,
                                         uint16_t                *t_cellIdx,

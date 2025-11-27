@@ -14,7 +14,7 @@
 
 #include "helper_cuda.h"
 
-namespace cuda {
+namespace mem_cuda {
 template <class T> concept cuda_pointerable_type = std::is_array_v<T> == false;
 
 template <class T> concept disallowed_known_bound = std::is_array_v<T> &&std::extent_v<T> > 0;
