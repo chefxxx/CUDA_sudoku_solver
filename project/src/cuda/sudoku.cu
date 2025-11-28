@@ -41,10 +41,10 @@ void solve(const std::string_view t_method, const std::string_view t_inputFileNa
     // Two buffers are used to read current boards and write new children.
     // -------------------------------------------------------------------------------
     myLog::info("Allocating GPU memory...");
-    const auto d_boardsBuff_A      = mem_cuda::make_unique<CELL_TYPE>(BOARD_BUFF_N);
-    const auto d_boardsBuff_B      = mem_cuda::make_unique<CELL_TYPE>(BOARD_BUFF_SZ);
-    const auto d_constraintsBuff_A = mem_cuda::make_unique<CONSTRAINTS_TYPE>(CONSTRAINTS_BUFF_N);
-    const auto d_constraintsBuff_B = mem_cuda::make_unique<CONSTRAINTS_TYPE>(CONSTRAINTS_BUFF_SZ);
+    auto d_boardsBuff_A      = mem_cuda::make_unique<CELL_TYPE>(BOARD_BUFF_N);
+    auto d_boardsBuff_B      = mem_cuda::make_unique<CELL_TYPE>(BOARD_BUFF_SZ);
+    auto d_constraintsBuff_A = mem_cuda::make_unique<CONSTRAINTS_TYPE>(CONSTRAINTS_BUFF_N);
+    auto d_constraintsBuff_B = mem_cuda::make_unique<CONSTRAINTS_TYPE>(CONSTRAINTS_BUFF_SZ);
     const auto d_childrenCountBuff = mem_cuda::make_unique<uint32_t>(MAX_GEN_BOARDS);
     const auto d_cellNumsBuff = mem_cuda::make_unique<uint16_t>(MAX_GEN_BOARDS);
 
@@ -85,11 +85,14 @@ void solve(const std::string_view t_method, const std::string_view t_inputFileNa
                                  currentNum);
         getLastCudaError("createChildren kernel failed!");
         checkCudaErrors(cudaDeviceSynchronize());
-        //TODO: swap buffer pointers
+
+        // update buffers
+        d_boardsBuff_A.swap(d_boardsBuff_B);
+        d_constraintsBuff_A.swap(d_constraintsBuff_B);
         currentNum = nextNum;
     }
 
-    checkCudaErrors(cudaMemcpy(h_boardsBuff.data(), d_boardsBuff_B.get(), BOARD_BUFF_SZ, cudaMemcpyDeviceToHost));
+    checkCudaErrors(cudaMemcpy(h_boardsBuff.data(), d_boardsBuff_A.get(), BOARD_BUFF_SZ, cudaMemcpyDeviceToHost));
     for (int i = 0; i < currentNum; ++i) {
         Board tmp;
         tmp.initBoard(i, h_boardsBuff, MAX_GEN_BOARDS);
