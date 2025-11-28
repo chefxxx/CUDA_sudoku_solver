@@ -15,15 +15,21 @@ constexpr int BLOCKS_PER_GRID   = 128;
 constexpr int MAX_GEN_BOARDS    = 1048576;
 constexpr int MAX_GENERATIONS   = 1;
 
-__global__ void createChildren();
+__global__ void createChildren(const CELL_TYPE        *t_inBoardsBuff,
+                               const CELL_TYPE        *t_outBoardsBuff,
+                               const CONSTRAINTS_TYPE *t_inConstraintsBuff,
+                               const CONSTRAINTS_TYPE *t_outConstraintsBuff,
+                               const uint32_t         *t_offsetBuff,
+                               const uint16_t         *t_cellNumsBuff,
+                               size_t                  t_boardCount);
 __global__ void chooseChildren(const CELL_TYPE        *t_boardsBuff,
                                const CONSTRAINTS_TYPE *t_constraintsBuff,
-                               uint16_t               *t_childrenBuff,
+                               uint32_t               *t_childrenBuff,
                                uint16_t               *t_cellNumsBuff,
-                               int                     t_boardCount);
-__device__ void findMostConstrainedCell(const DeviceBoard       *t_board,
-                                        const DeviceConstraints *t_constraints,
-                                        uint16_t                *t_cellIdx,
-                                        uint16_t                *t_minChildNum);
+                               size_t                  t_boardCount);
+__device__ void findMostConstrainedCell(const DeviceBoard       &t_board,
+                                        const DeviceConstraints &t_constraints,
+                                        uint16_t                &t_cellIdx,
+                                        uint16_t                &t_minChildNum);
 
 #endif

@@ -39,7 +39,9 @@ __device__ __host__ __forceinline__ void setValueInfra(CELL_TYPE *t_board, const
 {
     const int       arrayIdx      = t_idx >> 3;
     const int       inArrayOffset = (t_idx & 7) << 2;
-    const CELL_TYPE mask          = t_num << inArrayOffset;
+    const CELL_TYPE mask          = (t_num & 0xF) << inArrayOffset;
+    const CELL_TYPE clearMask     = ~(0xFu << inArrayOffset);
+    t_board[arrayIdx] &= clearMask;
     t_board[arrayIdx] |= mask;
 }
 

@@ -40,8 +40,8 @@ void solve(const std::string_view t_method, const std::string_view t_inputFileNa
     const auto d_boardsBuff_B      = mem_cuda::make_unique<CELL_TYPE>(MAX_GEN_BOARDS * SUDOKU_BITPACK_N);
     const auto d_constraintsBuff_A = mem_cuda::make_unique<CONSTRAINTS_TYPE>(MAX_GEN_BOARDS * CONSTRAINTS_N * SUDOKU_SIZE);
     const auto d_constraintsBuff_B = mem_cuda::make_unique<CONSTRAINTS_TYPE>(MAX_GEN_BOARDS * CONSTRAINTS_N * SUDOKU_SIZE);
-    const auto d_childrenCountBuff = mem_cuda::make_unique<uint16_t>(MAX_GEN_BOARDS);
-    const auto d_cellNumsBuff      = mem_cuda::make_unique<uint16_t>(MAX_GEN_BOARDS);
+    const auto d_childrenCountBuff = mem_cuda::make_unique<uint32_t>(MAX_GEN_BOARDS);
+    const auto d_cellNumsBuff = mem_cuda::make_unique<uint16_t>(MAX_GEN_BOARDS);
 
     // ------------------
     // Copy memory to GPU
@@ -52,10 +52,11 @@ void solve(const std::string_view t_method, const std::string_view t_inputFileNa
     checkCudaErrors(cudaMemcpy(d_boardsBuff_A.get(), h_boardsBuff.data(), generatedBoards_sz, cudaMemcpyHostToDevice));
     checkCudaErrors(cudaMemcpy(d_constraintsBuff_A.get(), h_constraintsBuff.data(), generatedConstraints_sz, cudaMemcpyHostToDevice));
 
-    // -----------------------
-    // Execute generation loop
-    // -----------------------
-    int currentNum = initCreatedNum;
+    // -----------------------------
+    // Execute board generation loop
+    // -----------------------------
+    size_t currentNum = initCreatedNum;
+    size_t nextNum = initCreatedNum;
     myLog::info("Executing board generation loop...");
     for (int i = 0; i < MAX_GENERATIONS; ++i) {
         checkCudaErrors(cudaDeviceSynchronize());
@@ -67,8 +68,14 @@ void solve(const std::string_view t_method, const std::string_view t_inputFileNa
         getLastCudaError("chooseChildren kernel failed!");
         checkCudaErrors(cudaDeviceSynchronize());
 
-        currentNum = thrust::reduce(thrust::device, d_childrenCountBuff.get(), d_childrenCountBuff.get() + currentNum);
+        // Reduce and exclusive scan to get new number of boards and offsets
+        nextNum = thrust::reduce(thrust::device, d_childrenCountBuff.get(), d_childrenCountBuff.get() + currentNum);
         thrust::exclusive_scan(thrust::device, d_childrenCountBuff.get(), d_childrenCountBuff.get() + currentNum, d_childrenCountBuff.get());
 
+        checkCudaErrors(cudaDeviceSynchronize());
+        //createChildren<<<1, 1>>>(TODO, TODO, TODO, TODO, TODO, TODO, TODO);
+        getLastCudaError("createChildren kernel failed!");
+        checkCudaErrors(cudaDeviceSynchronize());
+        currentNum = nextNum;
     }
 }
