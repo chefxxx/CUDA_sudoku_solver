@@ -7,6 +7,7 @@
 
 #include <iostream>
 
+#include "bit_operations.cuh"
 #include "board_infra.cuh"
 
 struct DeviceBoard
@@ -45,6 +46,19 @@ struct DeviceConstraints
             }
         }
     }
+    __device__ __forceinline__ void updateConstraints(const int t_value, const ConstraintsCoordinates &t_idx)
+    {
+        resetBitAtIdx(cells[row][t_idx.row], t_value);
+        resetBitAtIdx(cells[col][t_idx.col], t_value);
+        resetBitAtIdx(cells[square][t_idx.square], t_value);
+    }
+    __device__ __forceinline__ void revertConstraints(const int t_value, const ConstraintsCoordinates &t_idx)
+    {
+        setBitAtIdx(cells[row][t_idx.row], t_value);
+        setBitAtIdx(cells[col][t_idx.col], t_value);
+        setBitAtIdx(cells[square][t_idx.square], t_value);
+    }
+
     CONSTRAINTS_TYPE cells[CONSTRAINTS_N][SUDOKU_SIZE];
 };
 

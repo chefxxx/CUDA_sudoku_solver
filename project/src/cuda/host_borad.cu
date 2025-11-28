@@ -38,12 +38,6 @@ void Board::printBoard() const
     }
 }
 
-void BoardConstraints::fillRawPointers(const CONSTRAINTS_TYPE* out[3]) const
-{
-    for (int i = 0; i < 3; ++i)
-        out[i] = constraints[i].data();
-}
-
 BoardConstraints::BoardConstraints(const std::vector<CELL_TYPE> &t_numbers)
 {
     // First I assign the bits to 1, where a value is present,

@@ -73,7 +73,13 @@ void solve(const std::string_view t_method, const std::string_view t_inputFileNa
         thrust::exclusive_scan(thrust::device, d_childrenCountBuff.get(), d_childrenCountBuff.get() + currentNum, d_childrenCountBuff.get());
 
         checkCudaErrors(cudaDeviceSynchronize());
-        //createChildren<<<1, 1>>>(TODO, TODO, TODO, TODO, TODO, TODO, TODO);
+        createChildren<<<1, 1>>>(d_boardsBuff_A.get(),
+                                 d_boardsBuff_B.get(),
+                                 d_constraintsBuff_A.get(),
+                                 d_constraintsBuff_B.get(),
+                                 d_childrenCountBuff.get(),
+                                 d_cellNumsBuff.get(),
+                                 currentNum);
         getLastCudaError("createChildren kernel failed!");
         checkCudaErrors(cudaDeviceSynchronize());
         currentNum = nextNum;

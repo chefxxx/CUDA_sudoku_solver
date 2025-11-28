@@ -16,6 +16,9 @@ __device__ __host__ __forceinline__ void setBitAtIdx(CONSTRAINTS_TYPE &a, const 
 // this func is used for checking bits
 __device__ __host__ __forceinline__ bool checkBitAtIdx(const CONSTRAINTS_TYPE a, const uint32_t idx) { return a & (MIN_LSB << idx); }
 
+// this func sets to 0 bit of given idx
+__device__ __host__ __forceinline__ void resetBitAtIdx(CONSTRAINTS_TYPE &a, const uint32_t idx) { a &= ~(MIN_LSB << idx); }
+
 // this func returns number of 1's
 __device__ __host__ __forceinline__ int popCount(const CONSTRAINTS_TYPE a)
 {
