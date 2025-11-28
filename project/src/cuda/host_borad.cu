@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-#include "bit_operations.h"
+#include "../../include/cuda/bit_operations.cuh"
 #include "board_infra.cuh"
 #include "host_board.cuh"
 

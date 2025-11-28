@@ -31,5 +31,11 @@ __device__ void findMostConstrainedCell(const DeviceBoard       &t_board,
                                         const DeviceConstraints &t_constraints,
                                         uint16_t                &t_cellIdx,
                                         uint16_t                &t_minChildNum);
+__device__ void createAndAlignInBuff(const CELL_TYPE         *t_outBoardsBuff,
+                                     const CONSTRAINTS_TYPE  *t_outConstraintsBuff,
+                                     uint32_t                 t_globalOffset,
+                                     uint16_t                 t_cellNum,
+                                     const DeviceBoard       &t_parentBoard,
+                                     const DeviceConstraints &t_parentConstraints);
 
 #endif

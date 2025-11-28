@@ -44,6 +44,7 @@ __global__ void createChildren(const CELL_TYPE        *t_inBoardsBuff,
     for (size_t work = tid; work < t_boardCount; work += workOffset) {
         board.initBoard(work, t_inBoardsBuff, MAX_GEN_BOARDS);
         constraints.initConstraints(work, t_inConstraintsBuff, MAX_GEN_BOARDS);
+        createAndAlignInBuff(t_outBoardsBuff, t_outConstraintsBuff, t_offsetBuff[work], t_cellNumsBuff[work], board, constraints);
     }
 }
 
@@ -63,13 +64,28 @@ __device__ void findMostConstrainedCell(const DeviceBoard       &t_board,
             const uint32_t colMask    = t_constraints.cells[col][idx.col];
             const uint32_t squareMask = t_constraints.cells[square][idx.square];
             const uint32_t mask       = rowMask & colMask & squareMask;
-            const auto     childNum   = __popc(mask);
+            const auto     childNum= __popc(mask);
             if (childNum < t_minChildNum) {
                 t_minChildNum = childNum;
                 t_cellIdx     = i;
             }
         }
     }
+}
+
+__device__ void createAndAlignInBuff(const CELL_TYPE         *t_outBoardsBuff,
+                                     const CONSTRAINTS_TYPE  *t_outConstraintsBuff,
+                                     const uint32_t           t_globalOffset,
+                                     const uint16_t           t_cellNum,
+                                     const DeviceBoard       &t_parentBoard,
+                                     const DeviceConstraints &t_parentConstraints)
+{
+    const auto idx = getConstraintsIndexesInfra(t_cellNum);
+    const uint32_t rowMask    = t_parentConstraints.cells[row][idx.row];
+    const uint32_t colMask    = t_parentConstraints.cells[col][idx.col];
+    const uint32_t squareMask = t_parentConstraints.cells[square][idx.square];
+    const uint32_t mask       = rowMask & colMask & squareMask;
+
 }
 
 
