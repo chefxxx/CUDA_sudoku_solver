@@ -23,7 +23,6 @@ __global__ void chooseChildren(const CELL_TYPE        *t_boardsBuff,
         constraints.initConstraints(work, t_constraintsBuff, MAX_GEN_BOARDS);
         uint16_t cellIdx, minChildNum;
         findMostConstrainedCell(board, constraints, cellIdx, minChildNum);
-        //printf("cell %d, children %d\n", cellIdx, minChildNum);
         t_childrenBuff[work] = minChildNum;
         t_cellNumsBuff[work] = cellIdx;
     }
@@ -76,6 +75,7 @@ __device__ void findMostConstrainedCell(const DeviceBoard       &t_board,
     }
 }
 
+// TODO: try to reduce register spilling here
 __device__ void createAndAlignInBuff(CELL_TYPE         *t_outBoardsBuff,
                                      CONSTRAINTS_TYPE  *t_outConstraintsBuff,
                                      const uint32_t     t_globalOffset,

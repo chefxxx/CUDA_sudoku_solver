@@ -26,10 +26,9 @@ struct Board
 struct BoardConstraints
 {
     std::array<std::array<CONSTRAINTS_TYPE, SUDOKU_SIZE>, 3> constraints{{{}, {}, {}}};
-
-    bool isValid = true;
     explicit BoardConstraints(const std::vector<CELL_TYPE> &t_numbers);
     [[nodiscard]] static std::tuple<int, int, int> getConstraintsIndexes(int t_BoardIdx);
+    bool isValid = true;
 };
 
 

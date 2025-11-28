@@ -11,6 +11,7 @@
 #include <iostream>
 #include <memory>
 #include <type_traits>
+#include <spdlog/spdlog.h>
 
 #include "helper_cuda.h"
 
@@ -75,7 +76,7 @@ public:
     constexpr ~unique_ptr() noexcept
     {
         if (mDevPtr) {
-            std::cout << "Destroying cuda::unique_ptr and releasing memory...\n";
+            spdlog::info("Destroying mem_cuda::unique_ptr and releasing memory...");
             get_deleter()(get());
         }
     }
@@ -135,6 +136,12 @@ public:
         return tmp;
     }
 
+    void swap (unique_ptr& other) noexcept
+    {
+        std::swap(mDevPtr, other.mDevPtr);
+        std::swap(mDeleter, other.mDeleter);
+    }
+
     // -------------------
     // Operators ->, *, []
     // -------------------
@@ -192,7 +199,7 @@ template <cuda_pointerable_type T, class D = cuda_deleter<T>> struct control_blo
         if (mRefCount.fetch_sub(1, std::memory_order_acq_rel) == 1) {
             std::atomic_thread_fence(std::memory_order_acquire);
             mDeleter(mDevPtr);
-            std::cout << "Releasing cuda::shared_ptr memory...\n";
+            spdlog::info("Releasing mem_cuda::shared_ptr memory...");
             release_weak_ref();
         }
     }
@@ -203,7 +210,7 @@ template <cuda_pointerable_type T, class D = cuda_deleter<T>> struct control_blo
     {
         if (mWeakRefCount.fetch_sub(1, std::memory_order_acq_rel) == 1) {
             std::atomic_thread_fence(std::memory_order_acquire);
-            std::cout << "Deleting control block...\n";
+            spdlog::info("Releasing mem_cuda::control_block memory...");
             delete this;
         }
     }
@@ -267,7 +274,7 @@ public:
 
     ~shared_ptr()
     {
-        std::cout << "Destroying cuda::shared_ptr...\n";
+        spdlog::info("Destroying mem_cuda::shared_ptr...");
         _cleanup();
     }
 
