@@ -24,10 +24,7 @@ struct DeviceBoard
     __device__ __forceinline__ void
     initBoard(const size_t t_workId, const CELL_TYPE *t_boardsBuff, const size_t t_stride)
     {
-#pragma unroll
-        for (size_t k = 0; k < SUDOKU_BITPACK_N; ++k) {
-            cells[k] = t_boardsBuff[t_workId + k * t_stride];
-        }
+        loadBoardFromBuffer(cells, t_workId, t_boardsBuff, t_stride);
     }
     CELL_TYPE cells[SUDOKU_BITPACK_N];
 };

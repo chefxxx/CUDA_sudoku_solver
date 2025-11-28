@@ -26,7 +26,7 @@ void solve(const std::string_view t_method, const std::string_view t_inputFileNa
     // ---------------------
     // Create buffers on CPU
     // ---------------------
-    const auto [h_boardsBuff, h_constraintsBuff, initCreatedNum] = convertAndAlignSerial(encodedBoards, MAX_GEN_BOARDS);
+    auto [h_boardsBuff, h_constraintsBuff, initCreatedNum] = convertAndAlignSerial(encodedBoards, MAX_GEN_BOARDS);
     myLog::info(fmt::format("Created {} boards out of {}.", initCreatedNum, t_count));
 
     // -------------------------------------------------------------------------------
@@ -83,5 +83,12 @@ void solve(const std::string_view t_method, const std::string_view t_inputFileNa
         getLastCudaError("createChildren kernel failed!");
         checkCudaErrors(cudaDeviceSynchronize());
         currentNum = nextNum;
+    }
+
+    checkCudaErrors(cudaMemcpy(h_boardsBuff.data(), d_boardsBuff_B.get(), generatedBoards_sz, cudaMemcpyDeviceToHost));
+    for (int i = 0; i < currentNum; ++i) {
+        Board tmp;
+        tmp.initBoard(i, h_boardsBuff, MAX_GEN_BOARDS);
+        tmp.printBoard();
     }
 }

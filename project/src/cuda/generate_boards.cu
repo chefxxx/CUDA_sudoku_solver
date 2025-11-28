@@ -63,10 +63,10 @@ __device__ void findMostConstrainedCell(const DeviceBoard       &t_board,
         const auto value = t_board.getValue(i);
         if (!value) {
             const auto     idx        = getConstraintsIndexesInfra(i);
-            const CONSTRAINTS_TYPE rowMask    = t_constraints.cells[row][idx.row];
-            const CONSTRAINTS_TYPE colMask    = t_constraints.cells[col][idx.col];
-            const CONSTRAINTS_TYPE squareMask = t_constraints.cells[square][idx.square];
-            const CONSTRAINTS_TYPE mask       = rowMask & colMask & squareMask;
+            const CONSTRAINTS_TYPE mask =
+            t_constraints.cells[row][idx.row] &
+            t_constraints.cells[col][idx.col] &
+            t_constraints.cells[square][idx.square];
             const auto     childNum= popCount(mask);
             if (childNum < t_minChildNum) {
                 t_minChildNum = childNum;
@@ -84,11 +84,11 @@ __device__ void createAndAlignInBuff(CELL_TYPE         *t_outBoardsBuff,
                                      DeviceConstraints &t_parentConstraints)
 {
     const auto idx = getConstraintsIndexesInfra(t_cellNum);
-    const CONSTRAINTS_TYPE rowMask    = t_parentConstraints.cells[row][idx.row];
-    const CONSTRAINTS_TYPE colMask    = t_parentConstraints.cells[col][idx.col];
-    const CONSTRAINTS_TYPE squareMask = t_parentConstraints.cells[square][idx.square];
-    CONSTRAINTS_TYPE mask             = rowMask & colMask & squareMask;
-    uint32_t childIdx                 = 0;
+    CONSTRAINTS_TYPE mask =
+    t_parentConstraints.cells[row][idx.row] &
+    t_parentConstraints.cells[col][idx.col] &
+    t_parentConstraints.cells[square][idx.square];
+    uint32_t childIdx = 0;
     while (mask) {
         const int nValue = popLsb(mask);
         t_parentConstraints.updateConstraints(nValue, idx);

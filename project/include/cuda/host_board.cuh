@@ -14,11 +14,12 @@
 
 struct Board
 {
+    Board() = default;
     explicit Board(const std::vector<CELL_TYPE> &t_numbers);
     void                    setValue(int t_idx, CELL_TYPE t_num);
     void                    printBoard() const;
     [[nodiscard]] CELL_TYPE getValue(int t_idx) const;
-
+    void initBoard(size_t t_globalIdx, const std::vector<CELL_TYPE> &t_boardsBuff, size_t t_stride);
     std::array<CELL_TYPE, SUDOKU_BITPACK_N> inside{};
 };
 

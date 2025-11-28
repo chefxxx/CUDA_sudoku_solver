@@ -19,6 +19,11 @@ void Board::setValue(const int t_idx, const CELL_TYPE t_num) { setValueInfra(ins
 
 CELL_TYPE Board::getValue(const int t_idx) const { return getValueInfra(inside.data(), t_idx); }
 
+void Board::initBoard(const size_t t_globalIdx, const std::vector<CELL_TYPE> &t_boardsBuff, const size_t t_stride)
+{
+    loadBoardFromBuffer(inside.data(), t_globalIdx, t_boardsBuff.data(), t_stride);
+}
+
 void Board::printBoard() const
 {
     constexpr std::string_view row = "+-------+-------+-------+\n";
