@@ -41,10 +41,13 @@ __host__ std::tuple<std::vector<CELL_TYPE>, std::vector<CONSTRAINTS_TYPE>, int>
             }
             else {
                 // save constraints to buffer
-                saveConstraintsToBuffer(globalConstraints.data(), t_stride * SUDOKU_SIZE, globalIdx, tmpC, t_stride);
+                const CONSTRAINTS_TYPE* rowPtrs[3];
+                tmpC.fillRawPointers(rowPtrs);
+                saveConstraintsToBuffer(globalConstraints.data(), t_stride * SUDOKU_SIZE, globalIdx, rowPtrs, t_stride);
 
                 // create board and save it to buffer
-                createAndSaveBoardToBuffer(globalBoards.data(), globalIdx, values.value(), t_stride);
+                const Board tmpB(values.value());
+                saveBoardToBuffer(globalBoards.data(), globalIdx, tmpB.inside.data(), t_stride);
                 globalIdx++;
             }
         }
@@ -52,26 +55,23 @@ __host__ std::tuple<std::vector<CELL_TYPE>, std::vector<CONSTRAINTS_TYPE>, int>
     return std::make_tuple(globalBoards, globalConstraints, globalIdx);
 }
 
-void saveConstraintsToBuffer(CONSTRAINTS_TYPE       *t_buff,
-                             const size_t            t_constraintOffset,
-                             const size_t            t_globalIdx,
-                             const BoardConstraints &t_currConstraints,
-                             const size_t            t_stride)
+__device__ __host__ void saveConstraintsToBuffer(CONSTRAINTS_TYPE        *t_buff,
+                                                 const size_t             t_constraintOffset,
+                                                 const size_t             t_globalIdx,
+                                                 const CONSTRAINTS_TYPE **t_currConstraints,
+                                                 const size_t             t_stride)
 {
     for (int i = 0; i < CONSTRAINTS_N; ++i) {
         for (int k = 0; k < SUDOKU_SIZE; ++k) {
-            t_buff[t_globalIdx + i * t_constraintOffset + k * t_stride] = t_currConstraints.constraints[i][k];
+            t_buff[t_globalIdx + i * t_constraintOffset + k * t_stride] = t_currConstraints[i][k];
         }
     }
 }
 
-void createAndSaveBoardToBuffer(CELL_TYPE                    *t_buff,
-                                const size_t                  t_globalIdx,
-                                const std::vector<CELL_TYPE> &t_values,
-                                const size_t                  t_stride)
+__device__ __host__ void saveBoardToBuffer(CELL_TYPE *t_buff, const size_t t_globalIdx, const CELL_TYPE *t_values, const size_t t_stride)
 {
-    const Board tmpB(t_values);
+
     for (int i = 0; i < SUDOKU_BITPACK_N; ++i) {
-        t_buff[t_globalIdx + i * t_stride] = tmpB.inside[i];
+        t_buff[t_globalIdx + i * t_stride] = t_values[i];
     }
 }

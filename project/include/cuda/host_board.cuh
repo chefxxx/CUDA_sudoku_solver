@@ -27,7 +27,7 @@ struct BoardConstraints
     std::array<std::array<CONSTRAINTS_TYPE, SUDOKU_SIZE>, 3> constraints{{{}, {}, {}}};
 
     bool isValid = true;
-
+    void fillRawPointers(const CONSTRAINTS_TYPE* out[3]) const;
     explicit BoardConstraints(const std::vector<CELL_TYPE> &t_numbers);
     [[nodiscard]] static std::tuple<int, int, int> getConstraintsIndexes(int t_BoardIdx);
 };
