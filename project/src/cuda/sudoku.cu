@@ -28,11 +28,13 @@ void solve(const std::string_view t_method, const std::string_view t_inputFileNa
     // ---------------------
     // Read boards from file
     // ---------------------
+    myLog::info("Reading input file...");
     const auto encodedBoards = readInput(t_inputFileName, t_count);
 
     // ---------------------
     // Create buffers on CPU
     // ---------------------
+    myLog::info("Storing boards to CPU buffers...");
     auto [h_boardsBuff, h_constraintsBuff, initCreatedNum] = convertAndAlignSerial(encodedBoards, MAX_GEN_BOARDS);
     myLog::info(fmt::format("Created {} boards out of {}.", initCreatedNum, t_count));
     std::vector<uint32_t> h_rootsBuff(MAX_GEN_BOARDS);
@@ -52,14 +54,15 @@ void solve(const std::string_view t_method, const std::string_view t_inputFileNa
     auto       d_rootsBuff_A       = mem_cuda::make_unique<uint32_t>(MAX_GEN_BOARDS);
     auto       d_rootsBuff_B       = mem_cuda::make_unique<uint32_t>(MAX_GEN_BOARDS);
     const auto d_childrenCountBuff = mem_cuda::make_unique<uint32_t>(MAX_GEN_BOARDS);
-    const auto d_cellNumsBuff = mem_cuda::make_unique<uint16_t>(MAX_GEN_BOARDS);
+    const auto d_cellNumsBuff      = mem_cuda::make_unique<uint16_t>(MAX_GEN_BOARDS);
 
     // ------------------
     // Copy memory to GPU
     // ------------------
     myLog::info("Copying data to GPU...");
     checkCudaErrors(cudaMemcpy(d_boardsBuff_A.get(), h_boardsBuff.data(), BOARD_BUFF_SZ, cudaMemcpyHostToDevice));
-    checkCudaErrors(cudaMemcpy(d_constraintsBuff_A.get(), h_constraintsBuff.data(), CONSTRAINTS_BUFF_SZ, cudaMemcpyHostToDevice));
+    checkCudaErrors(
+        cudaMemcpy(d_constraintsBuff_A.get(), h_constraintsBuff.data(), CONSTRAINTS_BUFF_SZ, cudaMemcpyHostToDevice));
     checkCudaErrors(cudaMemcpy(d_rootsBuff_A.get(), h_rootsBuff.data(), ROOTS_BUFF_SZ, cudaMemcpyHostToDevice));
 
     // -----------------------------
@@ -70,7 +73,7 @@ void solve(const std::string_view t_method, const std::string_view t_inputFileNa
     myLog::info("Executing board generation loop...");
     for (int i = 0; i < MAX_GENERATIONS; ++i) {
         checkCudaErrors(cudaDeviceSynchronize());
-        chooseChildren<<<1, 1>>>(d_boardsBuff_A.get(),
+        chooseChildren<<<THREADS_PER_BLOCK, BLOCKS_PER_GRID>>>(d_boardsBuff_A.get(),
                                  d_constraintsBuff_A.get(),
                                  d_childrenCountBuff.get(),
                                  d_cellNumsBuff.get(),
@@ -80,13 +83,18 @@ void solve(const std::string_view t_method, const std::string_view t_inputFileNa
 
         // Reduce and exclusive scan to get new number of boards and offsets
         nextNum = thrust::reduce(thrust::device, d_childrenCountBuff.get(), d_childrenCountBuff.get() + currentNum);
+        if (nextNum > MAX_GEN_BOARDS) {
+            myLog::info(fmt::format("Stopping at {} generations, board generation limit exceeded!", i));
+            break;
+        }
+
         thrust::exclusive_scan(thrust::device,
                                d_childrenCountBuff.get(),
                                d_childrenCountBuff.get() + currentNum,
                                d_childrenCountBuff.get());
 
         checkCudaErrors(cudaDeviceSynchronize());
-        createChildren<<<1, 1>>>(d_boardsBuff_A.get(),
+        createChildren<<<THREADS_PER_BLOCK, BLOCKS_PER_GRID>>>(d_boardsBuff_A.get(),
                                  d_boardsBuff_B.get(),
                                  d_constraintsBuff_A.get(),
                                  d_constraintsBuff_B.get(),
@@ -104,6 +112,8 @@ void solve(const std::string_view t_method, const std::string_view t_inputFileNa
         d_rootsBuff_A.swap(d_rootsBuff_B);
         currentNum = nextNum;
     }
+
+    myLog::info(fmt::format("Generated {} boards..", currentNum));
 
     checkCudaErrors(cudaMemcpy(h_boardsBuff.data(), d_boardsBuff_A.get(), BOARD_BUFF_SZ, cudaMemcpyDeviceToHost));
     checkCudaErrors(cudaMemcpy(h_rootsBuff.data(), d_rootsBuff_A.get(), ROOTS_BUFF_SZ, cudaMemcpyDeviceToHost));

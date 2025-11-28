@@ -14,7 +14,7 @@
 constexpr int THREADS_PER_BLOCK = 128;
 constexpr int BLOCKS_PER_GRID   = 128;
 constexpr int MAX_GEN_BOARDS    = 1048576;
-constexpr int MAX_GENERATIONS   = 2;
+constexpr int MAX_GENERATIONS   = 6;
 
 __global__ void createChildren(const CELL_TYPE        *t_inBoardsBuff,
                                CELL_TYPE              *t_outBoardsBuff,
@@ -35,15 +35,14 @@ __device__ void findMostConstrainedCell(const DeviceBoard       &t_board,
                                         uint16_t                &t_cellIdx,
                                         uint16_t                &t_minChildNum);
 
-// seem that moving this func to header and adding __forceinline__ prevents register spilling?
 __device__ __forceinline__ void createAndAlignInBuff(CELL_TYPE         *t_outBoardsBuff,
-                                     CONSTRAINTS_TYPE  *t_outConstraintsBuff,
-                                     uint32_t          *t_outRootsBuff,
-                                     const uint32_t    &t_globalOffset,
-                                     const uint32_t    &t_rootNum,
-                                     const uint16_t    &t_cellNum,
-                                     DeviceBoard       &t_parentBoard,
-                                     DeviceConstraints &t_parentConstraints)
+                                                     CONSTRAINTS_TYPE  *t_outConstraintsBuff,
+                                                     uint32_t          *t_outRootsBuff,
+                                                     const uint32_t    &t_globalOffset,
+                                                     const uint32_t    &t_rootNum,
+                                                     const uint16_t    &t_cellNum,
+                                                     DeviceBoard       &t_parentBoard,
+                                                     DeviceConstraints &t_parentConstraints)
 {
     const auto       idx  = getConstraintsIndexesInfra(t_cellNum);
     CONSTRAINTS_TYPE mask = t_parentConstraints.cells[row][idx.row] & t_parentConstraints.cells[col][idx.col]

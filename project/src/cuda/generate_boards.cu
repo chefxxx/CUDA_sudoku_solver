@@ -48,8 +48,8 @@ __global__ void createChildren(const CELL_TYPE        *t_inBoardsBuff,
         board.initBoard(work, t_inBoardsBuff, MAX_GEN_BOARDS);
         constraints.initConstraints(work, t_inConstraintsBuff, MAX_GEN_BOARDS);
         const uint32_t offset = t_offsetBuff[work];
-        const uint32_t root = t_inRootsBuff[work];
-        const uint16_t cell = t_cellNumsBuff[work];
+        const uint32_t root   = t_inRootsBuff[work];
+        const uint16_t cell   = t_cellNumsBuff[work];
         createAndAlignInBuff(
             t_outBoardsBuff, t_outConstraintsBuff, t_outRootsBuff, offset, root, cell, board, constraints);
     }
