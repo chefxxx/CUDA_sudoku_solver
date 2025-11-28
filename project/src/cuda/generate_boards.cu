@@ -2,6 +2,7 @@
 // Created by chefxx on 25.11.2025.
 //
 
+#include "bit_operations.cuh"
 #include "generate_boards.cuh"
 #include "solver_infra.cuh"
 
@@ -22,6 +23,7 @@ __global__ void chooseChildren(const CELL_TYPE        *t_boardsBuff,
         constraints.initConstraints(work, t_constraintsBuff, MAX_GEN_BOARDS);
         uint16_t cellIdx, minChildNum;
         findMostConstrainedCell(board, constraints, cellIdx, minChildNum);
+        //printf("cell %d, children %d\n", cellIdx, minChildNum);
         t_childrenBuff[work] = minChildNum;
         t_cellNumsBuff[work] = cellIdx;
     }
@@ -64,7 +66,7 @@ __device__ void findMostConstrainedCell(const DeviceBoard       &t_board,
             const uint32_t colMask    = t_constraints.cells[col][idx.col];
             const uint32_t squareMask = t_constraints.cells[square][idx.square];
             const uint32_t mask       = rowMask & colMask & squareMask;
-            const auto     childNum= __popc(mask);
+            const auto     childNum= popCount(mask);
             if (childNum < t_minChildNum) {
                 t_minChildNum = childNum;
                 t_cellIdx     = i;

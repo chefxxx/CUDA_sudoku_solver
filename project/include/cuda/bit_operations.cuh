@@ -16,11 +16,21 @@ __device__ __host__ __forceinline__ void setBitAtIdx(CONSTRAINTS_TYPE &a, const 
 // this func is used for checking bits
 __device__ __host__ __forceinline__ bool checkBitAtIdx(const CONSTRAINTS_TYPE a, const uint32_t idx) { return a & (MIN_LSB << idx); }
 
+// this func returns number of 1's
+__device__ __host__ __forceinline__ int popCount(const CONSTRAINTS_TYPE a)
+{
+#if defined(__CUDA_ARCH__)
+    return __popc(a);
+#else
+    return std::popcount(a);
+#endif
+}
+
 // this func returns index of lsb index, 0-based
 __device__ __host__ __forceinline__ int getLsb(const CONSTRAINTS_TYPE a)
 {
 #if defined(__CUDA_ARCH__)
-    return __ffs(a) - 1;
+    return __ffs(a) - 1; //__ffs() is 1-based, so - 1
 #else
     return std::countr_zero(a);
 #endif
