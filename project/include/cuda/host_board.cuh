@@ -19,7 +19,7 @@ struct Board
     void                    setValue(int t_idx, CELL_TYPE t_num);
     void                    printBoard() const;
     [[nodiscard]] CELL_TYPE getValue(int t_idx) const;
-    void initBoard(size_t t_globalIdx, const std::vector<CELL_TYPE> &t_boardsBuff, size_t t_stride);
+    void                    initBoard(size_t t_globalIdx, const std::vector<CELL_TYPE> &t_boardsBuff, size_t t_stride);
     std::array<CELL_TYPE, SUDOKU_BITPACK_N> inside{};
 };
 
@@ -28,7 +28,7 @@ struct BoardConstraints
     std::array<std::array<CONSTRAINTS_TYPE, SUDOKU_SIZE>, 3> constraints{{{}, {}, {}}};
     explicit BoardConstraints(const std::vector<CELL_TYPE> &t_numbers);
     [[nodiscard]] static std::tuple<int, int, int> getConstraintsIndexes(int t_BoardIdx);
-    bool isValid = true;
+    bool                                           isValid = true;
 };
 
 

@@ -32,6 +32,8 @@ __global__ void createChildren(const CELL_TYPE        *t_inBoardsBuff,
                                CELL_TYPE              *t_outBoardsBuff,
                                const CONSTRAINTS_TYPE *t_inConstraintsBuff,
                                CONSTRAINTS_TYPE       *t_outConstraintsBuff,
+                               const uint32_t         *t_inRootsBuff,
+                               uint32_t               *t_outRootsBuff,
                                const uint32_t         *t_offsetBuff,
                                const uint16_t         *t_cellNumsBuff,
                                const size_t            t_boardCount)
@@ -45,8 +47,11 @@ __global__ void createChildren(const CELL_TYPE        *t_inBoardsBuff,
     for (size_t work = tid; work < t_boardCount; work += workOffset) {
         board.initBoard(work, t_inBoardsBuff, MAX_GEN_BOARDS);
         constraints.initConstraints(work, t_inConstraintsBuff, MAX_GEN_BOARDS);
+        const uint32_t offset = t_offsetBuff[work];
+        const uint32_t root = t_inRootsBuff[work];
+        const uint16_t cell = t_cellNumsBuff[work];
         createAndAlignInBuff(
-            t_outBoardsBuff, t_outConstraintsBuff, t_offsetBuff[work], t_cellNumsBuff[work], board, constraints);
+            t_outBoardsBuff, t_outConstraintsBuff, t_outRootsBuff, offset, root, cell, board, constraints);
     }
 }
 
@@ -61,12 +66,10 @@ __device__ void findMostConstrainedCell(const DeviceBoard       &t_board,
     for (int i = 0; i < SUDOKU_SIZE * SUDOKU_SIZE; ++i) {
         const auto value = t_board.getValue(i);
         if (!value) {
-            const auto     idx        = getConstraintsIndexesInfra(i);
-            const CONSTRAINTS_TYPE mask =
-            t_constraints.cells[row][idx.row] &
-            t_constraints.cells[col][idx.col] &
-            t_constraints.cells[square][idx.square];
-            const auto     childNum= popCount(mask);
+            const auto             idx  = getConstraintsIndexesInfra(i);
+            const CONSTRAINTS_TYPE mask = t_constraints.cells[row][idx.row] & t_constraints.cells[col][idx.col]
+                                        & t_constraints.cells[square][idx.square];
+            const auto childNum = popCount(mask);
             if (childNum < t_minChildNum) {
                 t_minChildNum = childNum;
                 t_cellIdx     = i;
@@ -74,29 +77,3 @@ __device__ void findMostConstrainedCell(const DeviceBoard       &t_board,
         }
     }
 }
-
-// TODO: try to reduce register spilling here
-__device__ void createAndAlignInBuff(CELL_TYPE         *t_outBoardsBuff,
-                                     CONSTRAINTS_TYPE  *t_outConstraintsBuff,
-                                     const uint32_t     t_globalOffset,
-                                     const uint16_t     t_cellNum,
-                                     DeviceBoard       &t_parentBoard,
-                                     DeviceConstraints &t_parentConstraints)
-{
-    const auto idx = getConstraintsIndexesInfra(t_cellNum);
-    CONSTRAINTS_TYPE mask =
-    t_parentConstraints.cells[row][idx.row] &
-    t_parentConstraints.cells[col][idx.col] &
-    t_parentConstraints.cells[square][idx.square];
-    uint32_t childIdx = 0;
-    while (mask) {
-        const int nValue = popLsb(mask);
-        t_parentConstraints.updateConstraints(nValue, idx);
-        t_parentBoard.setValue(t_cellNum, nValue);
-        saveBoardToBuffer(t_outBoardsBuff, t_globalOffset + childIdx, t_parentBoard.cells, MAX_GEN_BOARDS);
-        saveConstraintsToBuffer(t_outConstraintsBuff, MAX_GEN_BOARDS * SUDOKU_SIZE, t_globalOffset + childIdx++, t_parentConstraints.cells, MAX_GEN_BOARDS);
-        t_parentConstraints.revertConstraints(nValue, idx);
-    }
-}
-
-

@@ -41,7 +41,11 @@ __host__ std::tuple<std::vector<CELL_TYPE>, std::vector<CONSTRAINTS_TYPE>, int>
             }
             else {
                 // save constraints to buffer
-                saveConstraintsToBuffer(globalConstraints.data(), t_stride * SUDOKU_SIZE, globalIdx, reinterpret_cast<CONSTRAINTS_TYPE (*)[SUDOKU_SIZE]>(tmpC.constraints.data()), t_stride);
+                saveConstraintsToBuffer(globalConstraints.data(),
+                                        t_stride * SUDOKU_SIZE,
+                                        globalIdx,
+                                        reinterpret_cast<CONSTRAINTS_TYPE(*)[SUDOKU_SIZE]>(tmpC.constraints.data()),
+                                        t_stride);
 
                 // create board and save it to buffer
                 const Board tmpB(values.value());
@@ -66,7 +70,8 @@ __device__ __host__ void saveConstraintsToBuffer(CONSTRAINTS_TYPE *t_buff,
     }
 }
 
-__device__ __host__ void saveBoardToBuffer(CELL_TYPE *t_buff, const size_t t_globalIdx, const CELL_TYPE *t_values, const size_t t_stride)
+__device__ __host__ void
+saveBoardToBuffer(CELL_TYPE *t_buff, const size_t t_globalIdx, const CELL_TYPE *t_values, const size_t t_stride)
 {
     for (int i = 0; i < SUDOKU_BITPACK_N; ++i) {
         t_buff[t_globalIdx + i * t_stride] = t_values[i];

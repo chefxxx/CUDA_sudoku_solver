@@ -10,8 +10,8 @@
 #include <cuda_runtime_api.h>
 #include <iostream>
 #include <memory>
-#include <type_traits>
 #include <spdlog/spdlog.h>
+#include <type_traits>
 
 #include "helper_cuda.h"
 
@@ -136,7 +136,7 @@ public:
         return tmp;
     }
 
-    void swap (unique_ptr& other) noexcept
+    void swap(unique_ptr &other) noexcept
     {
         std::swap(mDevPtr, other.mDevPtr);
         std::swap(mDeleter, other.mDeleter);

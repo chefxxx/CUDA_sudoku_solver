@@ -36,7 +36,8 @@ enum constraints_indexes {
 // Functions
 // ---------
 
-__device__ __host__ __forceinline__ void loadBoardFromBuffer(CELL_TYPE *t_cells, const size_t t_globalIdx, const CELL_TYPE *t_boardsBuff, const size_t t_stride)
+__device__ __host__ __forceinline__ void
+loadBoardFromBuffer(CELL_TYPE *t_cells, const size_t t_globalIdx, const CELL_TYPE *t_boardsBuff, const size_t t_stride)
 {
     for (size_t k = 0; k < SUDOKU_BITPACK_N; ++k) {
         t_cells[k] = t_boardsBuff[t_globalIdx + k * t_stride];

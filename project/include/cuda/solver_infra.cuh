@@ -13,7 +13,8 @@
 #include "host_board.cuh"
 
 __host__ std::optional<std::vector<CELL_TYPE>> convertLineToNumbers(std::string_view t_line);
-__host__ std::tuple<std::vector<CELL_TYPE>, std::vector<CONSTRAINTS_TYPE>, int> convertAndAlignSerial(const std::vector<std::string> &t_encodedBoards, size_t t_stride);
+__host__                                       std::tuple<std::vector<CELL_TYPE>, std::vector<CONSTRAINTS_TYPE>, int>
+convertAndAlignSerial(const std::vector<std::string> &t_encodedBoards, size_t t_stride);
 
 __device__ __host__ void saveConstraintsToBuffer(CONSTRAINTS_TYPE *t_buff,
                                                  size_t            t_constraintOffset,
@@ -21,6 +22,7 @@ __device__ __host__ void saveConstraintsToBuffer(CONSTRAINTS_TYPE *t_buff,
                                                  CONSTRAINTS_TYPE  t_currConstraints[][SUDOKU_SIZE],
                                                  size_t            t_stride);
 
-__device__ __host__ void saveBoardToBuffer(CELL_TYPE *t_buff, size_t t_globalIdx, const CELL_TYPE *t_values, size_t t_stride);
+__device__ __host__ void
+saveBoardToBuffer(CELL_TYPE *t_buff, size_t t_globalIdx, const CELL_TYPE *t_values, size_t t_stride);
 
 #endif // CUDA_SUDOKU_SOLVER_H
