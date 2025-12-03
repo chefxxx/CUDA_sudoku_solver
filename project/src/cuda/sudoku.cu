@@ -54,7 +54,7 @@ void solve(const std::string_view t_method, const std::string_view t_inputFileNa
     auto       d_rootsBuff_A       = mem_cuda::make_unique<uint32_t>(MAX_GEN_BOARDS);
     auto       d_rootsBuff_B       = mem_cuda::make_unique<uint32_t>(MAX_GEN_BOARDS);
     const auto d_childrenCountBuff = mem_cuda::make_unique<uint32_t>(MAX_GEN_BOARDS);
-    const auto d_cellNumsBuff      = mem_cuda::make_unique<uint16_t>(MAX_GEN_BOARDS);
+    const auto d_cellNumsBuff = mem_cuda::make_unique<uint16_t>(MAX_GEN_BOARDS);
 
     // ------------------
     // Copy memory to GPU
@@ -113,14 +113,14 @@ void solve(const std::string_view t_method, const std::string_view t_inputFileNa
         currentNum = nextNum;
     }
 
-    myLog::info(fmt::format("Generated {} boards..", currentNum));
+    myLog::info(fmt::format("Generated {} boards...", currentNum));
 
-    checkCudaErrors(cudaMemcpy(h_boardsBuff.data(), d_boardsBuff_A.get(), BOARD_BUFF_SZ, cudaMemcpyDeviceToHost));
-    checkCudaErrors(cudaMemcpy(h_rootsBuff.data(), d_rootsBuff_A.get(), ROOTS_BUFF_SZ, cudaMemcpyDeviceToHost));
-    for (int i = 0; i < currentNum; ++i) {
-        Board tmp;
-        tmp.initBoard(i, h_boardsBuff, MAX_GEN_BOARDS);
-        std::cout << "root board: " << h_rootsBuff[i] << '\n';
-        tmp.printBoard();
-    }
+    // checkCudaErrors(cudaMemcpy(h_boardsBuff.data(), d_boardsBuff_A.get(), BOARD_BUFF_SZ, cudaMemcpyDeviceToHost));
+    // checkCudaErrors(cudaMemcpy(h_rootsBuff.data(), d_rootsBuff_A.get(), ROOTS_BUFF_SZ, cudaMemcpyDeviceToHost));
+    // for (int i = 0; i < currentNum; ++i) {
+    //     Board tmp;
+    //     tmp.initBoard(i, h_boardsBuff, MAX_GEN_BOARDS);
+    //     std::cout << "root board: " << h_rootsBuff[i] << '\n';
+    //     tmp.printBoard();
+    // }
 }
