@@ -63,10 +63,10 @@ __device__ __host__ __forceinline__ CELL_TYPE getValueInfra(const CELL_TYPE *t_b
     return value;
 }
 
-__device__ __host__ __forceinline__ ConstraintsCoordinates getConstraintsIndexesInfra(const int t_BoardIdx)
+__device__ __host__ __forceinline__ ConstraintsCoordinates getConstraintsIndexesInfra(const int t_boardIdx)
 {
-    const int rowIdx    = t_BoardIdx / SUDOKU_SIZE;
-    const int colIdx    = t_BoardIdx % SUDOKU_SIZE;
+    const int rowIdx    = t_boardIdx / SUDOKU_SIZE;
+    const int colIdx    = t_boardIdx % SUDOKU_SIZE;
     const int squareIdx = rowIdx / 3 * 3 + colIdx / 3;
     return {rowIdx, colIdx, squareIdx};
 }

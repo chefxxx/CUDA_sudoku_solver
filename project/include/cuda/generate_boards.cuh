@@ -11,8 +11,8 @@
 #include "device_board.cuh"
 #include "solver_infra.cuh"
 
-constexpr int THREADS_PER_BLOCK = 128;
-constexpr int BLOCKS_PER_GRID   = 128;
+constexpr int THREADS_PER_BLOCK = 1;
+constexpr int BLOCKS_PER_GRID   = 1;
 constexpr int MAX_GEN_BOARDS    = 1048576;
 constexpr int MAX_GENERATIONS   = 10;
 
@@ -25,11 +25,13 @@ __global__ void createChildren(const CELL_TYPE        *t_inBoardsBuff,
                                const uint32_t         *t_offsetBuff,
                                const uint16_t         *t_cellNumsBuff,
                                size_t                  t_boardCount);
+
 __global__ void chooseChildren(const CELL_TYPE        *t_boardsBuff,
                                const CONSTRAINTS_TYPE *t_constraintsBuff,
                                uint32_t               *t_childrenBuff,
                                uint16_t               *t_cellNumsBuff,
                                size_t                  t_boardCount);
+
 __device__ void findMostConstrainedCell(const DeviceBoard       &t_board,
                                         const DeviceConstraints &t_constraints,
                                         uint16_t                &t_cellIdx,

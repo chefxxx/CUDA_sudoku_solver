@@ -7,6 +7,7 @@
 #include <thrust/reduce.h>
 #include <thrust/scan.h>
 
+#include "dfs.cuh"
 #include "generate_boards.cuh"
 #include "io_manager.h"
 #include "memory_cuda.cuh"
@@ -115,12 +116,15 @@ void solve(const std::string_view t_method, const std::string_view t_inputFileNa
 
     myLog::info(fmt::format("Generated {} boards...", currentNum));
 
-    // checkCudaErrors(cudaMemcpy(h_boardsBuff.data(), d_boardsBuff_A.get(), BOARD_BUFF_SZ, cudaMemcpyDeviceToHost));
-    // checkCudaErrors(cudaMemcpy(h_rootsBuff.data(), d_rootsBuff_A.get(), ROOTS_BUFF_SZ, cudaMemcpyDeviceToHost));
-    // for (int i = 0; i < currentNum; ++i) {
-    //     Board tmp;
-    //     tmp.initBoard(i, h_boardsBuff, MAX_GEN_BOARDS);
-    //     std::cout << "root board: " << h_rootsBuff[i] << '\n';
-    //     tmp.printBoard();
-    // }
+    checkCudaErrors(cudaDeviceSynchronize());
+    solveSudokuBoards<<<THREADS_PER_BLOCK, BLOCKS_PER_GRID>>>(d_boardsBuff_A.get(), d_boardsBuff_B.get(), d_constraintsBuff_A.get(), d_rootsBuff_A.get(), currentNum);
+    getLastCudaError("solveSudokuBoards kernel failed!");
+    checkCudaErrors(cudaDeviceSynchronize());
+
+    checkCudaErrors(cudaMemcpy(h_boardsBuff.data(), d_boardsBuff_B.get(), BOARD_BUFF_SZ, cudaMemcpyDeviceToHost));
+    for (int i = 0; i < t_count; ++i) {
+        Board tmp;
+        tmp.initBoard(i, h_boardsBuff, MAX_GEN_BOARDS);
+        tmp.printBoard();
+    }
 }
