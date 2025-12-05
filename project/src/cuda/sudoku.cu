@@ -8,19 +8,26 @@
 #include <thrust/scan.h>
 
 #include "dfs.cuh"
+#include "sudoku.cuh"
 #include "generate_boards.cuh"
 #include "io_manager.h"
-#include "memory_cuda.cuh"
 #include "solver_infra.cuh"
 #include "spdlog_macros.h"
 
-constexpr size_t BOARD_BUFF_N        = MAX_GEN_BOARDS * SUDOKU_BITPACK_N;
-constexpr size_t BOARD_BUFF_SZ       = sizeof(CELL_TYPE) * BOARD_BUFF_N;
-constexpr size_t CONSTRAINTS_BUFF_N  = MAX_GEN_BOARDS * CONSTRAINTS_N * SUDOKU_SIZE;
-constexpr size_t CONSTRAINTS_BUFF_SZ = sizeof(CONSTRAINTS_TYPE) * CONSTRAINTS_BUFF_N;
-constexpr size_t ROOTS_BUFF_SZ       = sizeof(uint32_t) * MAX_GEN_BOARDS;
+void copyToGPU(const mem_cuda::unique_ptr<CELL_TYPE>        &t_dBoards,
+               const mem_cuda::unique_ptr<CONSTRAINTS_TYPE> &t_dConstraints,
+               const mem_cuda::unique_ptr<uint32_t>         &t_dRoots,
+               const std::vector<CELL_TYPE>                 &t_hBoards,
+               const std::vector<CONSTRAINTS_TYPE>          &t_hConstraints,
+               const std::vector<uint32_t>                  &t_hRoots,
+               const size_t                                  t_count)
+{
+    checkCudaErrors(cudaMemcpy(t_dBoards.get(), t_hBoards.data(), BOARD_BUFF_SZ(t_count), cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMemcpy(t_dConstraints.get(), t_hConstraints.data(), CONSTRAINTS_BUFF_SZ(t_count), cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMemcpy(t_dRoots.get(), t_hRoots.data(), ROOTS_BUFF_SZ(t_count), cudaMemcpyHostToDevice));
+}
 
-void solve(const std::string_view t_method, const std::string_view t_inputFileName, const int t_count)
+__host__ void solve(const std::string_view t_method, const std::string_view t_inputFileName, const int t_count)
 {
     // TODO: CPU solver
     if (t_method == "cpu")
@@ -37,6 +44,7 @@ void solve(const std::string_view t_method, const std::string_view t_inputFileNa
     // ---------------------
     myLog::info("Storing boards to CPU buffers...");
     auto [h_boardsBuff, h_constraintsBuff, initCreatedNum] = convertAndAlignSerial(encodedBoards, MAX_GEN_BOARDS);
+
     myLog::info(fmt::format("Created {} boards out of {}.", initCreatedNum, t_count));
     std::vector<uint32_t> h_rootsBuff(MAX_GEN_BOARDS);
     std::iota(h_rootsBuff.begin(), h_rootsBuff.begin() + initCreatedNum, 0);
@@ -48,23 +56,16 @@ void solve(const std::string_view t_method, const std::string_view t_inputFileNa
     // Two buffers are used to read current boards and write new children.
     // -------------------------------------------------------------------------------
     myLog::info("Allocating GPU memory...");
-    auto       d_boardsBuff_A      = mem_cuda::make_unique<CELL_TYPE>(BOARD_BUFF_N);
-    auto       d_boardsBuff_B      = mem_cuda::make_unique<CELL_TYPE>(BOARD_BUFF_SZ);
-    auto       d_constraintsBuff_A = mem_cuda::make_unique<CONSTRAINTS_TYPE>(CONSTRAINTS_BUFF_N);
-    auto       d_constraintsBuff_B = mem_cuda::make_unique<CONSTRAINTS_TYPE>(CONSTRAINTS_BUFF_SZ);
-    auto       d_rootsBuff_A       = mem_cuda::make_unique<uint32_t>(MAX_GEN_BOARDS);
-    auto       d_rootsBuff_B       = mem_cuda::make_unique<uint32_t>(MAX_GEN_BOARDS);
-    const auto d_childrenCountBuff = mem_cuda::make_unique<uint32_t>(MAX_GEN_BOARDS);
-    const auto d_cellNumsBuff = mem_cuda::make_unique<uint16_t>(MAX_GEN_BOARDS);
+    auto [d_boardsBuff_A, d_boardsBuff_B] = allocateGPUPair<CELL_TYPE>(BOARD_BUFF_N(MAX_GEN_BOARDS));
+    auto [d_constraintsBuff_A, d_constraintsBuff_B] = allocateGPUPair<CONSTRAINTS_TYPE>(CONSTRAINTS_BUFF_N(MAX_GEN_BOARDS));
+    auto [d_rootsBuff_A, d_rootsBuff_B] = allocateGPUPair<uint32_t>(ROOTS_BUFF_N(MAX_GEN_BOARDS));
+    const auto [d_childrenCountBuff, d_cellNumsBuff] = allocateGPURest<uint32_t, uint16_t>(MAX_GEN_BOARDS);
 
     // ------------------
     // Copy memory to GPU
     // ------------------
     myLog::info("Copying data to GPU...");
-    checkCudaErrors(cudaMemcpy(d_boardsBuff_A.get(), h_boardsBuff.data(), BOARD_BUFF_SZ, cudaMemcpyHostToDevice));
-    checkCudaErrors(
-        cudaMemcpy(d_constraintsBuff_A.get(), h_constraintsBuff.data(), CONSTRAINTS_BUFF_SZ, cudaMemcpyHostToDevice));
-    checkCudaErrors(cudaMemcpy(d_rootsBuff_A.get(), h_rootsBuff.data(), ROOTS_BUFF_SZ, cudaMemcpyHostToDevice));
+    copyToGPU(d_boardsBuff_A, d_constraintsBuff_A, d_rootsBuff_A, h_boardsBuff, h_constraintsBuff, h_rootsBuff, MAX_GEN_BOARDS);
 
     // -----------------------------
     // Execute board generation loop
@@ -121,10 +122,11 @@ void solve(const std::string_view t_method, const std::string_view t_inputFileNa
     getLastCudaError("solveSudokuBoards kernel failed!");
     checkCudaErrors(cudaDeviceSynchronize());
 
-    checkCudaErrors(cudaMemcpy(h_boardsBuff.data(), d_boardsBuff_B.get(), BOARD_BUFF_SZ, cudaMemcpyDeviceToHost));
+    checkCudaErrors(cudaMemcpy(h_boardsBuff.data(), d_boardsBuff_B.get(), BOARD_BUFF_SZ(MAX_GEN_BOARDS), cudaMemcpyDeviceToHost));
     for (int i = 0; i < t_count; ++i) {
         Board tmp;
         tmp.initBoard(i, h_boardsBuff, MAX_GEN_BOARDS);
         tmp.printBoard();
     }
 }
+
