@@ -33,6 +33,7 @@ template <typename... Types> __host__ std::tuple<mem_cuda::unique_ptr<Types>...>
     return std::tuple<mem_cuda::unique_ptr<Types>...>(mem_cuda::make_unique<Types>(t_count)...);
 }
 
+
 __host__ inline void launchChooseChildren(const mem_cuda::unique_ptr<CELL_TYPE>        &t_dBoards,
                                           const mem_cuda::unique_ptr<CONSTRAINTS_TYPE> &t_dConstraints,
                                           const mem_cuda::unique_ptr<uint32_t>         &t_dChildren,
@@ -45,5 +46,7 @@ __host__ inline void launchChooseChildren(const mem_cuda::unique_ptr<CELL_TYPE> 
     getLastCudaError("chooseChildren kernel failed!");
     checkCudaErrors(cudaDeviceSynchronize());
 }
+
+
 
 #endif

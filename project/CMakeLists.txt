@@ -4,16 +4,18 @@ message("Loading project...")
 # Gather source files #
 # ------------------------------------------------------------------------------ #
 
-file(GLOB CUDA_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/cuda/*.cu" )
-file(GLOB CXX_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/cpu/*.cpp" )
+file(GLOB SOURCES
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/cuda/*.cu"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/cpu/*.cpp"
+)
 
 # ------------------------------------------------------------------------------ #
-# Define cuda lib #
+# Define shared lib #
 # ------------------------------------------------------------------------------ #
 
 message("Loading CUDA library...")
 
-add_library(${CUDA_LIB} SHARED ${CUDA_SOURCES})
+add_library(${CUDA_LIB} SHARED ${SOURCES})
 
 set(CMAKE_CUDA_ARCHITECTURES 60 61)
 
@@ -22,48 +24,26 @@ set_property(TARGET ${CUDA_LIB} PROPERTY CUDA_ARCHITECTURES ${CMAKE_CUDA_ARCHITE
 message("Supported CUDA architectures: " "${CMAKE_CUDA_ARCHITECTURES}")
 
 target_include_directories(${CUDA_LIB} PUBLIC
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/cpu"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/cuda"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/cuda_utils"
+        ${CUDAToolkit_INCLUDE_DIRS}
 )
 
-target_link_libraries(${CUDA_LIB} PUBLIC CUDA::cudart ${HOST_LIB})
+target_link_libraries(${CUDA_LIB} PUBLIC CUDA::cudart spdlog::spdlog)
 
-# When this property is ON, CMake passes the '-dc' flag to nvcc, which compiles
-# each CUDA source file into relocatable device code. This allows device functions
-# defined in one translation unit (.cu file) to be called from another — e.g., across
-# libraries or in the final executable.
-#
-# This is required if CUDA_LIB exposes device symbols that are linked
-# later (by another library or executable). Otherwise, device linkage would fail.
-#
-# Note: Each target that contains CUDA sources and defines or calls device
-# functions must have this property enabled separately.
 set_target_properties(${CUDA_LIB} PROPERTIES
         CUDA_SEPARABLE_COMPILATION ON
-        CUDA_RESOLVE_DEVICE_SYMBOLS ON)
+        CUDA_RESOLVE_DEVICE_SYMBOLS ON
+)
 
-
-
-# ------------------------------------------------------------------------------ #
-# Define cxx lib #
-# ------------------------------------------------------------------------------ #
-
-message("Loading CXX library...")
-
-add_library(${HOST_LIB} STATIC ${CXX_SOURCES})
-target_include_directories(${HOST_LIB} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include/cpu")
-target_link_libraries(${HOST_LIB} PUBLIC spdlog::spdlog)
 
 # ------------------------------------------------------------------------------ #
 # Define executable #
 # ------------------------------------------------------------------------------ #
 
 add_executable(${MAIN} main.cu)
-
-# The main executable also launches CUDA kernels and may contain
-# device code, so we enable separable compilation here as well.
-set_target_properties(${MAIN} PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
-target_link_libraries(${MAIN} PUBLIC ${CUDA_LIB})
+target_link_libraries(${MAIN} PRIVATE ${CUDA_LIB})
 
 # ------------------------------------------------------------------------------ #
 # Compilation settings #
@@ -75,56 +55,26 @@ if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "RELEASE")
 endif ()
 
-message("Build type: " "${CMAKE_BUILD_TYPE}")
+message("Build type " "${CMAKE_BUILD_TYPE}")
+message("Using host compiler " ${CMAKE_CXX_COMPILER_ID})
 
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-        message("Using GNU complier...")
-    elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-        message("Using Clang...")
-    elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-        message("Using MSVC...")
-    else ()
-        message(FATAL_ERROR "Compiler " "${CXX_COMPILER_ID}" " is not supported.")
-    endif ()
-    target_compile_options(${HOST_LIB} PRIVATE
-            $<$<CXX_COMPILER_ID:GNU>:-g -O0 -Wall -Wextra -pedantic -Wshadow -Wnon-virtual-dtor -Werror>
-            $<$<CXX_COMPILER_ID:Clang>:-g -O0 -Wall -Wextra -pedantic -Wshadow -Wnon-virtual-dtor -Werror>
-            $<$<CXX_COMPILER_ID:MSVC>:/W4>
-    )
-    target_compile_options(${CUDA_LIB} PRIVATE
-            -v
-            -g3
-            -fno-omit-frame-pointer
-            -G
-            -O0
-            -Xcompiler -g
-            -Xcompiler -O0
-            -Xcompiler -Wall
-            -Xcompiler -Wextra
-    )
-elseif (CMAKE_BUILD_TYPE STREQUAL "Release")
-    if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-        message("Using GNU complier...")
-    elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-        message("Using Clang...")
-    elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-        message("Using MSVC...")
-    else ()
-        message(FATAL_ERROR "Compiler " "${CXX_COMPILER_ID}" " is not supported.")
-    endif ()
-    target_compile_options(${HOST_LIB} PRIVATE
-            $<$<CXX_COMPILER_ID:GNU>:-O3 -march=native -funroll-loops>
-            $<$<CXX_COMPILER_ID:Clang>:-O3 -march=native -funroll-loops>
-            $<$<CXX_COMPILER_ID:MSVC>:> 
-    )
-    target_compile_options(${CUDA_LIB} PRIVATE
-            --ptxas-options=-v
-            -Xptxas -O3
-            -Xcompiler -O3
-            -Xcompiler -march=native
-            -Xcompiler -funroll-loops
-    )
-else()
-    message(FATAL_ERROR "Unknown build type.")
-endif ()
+# C++ compile options
+target_compile_options(${CUDA_LIB} PUBLIC
+        # MSVC
+        $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:MSVC>,$<COMPILE_LANGUAGE:CXX>>: /W4 /Od>
+        $<$<AND:$<CONFIG:Release>,$<CXX_COMPILER_ID:MSVC>,$<COMPILE_LANGUAGE:CXX>>: /O2>
+        # GNU/Clang
+        $<$<AND:$<CONFIG:Debug>,$<COMPILE_LANGUAGE:CXX>>: -g -O0 -Wall -Wextra -pedantic -Wshadow -Wnon-virtual-dtor -Werror>
+        $<$<AND:$<CONFIG:Release>,$<COMPILE_LANGUAGE:CXX>>: -O3 -march=native -funroll-loops>
+)
+
+# CUDA compile options
+target_compile_options(${CUDA_LIB} PUBLIC
+        $<$<AND:$<CONFIG:Debug>,$<COMPILE_LANGUAGE:CUDA>>: -v -g3 -fno-omit-frame-pointer -G -O0>
+        $<$<AND:$<CONFIG:Release>,$<COMPILE_LANGUAGE:CUDA>>: --ptxas-options=-v -Xptxas -O3>
+
+        $<$<AND:$<CONFIG:Release>,$<COMPILE_LANGUAGE:CUDA>,$<CXX_COMPILER_ID:MSVC>>: -Xcompiler /O2>
+
+        $<$<AND:$<CONFIG:Debug>,$<COMPILE_LANGUAGE:CUDA>,$<CXX_COMPILER_ID:GNU>>: -Xcompiler -g -Xcompiler -O0 -Xcompiler -Wall -Xcompiler -Wextra>
+        $<$<AND:$<CONFIG:Release>,$<COMPILE_LANGUAGE:CUDA>,$<CXX_COMPILER_ID:GNU>>: -Xcompiler -O3 -Xcompiler -march=native -Xcompiler -funroll-loops>
+)
