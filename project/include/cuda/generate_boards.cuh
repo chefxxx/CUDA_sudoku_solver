@@ -11,10 +11,6 @@
 #include "device_board.cuh"
 #include "solver_infra.cuh"
 
-constexpr int THREADS_PER_BLOCK = 1;
-constexpr int BLOCKS_PER_GRID   = 1;
-constexpr int MAX_GEN_BOARDS    = 1048576;
-constexpr int MAX_GENERATIONS   = 10;
 
 __global__ void createChildren(const CELL_TYPE        *t_inBoardsBuff,
                                CELL_TYPE              *t_outBoardsBuff,

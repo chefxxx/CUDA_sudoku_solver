@@ -7,7 +7,7 @@
 
 #include <bit>
 
-#include "board_defines.h"
+#include "defines.h"
 
 constexpr CONSTRAINTS_TYPE MIN_LSB = 1u;
 

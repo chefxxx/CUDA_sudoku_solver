@@ -5,7 +5,7 @@
 #ifndef SUDOKU_BOARD_INFRA_H
 #define SUDOKU_BOARD_INFRA_H
 
-#include "board_defines.h"
+#include "defines.h"
 
 // -----------------------------
 // Simple struct for constraints

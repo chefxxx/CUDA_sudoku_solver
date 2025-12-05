@@ -27,14 +27,14 @@ __device__ __forceinline__ void solveOneBoard(DeviceBoard       &t_board,
     for (uint16_t i = 0; i < SUDOKU_SIZE * SUDOKU_SIZE; i++) {
         const CELL_TYPE val = t_board.getValue(i);
         if (!val) {
-            t_emptyBuff[emptyIdx] = i;
+            t_emptyBuff[emptyIdx]   = i;
             t_masksBuff[emptyIdx++] = 0;
         }
     }
 
     t_masksBuff[0] = t_constraints.getConstraintsMask(t_emptyBuff[0]);
     uint16_t value;
-    short curr = 0;
+    short    curr = 0;
     while (curr >= 0) {
         uint16_t idx = t_emptyBuff[curr];
 
@@ -54,9 +54,10 @@ __device__ __forceinline__ void solveOneBoard(DeviceBoard       &t_board,
         }
         else {
             curr--;
-            if (curr < 0) break;
+            if (curr < 0)
+                break;
 
-            idx = t_emptyBuff[curr];
+            idx   = t_emptyBuff[curr];
             value = t_board.getValue(idx);
             t_constraints.revertConstraints(value, idx);
             t_board.setValue(idx, 0);

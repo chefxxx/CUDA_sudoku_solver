@@ -19,8 +19,8 @@ __global__ void solveSudokuBoards(const CELL_TYPE        *t_inBoardsBuff,
     __shared__ uint16_t emptyBuffer[MAX_STACK_SIZE * THREADS_PER_BLOCK];
     __shared__ uint16_t masksBuffer[MAX_STACK_SIZE * THREADS_PER_BLOCK];
 
-    uint16_t* empty  = &emptyBuffer[MAX_STACK_SIZE * threadIdx.x];
-    uint16_t* masks  = &masksBuffer[MAX_STACK_SIZE * threadIdx.x];
+    uint16_t *empty = &emptyBuffer[MAX_STACK_SIZE * threadIdx.x];
+    uint16_t *masks = &masksBuffer[MAX_STACK_SIZE * threadIdx.x];
 
     for (size_t work = tid; work < t_boardCount; work += workOffset) {
         board.initBoard(work, t_inBoardsBuff, MAX_GEN_BOARDS);

@@ -7,7 +7,7 @@
 #include <cassert>
 #include <fstream>
 
-#include "board_defines.h"
+#include "defines.h"
 #include "spdlog_macros.h"
 
 std::vector<std::string> readInput(std::string_view t_inputFileName, const int t_count)

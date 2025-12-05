@@ -13,7 +13,7 @@ file(GLOB CXX_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/cpu/*.cpp" )
 
 message("Loading CUDA library...")
 
-add_library(${CUDA_LIB} STATIC ${CUDA_SOURCES})
+add_library(${CUDA_LIB} SHARED ${CUDA_SOURCES})
 
 set(CMAKE_CUDA_ARCHITECTURES 60 61)
 
@@ -38,7 +38,11 @@ target_link_libraries(${CUDA_LIB} PUBLIC CUDA::cudart ${HOST_LIB})
 #
 # Note: Each target that contains CUDA sources and defines or calls device
 # functions must have this property enabled separately.
-set_target_properties(${CUDA_LIB} PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+set_target_properties(${CUDA_LIB} PROPERTIES
+        CUDA_SEPARABLE_COMPILATION ON
+        CUDA_RESOLVE_DEVICE_SYMBOLS ON)
+
+
 
 # ------------------------------------------------------------------------------ #
 # Define cxx lib #

@@ -23,5 +23,4 @@ target_link_libraries(${TEST} PRIVATE
         GTest::gtest_main
 )
 
-set_target_properties(${TEST} PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 include(GoogleTest)
