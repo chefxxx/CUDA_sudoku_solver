@@ -20,13 +20,15 @@ __global__ void createChildren(const CELL_TYPE        *t_inBoardsBuff,
                                uint32_t               *t_outRootsBuff,
                                const uint32_t         *t_offsetBuff,
                                const uint16_t         *t_cellNumsBuff,
-                               size_t                  t_boardCount);
+                               size_t                  t_boardCount,
+                               size_t                  t_globalStride);
 
 __global__ void chooseChildren(const CELL_TYPE        *t_boardsBuff,
                                const CONSTRAINTS_TYPE *t_constraintsBuff,
                                uint32_t               *t_childrenBuff,
                                uint16_t               *t_cellNumsBuff,
-                               size_t                  t_boardCount);
+                               size_t                  t_boardCount,
+                               size_t                  t_globalStride);
 
 __device__ void findMostConstrainedCell(const DeviceBoard       &t_board,
                                         const DeviceConstraints &t_constraints,
@@ -40,7 +42,8 @@ __device__ __forceinline__ void createAndAlignInBuff(CELL_TYPE         *t_outBoa
                                                      const uint32_t    &t_rootNum,
                                                      const uint16_t    &t_cellNum,
                                                      DeviceBoard       &t_parentBoard,
-                                                     DeviceConstraints &t_parentConstraints)
+                                                     DeviceConstraints &t_parentConstraints,
+                                                     const size_t       t_globalStride)
 {
     const auto       idx  = getConstraintsIndexesInfra(t_cellNum);
     CONSTRAINTS_TYPE mask = t_parentConstraints.cells[row][idx.row] & t_parentConstraints.cells[col][idx.col]
@@ -50,13 +53,13 @@ __device__ __forceinline__ void createAndAlignInBuff(CELL_TYPE         *t_outBoa
         const int nValue = popLsb(mask);
         t_parentConstraints.updateConstraints(nValue, idx);
         t_parentBoard.setValue(t_cellNum, nValue);
-        saveBoardToBuffer(t_outBoardsBuff, t_globalOffset + childIdx, t_parentBoard.cells, MAX_GEN_BOARDS);
+        saveBoardToBuffer(t_outBoardsBuff, t_globalOffset + childIdx, t_parentBoard.cells, t_globalStride);
         t_outRootsBuff[t_globalOffset + childIdx] = t_rootNum;
         saveConstraintsToBuffer(t_outConstraintsBuff,
-                                MAX_GEN_BOARDS * SUDOKU_SIZE,
+                                t_globalStride * SUDOKU_SIZE,
                                 t_globalOffset + childIdx++,
                                 t_parentConstraints.cells,
-                                MAX_GEN_BOARDS);
+                                t_globalStride);
         t_parentConstraints.revertConstraints(nValue, idx);
     }
 }

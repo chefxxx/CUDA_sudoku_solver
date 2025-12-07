@@ -38,11 +38,12 @@ __host__ inline void launchChooseChildren(const mem_cuda::unique_ptr<CELL_TYPE> 
                                           const mem_cuda::unique_ptr<CONSTRAINTS_TYPE> &t_dConstraints,
                                           const mem_cuda::unique_ptr<uint32_t>         &t_dChildren,
                                           const mem_cuda::unique_ptr<uint16_t>         &t_dCellNums,
-                                          const size_t                                  t_currentCount)
+                                          const size_t                                  t_currentCount,
+                                          const size_t                                  t_globalStride)
 {
     checkCudaErrors(cudaDeviceSynchronize());
     chooseChildren<<<THREADS_PER_BLOCK, BLOCKS_PER_GRID>>>(
-        t_dBoards.get(), t_dConstraints.get(), t_dChildren.get(), t_dCellNums.get(), t_currentCount);
+        t_dBoards.get(), t_dConstraints.get(), t_dChildren.get(), t_dCellNums.get(), t_currentCount, t_globalStride);
     getLastCudaError("chooseChildren kernel failed!");
     checkCudaErrors(cudaDeviceSynchronize());
 }

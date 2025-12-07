@@ -82,7 +82,8 @@ __host__ void solve(const std::string_view t_method, const std::string_view t_in
     size_t nextNum    = initCreatedNum;
     myLog::info("Executing board generation loop...");
     for (int i = 0; i < MAX_GENERATIONS; ++i) {
-        launchChooseChildren(d_boardsBuff_A, d_constraintsBuff_A, d_childrenCountBuff, d_cellNumsBuff, currentNum);
+        launchChooseChildren(
+            d_boardsBuff_A, d_constraintsBuff_A, d_childrenCountBuff, d_cellNumsBuff, currentNum, MAX_GEN_BOARDS);
 
         // Reduce and exclusive scan to get new number of boards and offsets
         nextNum = thrust::reduce(thrust::device, d_childrenCountBuff.get(), d_childrenCountBuff.get() + currentNum);
@@ -105,7 +106,8 @@ __host__ void solve(const std::string_view t_method, const std::string_view t_in
                                                                d_rootsBuff_B.get(),
                                                                d_childrenCountBuff.get(),
                                                                d_cellNumsBuff.get(),
-                                                               currentNum);
+                                                               currentNum,
+                                                               MAX_GEN_BOARDS);
         getLastCudaError("createChildren kernel failed!");
         checkCudaErrors(cudaDeviceSynchronize());
 
