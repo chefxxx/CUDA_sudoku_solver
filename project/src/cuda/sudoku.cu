@@ -57,11 +57,11 @@ __host__ void solve(const std::string_view t_method, const std::string_view t_in
     // Two buffers are used to read current boards and write new children.
     // -------------------------------------------------------------------------------
     myLog::info("Allocating GPU memory...");
-    auto [d_boardsBuff_A, d_boardsBuff_B] = allocateGPUPair<CELL_TYPE>(BOARD_BUFF_N(MAX_GEN_BOARDS));
+    auto [d_boardsBuff_A, d_boardsBuff_B] = allocateGPU_Pair<CELL_TYPE>(BOARD_BUFF_N(MAX_GEN_BOARDS));
     auto [d_constraintsBuff_A, d_constraintsBuff_B] =
-        allocateGPUPair<CONSTRAINTS_TYPE>(CONSTRAINTS_BUFF_N(MAX_GEN_BOARDS));
-    auto [d_rootsBuff_A, d_rootsBuff_B]              = allocateGPUPair<uint32_t>(ROOTS_BUFF_N(MAX_GEN_BOARDS));
-    const auto [d_childrenCountBuff, d_cellNumsBuff] = allocateGPURest<uint32_t, uint16_t>(MAX_GEN_BOARDS);
+        allocateGPU_Pair<CONSTRAINTS_TYPE>(CONSTRAINTS_BUFF_N(MAX_GEN_BOARDS));
+    auto [d_rootsBuff_A, d_rootsBuff_B]              = allocateGPU_Pair<uint32_t>(ROOTS_BUFF_N(MAX_GEN_BOARDS));
+    const auto [d_childrenCountBuff, d_cellNumsBuff] = allocateGPU_AnySameSize<uint32_t, uint16_t>(MAX_GEN_BOARDS);
 
     // ------------------
     // Copy memory to GPU
@@ -88,7 +88,7 @@ __host__ void solve(const std::string_view t_method, const std::string_view t_in
         // Reduce and exclusive scan to get new number of boards and offsets
         nextNum = thrust::reduce(thrust::device, d_childrenCountBuff.get(), d_childrenCountBuff.get() + currentNum);
         if (nextNum > MAX_GEN_BOARDS) {
-            myLog::info(fmt::format("Stopping at {} generations, board generation limit exceeded!", i));
+            myLog::info(fmt::format("Stopping at {} generations, board generation limit of {} boards exceeded!", i, MAX_GEN_BOARDS));
             break;
         }
 
@@ -119,18 +119,24 @@ __host__ void solve(const std::string_view t_method, const std::string_view t_in
     }
 
     myLog::info(fmt::format("Generated {} boards...", currentNum));
+    std::vector<uint32_t> h_solutions(t_count, 0);
+    const auto d_solutions = allocateAndCopyGPU_FromHostVector(h_solutions);
 
+    myLog::info("Running main solver kernel...");
     checkCudaErrors(cudaDeviceSynchronize());
-    solveSudokuBoards<<<THREADS_PER_BLOCK, BLOCKS_PER_GRID>>>(
-        d_boardsBuff_A.get(), d_boardsBuff_B.get(), d_constraintsBuff_A.get(), d_rootsBuff_A.get(), currentNum);
+    solveSudokuBoards<<<THREADS_PER_BLOCK, BLOCKS_PER_GRID>>>(d_boardsBuff_A.get(),
+                                                              d_boardsBuff_B.get(),
+                                                              d_constraintsBuff_A.get(),
+                                                              d_rootsBuff_A.get(),
+                                                              d_solutions.get(),
+                                                              currentNum,
+                                                              MAX_GEN_BOARDS);
     getLastCudaError("solveSudokuBoards kernel failed!");
     checkCudaErrors(cudaDeviceSynchronize());
 
-    checkCudaErrors(
-        cudaMemcpy(h_boardsBuff.data(), d_boardsBuff_B.get(), BOARD_BUFF_SZ(MAX_GEN_BOARDS), cudaMemcpyDeviceToHost));
-    for (int i = 0; i < t_count; ++i) {
-        Board tmp;
-        tmp.initBoard(i, h_boardsBuff, MAX_GEN_BOARDS);
-        tmp.printBoard();
-    }
+    myLog::info("Copying results to the host...");
+    checkCudaErrors(cudaMemcpy(h_boardsBuff.data(), d_boardsBuff_B.get(), BOARD_BUFF_SZ(MAX_GEN_BOARDS), cudaMemcpyDeviceToHost));
+    checkCudaErrors(cudaMemcpy(h_solutions.data(), d_solutions.get(), h_solutions.size() * sizeof(uint32_t), cudaMemcpyDeviceToHost));
+
+
 }

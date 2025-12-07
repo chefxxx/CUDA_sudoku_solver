@@ -21,16 +21,24 @@ __host__ void copyToGPU(const mem_cuda::unique_ptr<CELL_TYPE>        &t_dBoards,
                         size_t                                        t_count);
 
 template <typename Type>
-__host__ std::tuple<mem_cuda::unique_ptr<Type>, mem_cuda::unique_ptr<Type>> allocateGPUPair(const size_t t_count)
+__host__ std::tuple<mem_cuda::unique_ptr<Type>, mem_cuda::unique_ptr<Type>> allocateGPU_Pair(const size_t t_count)
 {
     auto d_A = mem_cuda::make_unique<Type>(t_count);
     auto d_B = mem_cuda::make_unique<Type>(t_count);
     return std::make_tuple(std::move(d_A), std::move(d_B));
 }
 
-template <typename... Types> __host__ std::tuple<mem_cuda::unique_ptr<Types>...> allocateGPURest(const size_t t_count)
+template <typename... Types> __host__ std::tuple<mem_cuda::unique_ptr<Types>...> allocateGPU_AnySameSize(const size_t t_count)
 {
     return std::tuple<mem_cuda::unique_ptr<Types>...>(mem_cuda::make_unique<Types>(t_count)...);
+}
+
+template <typename Type>
+__host__ mem_cuda::unique_ptr<Type> allocateAndCopyGPU_FromHostVector(std::vector<Type> t_host)
+{
+    auto d_ptr = mem_cuda::make_unique<Type>(t_host.size());
+    checkCudaErrors(cudaMemcpy(d_ptr.get(), t_host.data(), sizeof(Type) * t_host.size(), cudaMemcpyHostToDevice));
+    return d_ptr;
 }
 
 

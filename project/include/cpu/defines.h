@@ -23,10 +23,10 @@ constexpr int CONSTRAINTS_N    = 3;
 // ------------------------
 // Main gpu solver settings
 // ------------------------
-constexpr int THREADS_PER_BLOCK = 1;
-constexpr int BLOCKS_PER_GRID   = 1;
-constexpr int MAX_GEN_BOARDS    = 1048576;
-constexpr int MAX_GENERATIONS   = 10;
+constexpr int THREADS_PER_BLOCK = 128;
+constexpr int BLOCKS_PER_GRID   = 128;
+constexpr int MAX_GEN_BOARDS    = 2097152;
+constexpr int MAX_GENERATIONS   = 25;
 
 // -------------
 // Buffers sizes

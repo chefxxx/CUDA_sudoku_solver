@@ -17,7 +17,7 @@ message("Loading CUDA library...")
 
 add_library(${CUDA_LIB} SHARED ${SOURCES})
 
-set(CMAKE_CUDA_ARCHITECTURES 60 61)
+set(CMAKE_CUDA_ARCHITECTURES 61)
 
 # CUDA Architecture setting
 set_property(TARGET ${CUDA_LIB} PROPERTY CUDA_ARCHITECTURES ${CMAKE_CUDA_ARCHITECTURES})

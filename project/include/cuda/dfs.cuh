@@ -14,14 +14,18 @@ __global__ void solveSudokuBoards(const CELL_TYPE        *t_inBoardsBuff,
                                   CELL_TYPE              *t_outBoardsBuff,
                                   const CONSTRAINTS_TYPE *t_constraintsBuff,
                                   const uint32_t         *t_rootBuff,
-                                  size_t                  t_boardCount);
+                                  uint32_t               *t_solutions,
+                                  size_t                  t_boardCount,
+                                  size_t                  t_globalStride);
 
 __device__ __forceinline__ void solveOneBoard(DeviceBoard       &t_board,
                                               DeviceConstraints &t_constraints,
                                               uint16_t          *t_emptyBuff,
                                               uint16_t          *t_masksBuff,
                                               CELL_TYPE         *t_outBoardsBuff,
-                                              const size_t       t_globalOffset)
+                                              uint32_t          *t_solutions,
+                                              const size_t       t_globalStride,
+                                              const size_t       t_rootIdx)
 {
     int emptyIdx = 0;
     for (uint16_t i = 0; i < SUDOKU_SIZE * SUDOKU_SIZE; i++) {
@@ -44,8 +48,10 @@ __device__ __forceinline__ void solveOneBoard(DeviceBoard       &t_board,
             t_constraints.updateConstraints(value, idx);
 
             if (curr + 1 == emptyIdx) {
-                // store board
-                saveBoardToBuffer(t_outBoardsBuff, t_globalOffset, t_board.cells, MAX_GEN_BOARDS);
+                const uint32_t old = atomicAdd(&t_solutions[t_rootIdx], 1);
+                if (old == 0) { // this is the first one that have found a solution
+                    saveBoardToBuffer(t_outBoardsBuff, t_rootIdx, t_board.cells, t_globalStride);
+                }
                 return;
             }
 
