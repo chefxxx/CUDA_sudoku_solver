@@ -21,6 +21,13 @@ __host__ void copyToGPU(const mem_cuda::unique_ptr<CELL_TYPE>        &t_dBoards,
                         const std::vector<uint32_t>                  &t_hRoots,
                         size_t                                        t_count);
 
+__global__ __forceinline__ void reset_counter(uint32_t *t_counter)
+{
+    if (threadIdx.x == 0 && blockIdx.x == 0) {
+        *t_counter = 0;
+    }
+}
+
 template <typename Type>
 __host__ std::tuple<mem_cuda::unique_ptr<Type>, mem_cuda::unique_ptr<Type>> allocateGPU_Pair(const size_t t_count)
 {
