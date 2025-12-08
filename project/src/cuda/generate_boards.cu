@@ -133,7 +133,7 @@ __device__ void findMostConstrainedCell(const DeviceBoard       &t_board,
                                         uint16_t                &t_cellIdx,
                                         uint16_t                &t_minChildNum)
 {
-    // TODO: handle solved board cases...
+    // TODO: handle solved boards cases...
     t_cellIdx     = 0;
     t_minChildNum = 10;
 #pragma unroll
@@ -150,7 +150,4 @@ __device__ void findMostConstrainedCell(const DeviceBoard       &t_board,
             }
         }
     }
-
-    if (t_minChildNum == 10)
-        printf("WHOOOPS accidentally solved board in bfs..\n");
 }

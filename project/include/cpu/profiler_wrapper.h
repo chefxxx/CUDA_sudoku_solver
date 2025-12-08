@@ -24,7 +24,7 @@ struct ProfileRange {
     #define CUDA_CHECK_KERNEL(message)
     #define CUDA_SYNC_CHECK(message)
 #else
-    #define CUDA_CHECK_KERNEL(message) getLastCudaError(fmt::format("Kernel {} failed..", (message))
+    #define CUDA_CHECK_KERNEL(message) getLastCudaError(fmt::format("Kernel {} failed..", message))
     #define CUDA_SYNC_CHECK(message) checkCudaErrors(cudaDeviceSynchronize())
 #endif
 
