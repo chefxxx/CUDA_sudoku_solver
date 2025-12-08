@@ -64,12 +64,12 @@ __device__ __forceinline__ void solveOneBoard(DeviceBoard       &t_board,
 }
 
 __global__ __forceinline__ void solveSudokuBoards(const CELL_TYPE        *t_inBoardsBuff,
-                                  CELL_TYPE              *t_outBoardsBuff,
-                                  const CONSTRAINTS_TYPE *t_constraintsBuff,
-                                  const uint32_t         *t_rootBuff,
-                                  uint32_t               *t_solutions,
-                                  const size_t            t_boardCount,
-                                  const size_t            t_globalStride)
+                                                  CELL_TYPE              *t_outBoardsBuff,
+                                                  const CONSTRAINTS_TYPE *t_constraintsBuff,
+                                                  const uint32_t         *t_rootBuff,
+                                                  uint32_t               *t_solutions,
+                                                  const size_t            t_boardCount,
+                                                  const size_t            t_globalStride)
 {
     const size_t tid        = blockDim.x * blockIdx.x + threadIdx.x;
     const size_t workOffset = gridDim.x * blockDim.x;
@@ -87,6 +87,57 @@ __global__ __forceinline__ void solveSudokuBoards(const CELL_TYPE        *t_inBo
         board.initBoard(work, t_inBoardsBuff, t_globalStride);
         constraints.initConstraints(work, t_constraintsBuff, t_globalStride);
         solveOneBoard(board, constraints, empty, masks, t_outBoardsBuff, t_solutions, t_globalStride, t_rootBuff[work]);
+    }
+}
+
+__global__ __forceinline__ void solveSudokuBoards_ver3(const CELL_TYPE        *t_inBoardsBuff,
+                                                       CELL_TYPE              *t_outBoardsBuff,
+                                                       const CONSTRAINTS_TYPE *t_constraintsBuff,
+                                                       const uint32_t         *t_rootBuff,
+                                                       uint32_t               *t_solutions,
+                                                       const size_t            t_boardCount,
+                                                       const size_t            t_globalStride)
+{
+    const size_t tid        = blockDim.x * blockIdx.x + threadIdx.x;
+    const size_t workOffset = gridDim.x * blockDim.x;
+
+    DeviceBoard       board{};
+    DeviceConstraints constraints{};
+
+    uint16_t emptyBuffer[MAX_STACK_SIZE];
+    uint16_t masksBuffer[MAX_STACK_SIZE];
+
+    for (size_t work = tid; work < t_boardCount; work += workOffset) {
+        board.initBoard(work, t_inBoardsBuff, t_globalStride);
+        constraints.initConstraints(work, t_constraintsBuff, t_globalStride);
+        solveOneBoard(board, constraints, emptyBuffer, masksBuffer, t_outBoardsBuff, t_solutions, t_globalStride, t_rootBuff[work]);
+    }
+}
+
+__global__ __forceinline__ void solveSudokuBoards_ver2(const CELL_TYPE        *t_inBoardsBuff,
+                                                       CELL_TYPE              *t_outBoardsBuff,
+                                                       const CONSTRAINTS_TYPE *t_constraintsBuff,
+                                                       const uint32_t         *t_rootBuff,
+                                                       uint32_t               *t_solutions,
+                                                       const size_t            t_boardCount,
+                                                       const size_t            t_globalStride,
+                                                       uint32_t               *t_globalWorkCounter)
+{
+    DeviceBoard       board{};
+    DeviceConstraints constraints{};
+
+    uint16_t emptyBuffer[MAX_STACK_SIZE];
+    uint16_t masksBuffer[MAX_STACK_SIZE];
+
+    while (true) {
+        const size_t work = atomicAdd(t_globalWorkCounter, 1);
+
+        if (work >= t_boardCount)
+            break;
+
+        board.initBoard(work, t_inBoardsBuff, t_globalStride);
+        constraints.initConstraints(work, t_constraintsBuff, t_globalStride);
+        solveOneBoard(board, constraints, emptyBuffer, masksBuffer, t_outBoardsBuff, t_solutions, t_globalStride, t_rootBuff[work]);
     }
 }
 

@@ -79,15 +79,29 @@ __host__ void solve(const std::string_view t_inputFileName, const std::string_vi
     size_t currentNum = initCreatedNum;
     size_t nextNum    = initCreatedNum;
 
+    // -----------------
+    // init work counter
+    // -----------------
+    const auto            d_workCounter = mem_cuda::make_unique<uint32_t>();
+    constexpr uint32_t    h_counterInit = 0;
+
     myLog::info("Executing board generation loop...");
     {
         PROFILE_SCOPE("BFS loop");
         for (int i = 0; i < MAX_GENERATIONS; ++i) {
             {
+                checkCudaErrors(cudaMemcpy(d_workCounter.get(), &h_counterInit,sizeof(uint32_t), cudaMemcpyHostToDevice));
                 PROFILE_SCOPE("Choose Children");
-                launchChooseChildren(
-                    d_boardsBuff_A, d_constraintsBuff_A, d_childrenCountBuff, d_cellNumsBuff, currentNum, MAX_GEN_BOARDS);
-
+                chooseChildren_ver2<<<THREADS_PER_BLOCK, BLOCKS_PER_GRID>>>(
+                    d_boardsBuff_A.get(),
+                    d_constraintsBuff_A.get(),
+                    d_childrenCountBuff.get(),
+                    d_cellNumsBuff.get(),
+                    currentNum,
+                    MAX_GEN_BOARDS,
+                    d_workCounter.get());
+                CUDA_CHECK_KERNEL();
+                CUDA_SYNC_CHECK();
             }
 
             // Reduce and exclusive scan to get new number of boards and offsets
@@ -104,8 +118,9 @@ __host__ void solve(const std::string_view t_inputFileName, const std::string_vi
                                    d_childrenCountBuff.get());
 
             {
+                checkCudaErrors(cudaMemcpy(d_workCounter.get(), &h_counterInit,sizeof(uint32_t), cudaMemcpyHostToDevice));
                 PROFILE_SCOPE("Create Children");
-                createChildren<<<THREADS_PER_BLOCK, BLOCKS_PER_GRID>>>(d_boardsBuff_A.get(),
+                createChildren_ver2<<<THREADS_PER_BLOCK, BLOCKS_PER_GRID>>>(d_boardsBuff_A.get(),
                                                                        d_boardsBuff_B.get(),
                                                                        d_constraintsBuff_A.get(),
                                                                        d_constraintsBuff_B.get(),
@@ -114,7 +129,8 @@ __host__ void solve(const std::string_view t_inputFileName, const std::string_vi
                                                                        d_childrenCountBuff.get(),
                                                                        d_cellNumsBuff.get(),
                                                                        currentNum,
-                                                                       MAX_GEN_BOARDS);
+                                                                       MAX_GEN_BOARDS,
+                                                                       d_workCounter.get());
                 CUDA_CHECK_KERNEL();
                 CUDA_SYNC_CHECK();
             }
@@ -133,14 +149,16 @@ __host__ void solve(const std::string_view t_inputFileName, const std::string_vi
 
     myLog::info("Running main solver kernel...");
     {
+        checkCudaErrors(cudaMemcpy(d_workCounter.get(), &h_counterInit,sizeof(uint32_t), cudaMemcpyHostToDevice));
         PROFILE_SCOPE("DFS step");
-        solveSudokuBoards<<<THREADS_PER_BLOCK, BLOCKS_PER_GRID>>>(d_boardsBuff_A.get(),
+        solveSudokuBoards_ver2<<<THREADS_PER_BLOCK, BLOCKS_PER_GRID>>>(d_boardsBuff_A.get(),
                                                                   d_boardsBuff_B.get(),
                                                                   d_constraintsBuff_A.get(),
                                                                   d_rootsBuff_A.get(),
                                                                   d_solutions.get(),
                                                                   currentNum,
-                                                                  MAX_GEN_BOARDS);
+                                                                  MAX_GEN_BOARDS,
+                                                                  d_workCounter.get());
         CUDA_CHECK_KERNEL();
         CUDA_SYNC_CHECK();
     }
