@@ -11,7 +11,7 @@ __global__ void chooseChildren(const CELL_TYPE        *t_boardsBuff,
                                uint32_t               *t_childrenBuff,
                                uint16_t               *t_cellNumsBuff,
                                const size_t            t_boardCount,
-                               const size_t                  t_globalStride)
+                               const size_t            t_globalStride)
 {
     const size_t tid        = blockDim.x * blockIdx.x + threadIdx.x;
     const size_t workOffset = gridDim.x * blockDim.x;
@@ -52,8 +52,15 @@ __global__ void createChildren(const CELL_TYPE        *t_inBoardsBuff,
         const uint32_t offset = t_offsetBuff[work];
         const uint32_t root   = t_inRootsBuff[work];
         const uint16_t cell   = t_cellNumsBuff[work];
-        createAndAlignInBuff(
-            t_outBoardsBuff, t_outConstraintsBuff, t_outRootsBuff, offset, root, cell, board, constraints, t_globalStride);
+        createAndAlignInBuff(t_outBoardsBuff,
+                             t_outConstraintsBuff,
+                             t_outRootsBuff,
+                             offset,
+                             root,
+                             cell,
+                             board,
+                             constraints,
+                             t_globalStride);
     }
 }
 

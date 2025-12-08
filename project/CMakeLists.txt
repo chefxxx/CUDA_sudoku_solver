@@ -27,7 +27,7 @@ target_include_directories(${CUDA_LIB} PUBLIC
         "${CMAKE_CURRENT_SOURCE_DIR}/include/cpu"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/cuda"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/cuda_utils"
-        ${CUDAToolkit_INCLUDE_DIRS}
+         ${CUDAToolkit_INCLUDE_DIRS}
 )
 
 target_link_libraries(${CUDA_LIB} PUBLIC CUDA::cudart spdlog::spdlog)
@@ -49,10 +49,10 @@ target_link_libraries(${MAIN} PRIVATE ${CUDA_LIB})
 # Compilation settings #
 # ------------------------------------------------------------------------------ #
 
-# Set build type to RELEASE by default:
+# Set build type to Release by default:
 if (NOT CMAKE_BUILD_TYPE)
-    message(STATUS "No build type provided, default to RELEASE.")
-    set(CMAKE_BUILD_TYPE "RELEASE")
+    message(STATUS "No build type provided, default to Release.")
+    set(CMAKE_BUILD_TYPE "Release")
 endif ()
 
 message("Build type " "${CMAKE_BUILD_TYPE}")

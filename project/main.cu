@@ -27,7 +27,12 @@ int main(const int argc, const char **argv)
     // ----------
     // Run solver
     // ----------
-    solve(method, inputFileName, count);
+
+    // TODO: CPU solver
+    if (method == "cpu")
+        return EXIT_SUCCESS;
+    if (method == "gpu")
+        solve(inputFileName, outputFileName, count);
 
     return EXIT_SUCCESS;
 }

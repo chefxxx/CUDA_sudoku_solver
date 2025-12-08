@@ -4,9 +4,9 @@
 
 #include <iostream>
 
-#include "../../include/cuda/bit_operations.cuh"
+#include "bit_operations.cuh"
 #include "board_infra.cuh"
-#include "host_board.cuh"
+#include "host_board.h"
 
 Board::Board(const std::vector<CELL_TYPE> &t_numbers)
 {
@@ -41,6 +41,16 @@ void Board::printBoard() const
         if ((i + 1) % 27 == 0)
             std::cout << row;
     }
+}
+
+std::string Board::getBoardString() const
+{
+    std::string res(SUDOKU_SIZE * SUDOKU_SIZE, ' ');
+    for (int i = 0; i < SUDOKU_SIZE * SUDOKU_SIZE; ++i) {
+        const char value = static_cast<char>('0' + getValue(i));
+        res[i]           = value;
+    }
+    return res;
 }
 
 BoardConstraints::BoardConstraints(const std::vector<CELL_TYPE> &t_numbers)

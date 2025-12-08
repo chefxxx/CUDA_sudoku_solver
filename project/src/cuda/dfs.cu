@@ -27,6 +27,6 @@ __global__ void solveSudokuBoards(const CELL_TYPE        *t_inBoardsBuff,
     for (size_t work = tid; work < t_boardCount; work += workOffset) {
         board.initBoard(work, t_inBoardsBuff, t_globalStride);
         constraints.initConstraints(work, t_constraintsBuff, t_globalStride);
-        solveOneBoard(board, constraints, empty, masks, t_outBoardsBuff, t_solutions, t_globalStride,t_rootBuff[work]);
+        solveOneBoard(board, constraints, empty, masks, t_outBoardsBuff, t_solutions, t_globalStride, t_rootBuff[work]);
     }
 }

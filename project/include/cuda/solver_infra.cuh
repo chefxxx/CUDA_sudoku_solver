@@ -9,8 +9,8 @@
 #include <string>
 #include <vector>
 
+#include "../cpu/host_board.h"
 #include "board_infra.cuh"
-#include "host_board.cuh"
 
 __host__ std::optional<std::vector<CELL_TYPE>> convertLineToNumbers(std::string_view t_line);
 __host__                                       std::tuple<std::vector<CELL_TYPE>, std::vector<CONSTRAINTS_TYPE>, int>

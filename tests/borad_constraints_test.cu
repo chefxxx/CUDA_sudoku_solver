@@ -5,7 +5,7 @@
 #include <bitset>
 #include <gtest/gtest.h>
 
-#include "host_board.cuh"
+#include "../project/include/cpu/host_board.h"
 #include "solver_infra.cuh"
 
 /**
