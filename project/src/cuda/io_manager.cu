@@ -62,4 +62,5 @@ void writeOutput(const std::string_view        t_outputFileName,
         const auto str = tmp.getBoardString();
         fprintf(fp, "%s\r\n", str.c_str());
     }
+    fclose(fp);
 }

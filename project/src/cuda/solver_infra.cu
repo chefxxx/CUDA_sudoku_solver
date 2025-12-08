@@ -12,7 +12,7 @@
 __host__ std::optional<std::vector<CELL_TYPE>> convertLineToNumbers(const std::string_view t_line)
 {
     std::vector<CELL_TYPE> numbers;
-    // t_line has '\n' at the end, so we loop over first 81 elements
+    // I assume t_line has '\r\n' at the end, so we loop over first 81 elements
     for (int i = 0; i < SUDOKU_SIZE * SUDOKU_SIZE; ++i) {
         const auto c   = t_line[i];
         const auto num = c - '0';
@@ -55,25 +55,4 @@ __host__ std::tuple<std::vector<CELL_TYPE>, std::vector<CONSTRAINTS_TYPE>, int>
         }
     }
     return std::make_tuple(globalBoards, globalConstraints, globalIdx);
-}
-
-__device__ __host__ void saveConstraintsToBuffer(CONSTRAINTS_TYPE *t_buff,
-                                                 const size_t      t_constraintOffset,
-                                                 const size_t      t_globalIdx,
-                                                 CONSTRAINTS_TYPE  t_currConstraints[][SUDOKU_SIZE],
-                                                 const size_t      t_stride)
-{
-    for (int i = 0; i < CONSTRAINTS_N; ++i) {
-        for (int k = 0; k < SUDOKU_SIZE; ++k) {
-            t_buff[t_globalIdx + i * t_constraintOffset + k * t_stride] = t_currConstraints[i][k];
-        }
-    }
-}
-
-__device__ __host__ void
-saveBoardToBuffer(CELL_TYPE *t_buff, const size_t t_globalIdx, const CELL_TYPE *t_values, const size_t t_stride)
-{
-    for (int i = 0; i < SUDOKU_BITPACK_N; ++i) {
-        t_buff[t_globalIdx + i * t_stride] = t_values[i];
-    }
 }
