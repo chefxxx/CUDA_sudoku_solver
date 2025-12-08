@@ -10,14 +10,6 @@
 
 constexpr int MAX_STACK_SIZE = 81;
 
-__global__ void solveSudokuBoards(const CELL_TYPE        *t_inBoardsBuff,
-                                  CELL_TYPE              *t_outBoardsBuff,
-                                  const CONSTRAINTS_TYPE *t_constraintsBuff,
-                                  const uint32_t         *t_rootBuff,
-                                  uint32_t               *t_solutions,
-                                  size_t                  t_boardCount,
-                                  size_t                  t_globalStride);
-
 __device__ __forceinline__ void solveOneBoard(DeviceBoard       &t_board,
                                               DeviceConstraints &t_constraints,
                                               uint16_t          *t_emptyBuff,
@@ -71,7 +63,7 @@ __device__ __forceinline__ void solveOneBoard(DeviceBoard       &t_board,
     }
 }
 
-__global__ void solveSudokuBoards(const CELL_TYPE        *t_inBoardsBuff,
+__global__ __forceinline__ void solveSudokuBoards(const CELL_TYPE        *t_inBoardsBuff,
                                   CELL_TYPE              *t_outBoardsBuff,
                                   const CONSTRAINTS_TYPE *t_constraintsBuff,
                                   const uint32_t         *t_rootBuff,

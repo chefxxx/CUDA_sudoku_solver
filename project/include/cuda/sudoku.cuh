@@ -10,6 +10,7 @@
 #include "defines.h"
 #include "generate_boards.cuh"
 #include "memory_cuda.cuh"
+#include "profiler_wrapper.h"
 
 __host__ void solve(std::string_view t_inputFileName, std::string_view t_outputFileName, int t_count);
 __host__ void copyToGPU(const mem_cuda::unique_ptr<CELL_TYPE>        &t_dBoards,
@@ -49,11 +50,10 @@ __host__ inline void launchChooseChildren(const mem_cuda::unique_ptr<CELL_TYPE> 
                                           const size_t                                  t_currentCount,
                                           const size_t                                  t_globalStride)
 {
-    checkCudaErrors(cudaDeviceSynchronize());
     chooseChildren<<<THREADS_PER_BLOCK, BLOCKS_PER_GRID>>>(
         t_dBoards.get(), t_dConstraints.get(), t_dChildren.get(), t_dCellNums.get(), t_currentCount, t_globalStride);
-    getLastCudaError("chooseChildren kernel failed!");
-    checkCudaErrors(cudaDeviceSynchronize());
+    CUDA_CHECK_KERNEL();
+    CUDA_SYNC_CHECK();
 }
 
 

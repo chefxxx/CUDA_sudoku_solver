@@ -30,7 +30,7 @@ target_include_directories(${CUDA_LIB} PUBLIC
          ${CUDAToolkit_INCLUDE_DIRS}
 )
 
-target_link_libraries(${CUDA_LIB} PUBLIC CUDA::cudart spdlog::spdlog)
+target_link_libraries(${CUDA_LIB} PUBLIC CUDA::cudart spdlog::spdlog CUDA::nvtx3)
 
 set_target_properties(${CUDA_LIB} PROPERTIES
         CUDA_SEPARABLE_COMPILATION ON
@@ -71,7 +71,7 @@ target_compile_options(${CUDA_LIB} PUBLIC
 # CUDA compile options
 target_compile_options(${CUDA_LIB} PUBLIC
         $<$<AND:$<CONFIG:Debug>,$<COMPILE_LANGUAGE:CUDA>>: -v -g3 -fno-omit-frame-pointer -G -O0>
-        $<$<AND:$<CONFIG:Release>,$<COMPILE_LANGUAGE:CUDA>>: --ptxas-options=-v -Xptxas -O3>
+        $<$<AND:$<CONFIG:Release>,$<COMPILE_LANGUAGE:CUDA>>: -lineinfo --ptxas-options=-v -Xptxas -O3>
 
         $<$<AND:$<CONFIG:Release>,$<COMPILE_LANGUAGE:CUDA>,$<CXX_COMPILER_ID:MSVC>>: -Xcompiler /O2>
 
