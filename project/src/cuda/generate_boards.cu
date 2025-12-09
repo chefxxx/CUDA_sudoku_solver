@@ -151,3 +151,24 @@ __device__ void findMostConstrainedCell(const DeviceBoard       &t_board,
         }
     }
 }
+
+// Duplicate code due to lack of time to refactor infrastructure...
+int findMCC_CPU(const Board &t_board, const BoardConstraints &t_constraints)
+{
+    int foundIdx = -1;
+    int minChildNum = 10;
+    for (int i = 0; i < SUDOKU_SIZE * SUDOKU_SIZE; ++i) {
+        const auto value = t_board.getValue(i);
+        if (!value) {
+            const auto         idx  = getConstraintsIndexesInfra(i);
+            const CONSTRAINTS_TYPE mask = t_constraints.constraints[row][idx.row] & t_constraints.constraints[col][idx.col]
+                                        & t_constraints.constraints[square][idx.square];
+            const auto childNum = popCount(mask);
+            if (childNum < minChildNum) {
+                minChildNum = childNum;
+                foundIdx = i;
+            }
+        }
+    }
+    return foundIdx;
+}

@@ -76,3 +76,15 @@ std::tuple<std::vector<Board>, std::vector<BoardConstraints>> createCPU(const st
     }
     return std::make_tuple(boards, constraints);
 }
+
+int countEmptyCPU(const Board &t_board)
+{
+    int emptyCount = 0;
+    for (int i = 0; i < SUDOKU_SIZE * SUDOKU_SIZE; ++i) {
+        const auto value = t_board.getValue(i);
+        if (value == 0) {
+            ++emptyCount;
+        }
+    }
+    return emptyCount;
+}

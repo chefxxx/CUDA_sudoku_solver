@@ -56,6 +56,9 @@ __device__ void findMostConstrainedCell(const DeviceBoard       &t_board,
                                         uint16_t                &t_cellIdx,
                                         uint16_t                &t_minChildNum);
 
+__host__ int findMCC_CPU(const Board &t_board, const BoardConstraints &t_constraints);
+
+
 __device__ __forceinline__ void createAndAlignInBuff(CELL_TYPE         *t_outBoardsBuff,
                                                      CONSTRAINTS_TYPE  *t_outConstraintsBuff,
                                                      uint32_t          *t_outRootsBuff,

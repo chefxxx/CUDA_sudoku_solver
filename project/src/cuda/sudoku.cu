@@ -159,10 +159,12 @@ solveGPU(const std::vector<std::string> &t_encodedBoards, const int t_count)
     return h_boardsBuff;
 }
 
-
-
-std::vector<Board> solveCPU(const std::vector<std::string> &t_encodedBoards, int t_count)
+std::vector<Board> solveCPU(const std::vector<std::string> &t_encodedBoards, const int t_count)
 {
-
-
+    auto [boards, constraints] = createCPU(t_encodedBoards);
+    for (int i = 0; i < t_count; ++i) {
+        if (!solveOneCPU(boards[i], constraints[i]))
+            spdlog::warn("Failed to solve board {} on CPU!", i);
+    }
+    return boards;
 }
