@@ -7,7 +7,8 @@
 
 #include "board_infra.cuh"
 #include "solver_infra.cuh"
-#include "spdlog_macros.h"
+#include "spdlog/spdlog.h"
+
 
 __host__ std::optional<std::vector<CELL_TYPE>> convertLineToNumbers(const std::string_view t_line)
 {
@@ -17,7 +18,7 @@ __host__ std::optional<std::vector<CELL_TYPE>> convertLineToNumbers(const std::s
         const auto c   = t_line[i];
         const auto num = c - '0';
         if (num < 0 || num > 9) {
-            myLog::warning(fmt::format("Not valid character {} found!", num));
+            spdlog::error("Not valid character {} found!", num);
             return std::nullopt;
         }
         numbers.emplace_back(num);
@@ -37,7 +38,7 @@ __host__ std::tuple<std::vector<CELL_TYPE>, std::vector<CONSTRAINTS_TYPE>, int>
         if (values.has_value()) {
             BoardConstraints tmpC(values.value());
             if (!tmpC.isValid) {
-                myLog::warning("Not valid board found!");
+                spdlog::warn("Not valid board found!");
             }
             else {
                 // save constraints to buffer

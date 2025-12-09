@@ -19,12 +19,4 @@ struct ProfileRange {
 
 #define PROFILE_SCOPE(name) ProfileRange p(name)
 
-#ifdef NDEBUG
-    #define CUDA_CHECK_KERNEL(message)
-    #define CUDA_SYNC_CHECK(message)
-#else
-    #define CUDA_CHECK_KERNEL(message) getLastCudaError(fmt::format("Kernel {} failed..", message))
-    #define CUDA_SYNC_CHECK(message) checkCudaErrors(cudaDeviceSynchronize())
-#endif
-
 #endif // SUDOKU_PROFILER_WRAPPER_H
