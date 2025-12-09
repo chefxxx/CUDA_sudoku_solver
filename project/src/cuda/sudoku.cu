@@ -13,7 +13,6 @@
 #include "io_manager.h"
 #include "solver_infra.cuh"
 #include "sudoku.cuh"
-#include "profiler_wrapper.h"
 
 void copyToGPU(const mem_cuda::unique_ptr<CELL_TYPE>        &t_dBoards,
                const mem_cuda::unique_ptr<CONSTRAINTS_TYPE> &t_dConstraints,
@@ -84,92 +83,84 @@ __host__ void solve(const std::string_view t_inputFileName, const std::string_vi
     const auto d_workCounter = mem_cuda::make_unique<uint32_t>();
 
     spdlog::info("Executing board generation loop...");
-    {
-        PROFILE_SCOPE("BFS loop");
-        for (int i = 0; i < MAX_GENERATIONS; ++i) {
-            {
-                PROFILE_SCOPE("Choose Children");
-                reset_counter<<<1, 1>>>(d_workCounter.get());
-                CUDA_CHECK_KERNEL();
-                CUDA_SYNC_CHECK();
 
-                chooseChildren_ver2<<<THREADS_PER_BLOCK, BLOCKS_PER_GRID>>>(
-                    d_boardsBuff_A.get(),
-                    d_constraintsBuff_A.get(),
-                    d_childrenCountBuff.get(),
-                    d_cellNumsBuff.get(),
-                    currentNum,
-                    MAX_GEN_BOARDS,
-                    d_workCounter.get());
-                CUDA_CHECK_KERNEL();
-                CUDA_SYNC_CHECK();
-            }
 
-            // Reduce and exclusive scan to get new number of boards and offsets
-            nextNum = thrust::reduce(thrust::device, d_childrenCountBuff.get(), d_childrenCountBuff.get() + currentNum);
-            if (nextNum > MAX_GEN_BOARDS) {
-                spdlog::info(
-                    "Stopping at {} generations, board generation limit of {} boards exceeded!", i, MAX_GEN_BOARDS);
-                break;
-            }
+    for (int i = 0; i < MAX_GENERATIONS; ++i) {
+        reset_counter<<<1, 1>>>(d_workCounter.get());
+        CUDA_CHECK_KERNEL();
+        CUDA_SYNC_CHECK();
 
-            thrust::exclusive_scan(thrust::device,
-                                   d_childrenCountBuff.get(),
-                                   d_childrenCountBuff.get() + currentNum,
-                                   d_childrenCountBuff.get());
+        chooseChildren_ver2<<<THREADS_PER_BLOCK, BLOCKS_PER_GRID>>>(
+            d_boardsBuff_A.get(),
+            d_constraintsBuff_A.get(),
+            d_childrenCountBuff.get(),
+            d_cellNumsBuff.get(),
+            currentNum,
+            MAX_GEN_BOARDS,
+            d_workCounter.get());
+        CUDA_CHECK_KERNEL();
+        CUDA_SYNC_CHECK();
 
-            {
-
-                PROFILE_SCOPE("Create Children");
-                reset_counter<<<1, 1>>>(d_workCounter.get());
-                CUDA_CHECK_KERNEL();
-                CUDA_SYNC_CHECK();
-
-                createChildren_ver2<<<THREADS_PER_BLOCK, BLOCKS_PER_GRID>>>(d_boardsBuff_A.get(),
-                                                                       d_boardsBuff_B.get(),
-                                                                       d_constraintsBuff_A.get(),
-                                                                       d_constraintsBuff_B.get(),
-                                                                       d_rootsBuff_A.get(),
-                                                                       d_rootsBuff_B.get(),
-                                                                       d_childrenCountBuff.get(),
-                                                                       d_cellNumsBuff.get(),
-                                                                       currentNum,
-                                                                       MAX_GEN_BOARDS,
-                                                                       d_workCounter.get());
-                CUDA_CHECK_KERNEL();
-                CUDA_SYNC_CHECK();
-            }
-
-            // update buffers
-            d_boardsBuff_A.swap(d_boardsBuff_B);
-            d_constraintsBuff_A.swap(d_constraintsBuff_B);
-            d_rootsBuff_A.swap(d_rootsBuff_B);
-            currentNum = nextNum;
+        // Reduce and exclusive scan to get new number of boards and offsets
+        nextNum = thrust::reduce(thrust::device, d_childrenCountBuff.get(), d_childrenCountBuff.get() + currentNum);
+        if (nextNum > MAX_GEN_BOARDS) {
+            spdlog::info(
+                "Stopping at {} generations, board generation limit of {} boards exceeded!", i, MAX_GEN_BOARDS);
+            break;
         }
+
+        thrust::exclusive_scan(thrust::device,
+                               d_childrenCountBuff.get(),
+                               d_childrenCountBuff.get() + currentNum,
+                               d_childrenCountBuff.get());
+
+        reset_counter<<<1, 1>>>(d_workCounter.get());
+        CUDA_CHECK_KERNEL();
+        CUDA_SYNC_CHECK();
+
+        createChildren_ver2<<<THREADS_PER_BLOCK, BLOCKS_PER_GRID>>>(d_boardsBuff_A.get(),
+                                                               d_boardsBuff_B.get(),
+                                                               d_constraintsBuff_A.get(),
+                                                               d_constraintsBuff_B.get(),
+                                                               d_rootsBuff_A.get(),
+                                                               d_rootsBuff_B.get(),
+                                                               d_childrenCountBuff.get(),
+                                                               d_cellNumsBuff.get(),
+                                                               currentNum,
+                                                               MAX_GEN_BOARDS,
+                                                               d_workCounter.get());
+        CUDA_CHECK_KERNEL();
+        CUDA_SYNC_CHECK();
+
+
+        // update buffers
+        d_boardsBuff_A.swap(d_boardsBuff_B);
+        d_constraintsBuff_A.swap(d_constraintsBuff_B);
+        d_rootsBuff_A.swap(d_rootsBuff_B);
+        currentNum = nextNum;
     }
+
 
     spdlog::info("Generated {} boards...", currentNum);
     std::vector<uint32_t> h_solutions(t_count, 0);
     const auto            d_solutions = allocateAndCopyGPU_FromHostVector(h_solutions);
 
     spdlog::info("Running main solver kernel...");
-    {
-        PROFILE_SCOPE("DFS step");
-        reset_counter<<<1, 1>>>(d_workCounter.get());
-        CUDA_CHECK_KERNEL();
-        CUDA_SYNC_CHECK();
+    reset_counter<<<1, 1>>>(d_workCounter.get());
+    CUDA_CHECK_KERNEL();
+    CUDA_SYNC_CHECK();
 
-        solveSudokuBoards_ver2<<<THREADS_PER_BLOCK, BLOCKS_PER_GRID>>>(d_boardsBuff_A.get(),
-                                                                  d_boardsBuff_B.get(),
-                                                                  d_constraintsBuff_A.get(),
-                                                                  d_rootsBuff_A.get(),
-                                                                  d_solutions.get(),
-                                                                  currentNum,
-                                                                  MAX_GEN_BOARDS,
-                                                                  d_workCounter.get());
-        CUDA_CHECK_KERNEL();
-        CUDA_SYNC_CHECK();
-    }
+    solveSudokuBoards_ver2<<<THREADS_PER_BLOCK, BLOCKS_PER_GRID>>>(d_boardsBuff_A.get(),
+                                                              d_boardsBuff_B.get(),
+                                                              d_constraintsBuff_A.get(),
+                                                              d_rootsBuff_A.get(),
+                                                              d_solutions.get(),
+                                                              currentNum,
+                                                              MAX_GEN_BOARDS,
+                                                              d_workCounter.get());
+    CUDA_CHECK_KERNEL();
+    CUDA_SYNC_CHECK();
+
 
     spdlog::info("Copying results to the host...");
     checkCudaErrors(

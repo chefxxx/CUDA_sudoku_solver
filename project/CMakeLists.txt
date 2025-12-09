@@ -17,7 +17,7 @@ message("Loading CUDA library...")
 
 add_library(${CUDA_LIB} SHARED ${SOURCES})
 
-set(CMAKE_CUDA_ARCHITECTURES 61)
+set(CMAKE_CUDA_ARCHITECTURES native)
 
 # CUDA Architecture setting
 set_property(TARGET ${CUDA_LIB} PROPERTY CUDA_ARCHITECTURES ${CMAKE_CUDA_ARCHITECTURES})
@@ -30,7 +30,8 @@ target_include_directories(${CUDA_LIB} PUBLIC
          ${CUDAToolkit_INCLUDE_DIRS}
 )
 
-target_link_libraries(${CUDA_LIB} PUBLIC CUDA::cudart spdlog::spdlog CUDA::nvtx3)
+# TODO: linking here to CUDA::cudart breaks on cluster, but without it code does not work
+target_link_libraries(${CUDA_LIB} PUBLIC spdlog::spdlog CUDA::cudart)
 
 set_target_properties(${CUDA_LIB} PROPERTIES
         CUDA_SEPARABLE_COMPILATION ON
