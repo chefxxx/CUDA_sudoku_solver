@@ -162,9 +162,36 @@ solveGPU(const std::vector<std::string> &t_encodedBoards, const int t_count)
 std::vector<Board> solveCPU(const std::vector<std::string> &t_encodedBoards, const int t_count)
 {
     auto [boards, constraints] = createCPU(t_encodedBoards);
+
+    // check possible threads count
+    unsigned int numThreads = std::thread::hardware_concurrency();
+    if (numThreads == 0)
+        numThreads = 2;
+
+    // create work vector
+    std::vector<std::thread> threads;
+    threads.reserve(numThreads);
+    const int chunkSize = (t_count + numThreads - 1) / numThreads;
+
     for (int i = 0; i < t_count; ++i) {
-        if (!solveOneCPU(boards[i], constraints[i]))
-            spdlog::warn("Failed to solve board {} on CPU!", i);
+        const int startIdx = i * chunkSize;
+        int endIdx = std::min(startIdx + chunkSize, t_count);
+
+        if (startIdx >= t_count) break;
+
+        threads.emplace_back([&, startIdx, endIdx]() {
+            for (int j = startIdx; j < endIdx; ++j) {
+                if (!solveOneCPU(boards[j], constraints[j])) {
+                    spdlog::warn("Failed to solve board {} on CPU!", j);
+                }
+            }
+        });
+    }
+
+    for (auto &t : threads) {
+        if (t.joinable()) {
+            t.join();
+        }
     }
     return boards;
 }
