@@ -15,25 +15,26 @@
 #include "helper_cuda.h"
 
 #if __cplusplus < 202002L
-    #include <type_traits>
+#include <type_traits>
 #endif
 
 namespace mem_cuda {
 
 #if __cplusplus >= 202002L
-    template <class T> concept cuda_pointerable_type  = !std::is_array_v<T>  && !std::is_pointer_v<T>;
+template <class T> concept cuda_pointerable_type = !std::is_array_v<T> && !std::is_pointer_v<T>;
 #else
-    template <class T>
-    struct is_cuda_pointerable : std::integral_constant<bool, !std::is_array_v<T> && !std::is_pointer_v<T>> {};
+template <class T>
+struct is_cuda_pointerable : std::integral_constant<bool, !std::is_array_v<T> && !std::is_pointer_v<T>>
+{
+};
 
-    template <class T>
-    constexpr bool is_cuda_pointerable_v = is_cuda_pointerable<T>::value;
+template <class T> constexpr bool is_cuda_pointerable_v = is_cuda_pointerable<T>::value;
 #endif
 
 #if __cplusplus >= 202002L
-    template <cuda_pointerable_type U>
+template <cuda_pointerable_type U>
 #else
-    template <typename U, typename = std::enable_if_t<is_cuda_pointerable_v<U>>>
+template <typename U, typename = std::enable_if_t<is_cuda_pointerable_v<U>>>
 #endif
 struct cuda_deleter
 {
@@ -41,9 +42,9 @@ struct cuda_deleter
 };
 
 #if __cplusplus >= 202002L
-    template <cuda_pointerable_type T, class D = cuda_deleter<T>>
+template <cuda_pointerable_type T, class D = cuda_deleter<T>>
 #else
-    template <typename T, typename = std::enable_if_t<is_cuda_pointerable_v<T>>, class D = cuda_deleter<T>>
+template <typename T, typename = std::enable_if_t<is_cuda_pointerable_v<T>>, class D = cuda_deleter<T>>
 #endif
 class unique_ptr
 {
@@ -93,11 +94,11 @@ public:
     // Destructor
     // ----------
 
-    #if __cplusplus >= 202002L
-        constexpr ~unique_ptr() noexcept
-    #else
-        ~unique_ptr() noexcept
-    #endif
+#if __cplusplus >= 202002L
+    constexpr ~unique_ptr() noexcept
+#else
+    ~unique_ptr() noexcept
+#endif
     {
         if (mDevPtr) {
             spdlog::info("Destroying mem_cuda::unique_ptr and releasing memory...");
@@ -191,9 +192,9 @@ private:
  * @return cuda::unique_ptr that owns pointer to those object(s).
  */
 #if __cplusplus >= 202002L
-    template <cuda_pointerable_type T>
+template <cuda_pointerable_type T>
 #else
-    template <typename T, typename = std::enable_if_t<is_cuda_pointerable_v<T>>>
+template <typename T, typename = std::enable_if_t<is_cuda_pointerable_v<T>>>
 #endif
 unique_ptr<T> make_unique(const size_t count = 1)
 {
@@ -203,9 +204,9 @@ unique_ptr<T> make_unique(const size_t count = 1)
 }
 
 #if __cplusplus >= 202002L
-    template <cuda_pointerable_type T, class D = cuda_deleter<T>>
+template <cuda_pointerable_type T, class D = cuda_deleter<T>>
 #else
-    template <typename T, typename = std::enable_if_t<is_cuda_pointerable_v<T>>, class D = cuda_deleter<T>>
+template <typename T, typename = std::enable_if_t<is_cuda_pointerable_v<T>>, class D = cuda_deleter<T>>
 #endif
 struct control_block
 {
@@ -246,9 +247,9 @@ struct control_block
 };
 
 #if __cplusplus >= 202002L
-    template <cuda_pointerable_type T>
+template <cuda_pointerable_type T>
 #else
-    template <typename T, typename = std::enable_if_t<is_cuda_pointerable_v<T>>>
+template <typename T, typename = std::enable_if_t<is_cuda_pointerable_v<T>>>
 #endif
 class shared_ptr
 {

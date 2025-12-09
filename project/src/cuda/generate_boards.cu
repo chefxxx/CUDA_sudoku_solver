@@ -91,16 +91,16 @@ __global__ void createChildren(const CELL_TYPE        *t_inBoardsBuff,
 }
 
 __global__ void createChildren_ver2(const CELL_TYPE        *t_inBoardsBuff,
-                         CELL_TYPE              *t_outBoardsBuff,
-                         const CONSTRAINTS_TYPE *t_inConstraintsBuff,
-                         CONSTRAINTS_TYPE       *t_outConstraintsBuff,
-                         const uint32_t         *t_inRootsBuff,
-                         uint32_t               *t_outRootsBuff,
-                         const uint32_t         *t_offsetBuff,
-                         const uint16_t         *t_cellNumsBuff,
-                         const size_t                  t_boardCount,
-                         const size_t                  t_globalStride,
-                         uint32_t               *t_globalWorkCounter)
+                                    CELL_TYPE              *t_outBoardsBuff,
+                                    const CONSTRAINTS_TYPE *t_inConstraintsBuff,
+                                    CONSTRAINTS_TYPE       *t_outConstraintsBuff,
+                                    const uint32_t         *t_inRootsBuff,
+                                    uint32_t               *t_outRootsBuff,
+                                    const uint32_t         *t_offsetBuff,
+                                    const uint16_t         *t_cellNumsBuff,
+                                    const size_t            t_boardCount,
+                                    const size_t            t_globalStride,
+                                    uint32_t               *t_globalWorkCounter)
 {
     DeviceBoard       board{};
     DeviceConstraints constraints{};

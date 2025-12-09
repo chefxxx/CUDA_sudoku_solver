@@ -2,11 +2,11 @@
 // Created by chefxx on 25.11.2025.
 //
 
+#include <cuda_profiler_api.h>
 #include <numeric>
 #include <thrust/execution_policy.h>
 #include <thrust/reduce.h>
 #include <thrust/scan.h>
-#include <cuda_profiler_api.h>
 
 #include "dfs.cuh"
 #include "generate_boards.cuh"
@@ -83,21 +83,18 @@ __host__ void solve(const std::string_view t_inputFileName, const std::string_vi
     const auto d_workCounter = mem_cuda::make_unique<uint32_t>();
 
     spdlog::info("Executing board generation loop...");
-
-
     for (int i = 0; i < MAX_GENERATIONS; ++i) {
         reset_counter<<<1, 1>>>(d_workCounter.get());
         CUDA_CHECK_KERNEL();
         CUDA_SYNC_CHECK();
 
-        chooseChildren_ver2<<<THREADS_PER_BLOCK, BLOCKS_PER_GRID>>>(
-            d_boardsBuff_A.get(),
-            d_constraintsBuff_A.get(),
-            d_childrenCountBuff.get(),
-            d_cellNumsBuff.get(),
-            currentNum,
-            MAX_GEN_BOARDS,
-            d_workCounter.get());
+        chooseChildren_ver2<<<THREADS_PER_BLOCK, BLOCKS_PER_GRID>>>(d_boardsBuff_A.get(),
+                                                                    d_constraintsBuff_A.get(),
+                                                                    d_childrenCountBuff.get(),
+                                                                    d_cellNumsBuff.get(),
+                                                                    currentNum,
+                                                                    MAX_GEN_BOARDS,
+                                                                    d_workCounter.get());
         CUDA_CHECK_KERNEL();
         CUDA_SYNC_CHECK();
 
@@ -119,16 +116,16 @@ __host__ void solve(const std::string_view t_inputFileName, const std::string_vi
         CUDA_SYNC_CHECK();
 
         createChildren_ver2<<<THREADS_PER_BLOCK, BLOCKS_PER_GRID>>>(d_boardsBuff_A.get(),
-                                                               d_boardsBuff_B.get(),
-                                                               d_constraintsBuff_A.get(),
-                                                               d_constraintsBuff_B.get(),
-                                                               d_rootsBuff_A.get(),
-                                                               d_rootsBuff_B.get(),
-                                                               d_childrenCountBuff.get(),
-                                                               d_cellNumsBuff.get(),
-                                                               currentNum,
-                                                               MAX_GEN_BOARDS,
-                                                               d_workCounter.get());
+                                                                    d_boardsBuff_B.get(),
+                                                                    d_constraintsBuff_A.get(),
+                                                                    d_constraintsBuff_B.get(),
+                                                                    d_rootsBuff_A.get(),
+                                                                    d_rootsBuff_B.get(),
+                                                                    d_childrenCountBuff.get(),
+                                                                    d_cellNumsBuff.get(),
+                                                                    currentNum,
+                                                                    MAX_GEN_BOARDS,
+                                                                    d_workCounter.get());
         CUDA_CHECK_KERNEL();
         CUDA_SYNC_CHECK();
 
@@ -151,13 +148,13 @@ __host__ void solve(const std::string_view t_inputFileName, const std::string_vi
     CUDA_SYNC_CHECK();
 
     solveSudokuBoards_ver2<<<THREADS_PER_BLOCK, BLOCKS_PER_GRID>>>(d_boardsBuff_A.get(),
-                                                              d_boardsBuff_B.get(),
-                                                              d_constraintsBuff_A.get(),
-                                                              d_rootsBuff_A.get(),
-                                                              d_solutions.get(),
-                                                              currentNum,
-                                                              MAX_GEN_BOARDS,
-                                                              d_workCounter.get());
+                                                                   d_boardsBuff_B.get(),
+                                                                   d_constraintsBuff_A.get(),
+                                                                   d_rootsBuff_A.get(),
+                                                                   d_solutions.get(),
+                                                                   currentNum,
+                                                                   MAX_GEN_BOARDS,
+                                                                   d_workCounter.get());
     CUDA_CHECK_KERNEL();
     CUDA_SYNC_CHECK();
 
