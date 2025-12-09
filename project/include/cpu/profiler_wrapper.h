@@ -19,7 +19,6 @@ struct ProfileRange {
 
 #define PROFILE_SCOPE(name) ProfileRange p(name)
 
-
 #ifdef NDEBUG
     #define CUDA_CHECK_KERNEL(message)
     #define CUDA_SYNC_CHECK(message)

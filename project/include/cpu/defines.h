@@ -31,9 +31,9 @@ constexpr int MAX_GENERATIONS   = 30;
 // -------------
 // Buffers sizes
 // -------------
-#define BOARD_BUFF_N(t_count)        ((t_count)*SUDOKU_BITPACK_N)
+#define BOARD_BUFF_N(t_count)        ((t_count) * SUDOKU_BITPACK_N)
 #define BOARD_BUFF_SZ(t_count)       (BOARD_BUFF_N(t_count) * sizeof(CELL_TYPE))
-#define CONSTRAINTS_BUFF_N(t_count)  ((t_count)*CONSTRAINTS_N * SUDOKU_SIZE)
+#define CONSTRAINTS_BUFF_N(t_count)  ((t_count) * CONSTRAINTS_N * SUDOKU_SIZE)
 #define CONSTRAINTS_BUFF_SZ(t_count) (CONSTRAINTS_BUFF_N(t_count) * sizeof(CONSTRAINTS_TYPE))
 #define ROOTS_BUFF_N(t_count)        (t_count)
 #define ROOTS_BUFF_SZ(t_count)       ((t_count) * sizeof(uint32_t))
