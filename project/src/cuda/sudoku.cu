@@ -28,23 +28,17 @@ void copyToGPU(const mem_cuda::unique_ptr<CELL_TYPE>        &t_dBoards,
     checkCudaErrors(cudaMemcpy(t_dRoots.get(), t_hRoots.data(), ROOTS_BUFF_SZ(t_count), cudaMemcpyHostToDevice));
 }
 
-__host__ void solve(const std::string_view t_inputFileName, const std::string_view t_outputFileName, const int t_count)
+__host__ std::vector<CELL_TYPE>
+solveGPU(const std::vector<std::string> &t_encodedBoards, const int t_count)
 {
-    // ---------------------
-    // Read boards from file
-    // ---------------------
-    spdlog::info("Reading input file...");
-    const auto encodedBoards = readInput(t_inputFileName, t_count);
-
     // ---------------------
     // Create buffers on CPU
     // ---------------------
     spdlog::info("Storing boards to CPU buffers...");
-    auto [h_boardsBuff, h_constraintsBuff, initCreatedNum] = convertAndAlignSerial(encodedBoards, MAX_GEN_BOARDS);
-
-    spdlog::info(fmt::format("Created {} boards out of {}...", initCreatedNum, t_count));
+    auto [h_boardsBuff, h_constraintsBuff, initCreatedNum] = convertAndAlignSerial(t_encodedBoards, MAX_GEN_BOARDS);
     std::vector<uint32_t> h_rootsBuff(MAX_GEN_BOARDS);
     std::iota(h_rootsBuff.begin(), h_rootsBuff.begin() + initCreatedNum, 0);
+    spdlog::info(fmt::format("Created {} boards out of {}...", initCreatedNum, t_count));
 
     // -------------------------------------------------------------------------------
     // Allocate memory on GPU
@@ -158,13 +152,17 @@ __host__ void solve(const std::string_view t_inputFileName, const std::string_vi
     CUDA_CHECK_KERNEL();
     CUDA_SYNC_CHECK();
 
-
     spdlog::info("Copying results to the host...");
-    checkCudaErrors(
-        cudaMemcpy(h_boardsBuff.data(), d_boardsBuff_B.get(), BOARD_BUFF_SZ(MAX_GEN_BOARDS), cudaMemcpyDeviceToHost));
-    checkCudaErrors(cudaMemcpy(
-        h_solutions.data(), d_solutions.get(), h_solutions.size() * sizeof(uint32_t), cudaMemcpyDeviceToHost));
+    checkCudaErrors(cudaMemcpy(h_boardsBuff.data(), d_boardsBuff_B.get(), BOARD_BUFF_SZ(MAX_GEN_BOARDS), cudaMemcpyDeviceToHost));
+    checkCudaErrors(cudaMemcpy(h_solutions.data(), d_solutions.get(), h_solutions.size() * sizeof(uint32_t), cudaMemcpyDeviceToHost));
 
-    spdlog::info("Writing output to the file...");
-    writeOutput(t_outputFileName, h_boardsBuff, MAX_GEN_BOARDS, t_count);
+    return h_boardsBuff;
+}
+
+
+
+std::vector<Board> solveCPU(const std::vector<std::string> &t_encodedBoards, int t_count)
+{
+
+
 }

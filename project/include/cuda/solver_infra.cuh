@@ -37,4 +37,7 @@ saveBoardToBuffer(CELL_TYPE *t_buff, const size_t t_globalIdx, const CELL_TYPE *
     }
 }
 
+
+__host__ std::tuple<std::vector<Board>, std::vector<BoardConstraints>> createCPU(const std::vector<std::string> &t_encodedBoards);
+
 #endif // CUDA_SUDOKU_SOLVER_H

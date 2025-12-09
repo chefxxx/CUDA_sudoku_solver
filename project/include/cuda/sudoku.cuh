@@ -11,7 +11,8 @@
 #include "generate_boards.cuh"
 #include "memory_cuda.cuh"
 
-__host__ void solve(std::string_view t_inputFileName, std::string_view t_outputFileName, int t_count);
+__host__      std::vector<CELL_TYPE>
+              solveGPU(const std::vector<std::string> &t_encodedBoards, int t_count);
 __host__ void copyToGPU(const mem_cuda::unique_ptr<CELL_TYPE>        &t_dBoards,
                         const mem_cuda::unique_ptr<CONSTRAINTS_TYPE> &t_dConstraints,
                         const mem_cuda::unique_ptr<uint32_t>         &t_dRoots,
@@ -19,6 +20,8 @@ __host__ void copyToGPU(const mem_cuda::unique_ptr<CELL_TYPE>        &t_dBoards,
                         const std::vector<CONSTRAINTS_TYPE>          &t_hConstraints,
                         const std::vector<uint32_t>                  &t_hRoots,
                         size_t                                        t_count);
+
+__host__ std::vector<Board> solveCPU(const std::vector<std::string> &t_encodedBoards, int t_count);
 
 __global__ void reset_counter(uint32_t *t_counter)
 {

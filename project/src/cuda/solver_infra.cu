@@ -57,3 +57,22 @@ __host__ std::tuple<std::vector<CELL_TYPE>, std::vector<CONSTRAINTS_TYPE>, int>
     }
     return std::make_tuple(globalBoards, globalConstraints, globalIdx);
 }
+
+std::tuple<std::vector<Board>, std::vector<BoardConstraints>> createCPU(const std::vector<std::string> &t_encodedBoards)
+{
+    std::vector<Board> boards;
+    std::vector<BoardConstraints> constraints;
+    for (const auto &board : t_encodedBoards) {
+        const auto values = convertLineToNumbers(board);
+        const BoardConstraints tmpC(values.value());
+        if (!tmpC.isValid) {
+            spdlog::warn("Not valid board found!");
+        }
+        else {
+            const Board tmpB(values.value());
+            boards.push_back(tmpB);
+            constraints.push_back(tmpC);
+        }
+    }
+    return std::make_tuple(boards, constraints);
+}
