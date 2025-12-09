@@ -8,24 +8,44 @@
 #include <atomic>
 #include <cassert>
 #include <cuda_runtime_api.h>
-#include <iostream>
 #include <memory>
 #include <spdlog/spdlog.h>
 #include <type_traits>
 
 #include "helper_cuda.h"
 
+#if __cplusplus < 202002L
+    #include <type_traits>
+#endif
+
 namespace mem_cuda {
-template <class T> concept cuda_pointerable_type = std::is_array_v<T> == false;
 
-template <class T> concept disallowed_known_bound = std::is_array_v<T> &&std::extent_v<T> > 0;
+#if __cplusplus >= 202002L
+    template <class T> concept cuda_pointerable_type  = !std::is_array_v<T>  && !std::is_pointer_v<T>;
+#else
+    template <class T>
+    struct is_cuda_pointerable : std::integral_constant<bool, !std::is_array_v<T> && !std::is_pointer_v<T>> {};
 
-template <cuda_pointerable_type U> struct cuda_deleter
+    template <class T>
+    constexpr bool is_cuda_pointerable_v = is_cuda_pointerable<T>::value;
+#endif
+
+#if __cplusplus >= 202002L
+    template <cuda_pointerable_type U>
+#else
+    template <typename U, typename = std::enable_if_t<is_cuda_pointerable_v<U>>>
+#endif
+struct cuda_deleter
 {
     void operator()(U *d_ptr) const noexcept { checkCudaErrors(cudaFree(d_ptr)); }
 };
 
-template <cuda_pointerable_type T, class D = cuda_deleter<T>> class unique_ptr
+#if __cplusplus >= 202002L
+    template <cuda_pointerable_type T, class D = cuda_deleter<T>>
+#else
+    template <typename T, typename = std::enable_if_t<is_cuda_pointerable_v<T>>, class D = cuda_deleter<T>>
+#endif
+class unique_ptr
 {
 public:
     using pointer      = T *;
@@ -73,7 +93,11 @@ public:
     // Destructor
     // ----------
 
-    constexpr ~unique_ptr() noexcept
+    #if __cplusplus >= 202002L
+        constexpr ~unique_ptr() noexcept
+    #else
+        ~unique_ptr() noexcept
+    #endif
     {
         if (mDevPtr) {
             spdlog::info("Destroying mem_cuda::unique_ptr and releasing memory...");
@@ -166,19 +190,24 @@ private:
  * @param count number of objects to allocate on GPU.
  * @return cuda::unique_ptr that owns pointer to those object(s).
  */
-template <cuda_pointerable_type T> unique_ptr<T> make_unique(const size_t count = 1)
+#if __cplusplus >= 202002L
+    template <cuda_pointerable_type T>
+#else
+    template <typename T, typename = std::enable_if_t<is_cuda_pointerable_v<T>>>
+#endif
+unique_ptr<T> make_unique(const size_t count = 1)
 {
     T *devPtr;
     checkCudaErrors(cudaMalloc(reinterpret_cast<void **>(&devPtr), sizeof(T) * count));
     return unique_ptr<T>(devPtr);
 }
 
-/**
- * Deleted known-bound array overloads (e.g., T[10])
- */
-template <disallowed_known_bound T, class... Args> void make_unique(Args &&...) = delete;
-
-template <cuda_pointerable_type T, class D = cuda_deleter<T>> struct control_block
+#if __cplusplus >= 202002L
+    template <cuda_pointerable_type T, class D = cuda_deleter<T>>
+#else
+    template <typename T, typename = std::enable_if_t<is_cuda_pointerable_v<T>>, class D = cuda_deleter<T>>
+#endif
+struct control_block
 {
     explicit control_block(T *devPtr)
         : mDeleter{}
@@ -216,7 +245,12 @@ template <cuda_pointerable_type T, class D = cuda_deleter<T>> struct control_blo
     }
 };
 
-template <cuda_pointerable_type T> class shared_ptr
+#if __cplusplus >= 202002L
+    template <cuda_pointerable_type T>
+#else
+    template <typename T, typename = std::enable_if_t<is_cuda_pointerable_v<T>>>
+#endif
+class shared_ptr
 {
 public:
     using element_type = std::remove_extent_t<T>;
@@ -369,17 +403,18 @@ private:
  * @param count number of objects to allocate on GPU.
  * @return cuda::shared_ptr that owns pointer to those object(s).
  */
-template <cuda_pointerable_type T> shared_ptr<T> make_shared(const size_t count = 1)
+#if __cplusplus >= 202002L
+template <cuda_pointerable_type T>
+#else
+template <typename T, typename = std::enable_if_t<is_cuda_pointerable_v<T>>>
+#endif
+shared_ptr<T> make_shared(const size_t count = 1)
 {
     T *devPtr;
     checkCudaErrors(cudaMalloc(reinterpret_cast<void **>(&devPtr), sizeof(T) * count));
     return shared_ptr<T>(devPtr);
 }
 
-/**
- * Deleted known-bound array overloads (e.g., T[10])
- */
-template <disallowed_known_bound T, class... Args> void make_shared(Args &&...) = delete;
 
 } // namespace mem_cuda
 

@@ -17,7 +17,7 @@ __host__ std::optional<std::vector<CELL_TYPE>> convertLineToNumbers(const std::s
         const auto c   = t_line[i];
         const auto num = c - '0';
         if (num < 0 || num > 9) {
-            myLog::warn(fmt::format("Not valid character {} found!", num));
+            myLog::warning(fmt::format("Not valid character {} found!", num));
             return std::nullopt;
         }
         numbers.emplace_back(num);
@@ -37,7 +37,7 @@ __host__ std::tuple<std::vector<CELL_TYPE>, std::vector<CONSTRAINTS_TYPE>, int>
         if (values.has_value()) {
             BoardConstraints tmpC(values.value());
             if (!tmpC.isValid) {
-                myLog::warn("Not valid board found!");
+                myLog::warning("Not valid board found!");
             }
             else {
                 // save constraints to buffer

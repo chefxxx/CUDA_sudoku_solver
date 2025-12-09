@@ -5,24 +5,23 @@
 #ifndef SUDOKU_SPDLOG_MACROS_H
 #define SUDOKU_SPDLOG_MACROS_H
 
-#include <source_location>
 #include <spdlog/spdlog.h>
 
 namespace myLog {
 
-inline void warn(std::string_view msg, const std::source_location loc = std::source_location::current())
+inline void warning(std::string_view msg, std::string_view file = __FILE__, const int line = __LINE__)
 {
-    spdlog::warn("{}:{} {}", loc.file_name(), loc.line(), msg);
+    spdlog::warn("{}:{} {}", file, line, msg);
 }
 
-inline void err(std::string_view msg, const std::source_location loc = std::source_location::current())
+inline void error(std::string_view msg, std::string_view file = __FILE__, const int line = __LINE__)
 {
-    spdlog::error("{}:{} {}", loc.file_name(), loc.line(), msg);
+    spdlog::error("{}:{} {}", file, line, msg);
 }
 
-inline void info(std::string_view msg, const std::source_location loc = std::source_location::current())
+inline void information(std::string_view msg, std::string_view file = __FILE__, const int line = __LINE__)
 {
-    spdlog::info("{}:{} {}", loc.file_name(), loc.line(), msg);
+    spdlog::info("{}:{} {}", file, line, msg);
 }
 
 } // namespace myLog

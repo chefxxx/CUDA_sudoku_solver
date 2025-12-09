@@ -35,16 +35,16 @@ __host__ void solve(const std::string_view t_inputFileName, const std::string_vi
     // ---------------------
     // Read boards from file
     // ---------------------
-    myLog::info("Reading input file...");
+    myLog::information("Reading input file...");
     const auto encodedBoards = readInput(t_inputFileName, t_count);
 
     // ---------------------
     // Create buffers on CPU
     // ---------------------
-    myLog::info("Storing boards to CPU buffers...");
+    myLog::information("Storing boards to CPU buffers...");
     auto [h_boardsBuff, h_constraintsBuff, initCreatedNum] = convertAndAlignSerial(encodedBoards, MAX_GEN_BOARDS);
 
-    myLog::info(fmt::format("Created {} boards out of {}.", initCreatedNum, t_count));
+    myLog::information(fmt::format("Created {} boards out of {}.", initCreatedNum, t_count));
     std::vector<uint32_t> h_rootsBuff(MAX_GEN_BOARDS);
     std::iota(h_rootsBuff.begin(), h_rootsBuff.begin() + initCreatedNum, 0);
 
@@ -54,7 +54,7 @@ __host__ void solve(const std::string_view t_inputFileName, const std::string_vi
     // Preallocate big buffers in order to avoid resizing when generating new boards.
     // Two buffers are used to read current boards and write new children.
     // -------------------------------------------------------------------------------
-    myLog::info("Allocating GPU memory...");
+    myLog::information("Allocating GPU memory...");
     auto [d_boardsBuff_A, d_boardsBuff_B] = allocateGPU_Pair<CELL_TYPE>(BOARD_BUFF_N(MAX_GEN_BOARDS));
     auto [d_constraintsBuff_A, d_constraintsBuff_B] =
         allocateGPU_Pair<CONSTRAINTS_TYPE>(CONSTRAINTS_BUFF_N(MAX_GEN_BOARDS));
@@ -64,7 +64,7 @@ __host__ void solve(const std::string_view t_inputFileName, const std::string_vi
     // ------------------
     // Copy memory to GPU
     // ------------------
-    myLog::info("Copying data to GPU...");
+    myLog::information("Copying data to GPU...");
     copyToGPU(d_boardsBuff_A,
               d_constraintsBuff_A,
               d_rootsBuff_A,
@@ -84,7 +84,7 @@ __host__ void solve(const std::string_view t_inputFileName, const std::string_vi
     // -----------------
     const auto d_workCounter = mem_cuda::make_unique<uint32_t>();
 
-    myLog::info("Executing board generation loop...");
+    myLog::information("Executing board generation loop...");
     {
         PROFILE_SCOPE("BFS loop");
         for (int i = 0; i < MAX_GENERATIONS; ++i) {
@@ -109,7 +109,7 @@ __host__ void solve(const std::string_view t_inputFileName, const std::string_vi
             // Reduce and exclusive scan to get new number of boards and offsets
             nextNum = thrust::reduce(thrust::device, d_childrenCountBuff.get(), d_childrenCountBuff.get() + currentNum);
             if (nextNum > MAX_GEN_BOARDS) {
-                myLog::info(fmt::format(
+                myLog::information(fmt::format(
                     "Stopping at {} generations, board generation limit of {} boards exceeded!", i, MAX_GEN_BOARDS));
                 break;
             }
@@ -149,11 +149,11 @@ __host__ void solve(const std::string_view t_inputFileName, const std::string_vi
         }
     }
 
-    myLog::info(fmt::format("Generated {} boards...", currentNum));
+    myLog::information(fmt::format("Generated {} boards...", currentNum));
     std::vector<uint32_t> h_solutions(t_count, 0);
     const auto            d_solutions = allocateAndCopyGPU_FromHostVector(h_solutions);
 
-    myLog::info("Running main solver kernel...");
+    myLog::information("Running main solver kernel...");
     {
         PROFILE_SCOPE("DFS step");
         reset_counter<<<1, 1>>>(d_workCounter.get());
@@ -172,12 +172,12 @@ __host__ void solve(const std::string_view t_inputFileName, const std::string_vi
         CUDA_SYNC_CHECK();
     }
 
-    myLog::info("Copying results to the host...");
+    myLog::information("Copying results to the host...");
     checkCudaErrors(
         cudaMemcpy(h_boardsBuff.data(), d_boardsBuff_B.get(), BOARD_BUFF_SZ(MAX_GEN_BOARDS), cudaMemcpyDeviceToHost));
     checkCudaErrors(cudaMemcpy(
         h_solutions.data(), d_solutions.get(), h_solutions.size() * sizeof(uint32_t), cudaMemcpyDeviceToHost));
 
-    myLog::info("Writing output to the file...");
+    myLog::information("Writing output to the file...");
     writeOutput(t_outputFileName, h_boardsBuff, MAX_GEN_BOARDS, t_count);
 }
