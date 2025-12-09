@@ -60,10 +60,6 @@ message("Using host compiler " ${CMAKE_CXX_COMPILER_ID})
 
 # C++ compile options
 target_compile_options(${CUDA_LIB} PUBLIC
-        # MSVC
-        $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:MSVC>,$<COMPILE_LANGUAGE:CXX>>: /W4 /Od>
-        $<$<AND:$<CONFIG:Release>,$<CXX_COMPILER_ID:MSVC>,$<COMPILE_LANGUAGE:CXX>>: /O2>
-        # GNU/Clang
         $<$<AND:$<CONFIG:Debug>,$<COMPILE_LANGUAGE:CXX>>: -g -O0 -Wall -Wextra -pedantic -Wshadow -Wnon-virtual-dtor -Werror>
         $<$<AND:$<CONFIG:Release>,$<COMPILE_LANGUAGE:CXX>>: -O3 -march=native -funroll-loops>
 )
@@ -72,9 +68,4 @@ target_compile_options(${CUDA_LIB} PUBLIC
 target_compile_options(${CUDA_LIB} PUBLIC
         $<$<AND:$<CONFIG:Debug>,$<COMPILE_LANGUAGE:CUDA>>: -v -g3 -fno-omit-frame-pointer -G -O0>
         $<$<AND:$<CONFIG:Release>,$<COMPILE_LANGUAGE:CUDA>>: -lineinfo --ptxas-options=-v -Xptxas -O3>
-
-        $<$<AND:$<CONFIG:Release>,$<COMPILE_LANGUAGE:CUDA>,$<CXX_COMPILER_ID:MSVC>>: -Xcompiler /O2>
-
-        $<$<AND:$<CONFIG:Debug>,$<COMPILE_LANGUAGE:CUDA>,$<CXX_COMPILER_ID:GNU>>: -Xcompiler -g -Xcompiler -O0 -Xcompiler -Wall -Xcompiler -Wextra>
-        $<$<AND:$<CONFIG:Release>,$<COMPILE_LANGUAGE:CUDA>,$<CXX_COMPILER_ID:GNU>>: -Xcompiler -O3 -Xcompiler -march=native -Xcompiler -funroll-loops>
 )

@@ -4,7 +4,7 @@
 
 void usage()
 {
-    std::cerr << "USAGE: ./sudoku <method> <count> <input.txt> <output.txt>\n";
+    std::cerr << "USAGE: ./sudoku <method> <count> <input_file.csv> <output_file.csv>\n";
     exit(EXIT_FAILURE);
 }
 
