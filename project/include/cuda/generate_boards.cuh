@@ -23,6 +23,18 @@ __global__ void createChildren(const CELL_TYPE        *t_inBoardsBuff,
                                size_t                  t_boardCount,
                                size_t                  t_globalStride);
 
+__global__ void createChildren_ver2(const CELL_TYPE        *t_inBoardsBuff,
+                                    CELL_TYPE              *t_outBoardsBuff,
+                                    const CONSTRAINTS_TYPE *t_inConstraintsBuff,
+                                    CONSTRAINTS_TYPE       *t_outConstraintsBuff,
+                                    const uint32_t         *t_inRootsBuff,
+                                    uint32_t               *t_outRootsBuff,
+                                    const uint32_t         *t_offsetBuff,
+                                    const uint16_t         *t_cellNumsBuff,
+                                    size_t                  t_boardCount,
+                                    size_t                  t_globalStride,
+                                    uint32_t               *t_globalWorkCounter);
+
 __global__ void chooseChildren(const CELL_TYPE        *t_boardsBuff,
                                const CONSTRAINTS_TYPE *t_constraintsBuff,
                                uint32_t               *t_childrenBuff,
@@ -30,10 +42,22 @@ __global__ void chooseChildren(const CELL_TYPE        *t_boardsBuff,
                                size_t                  t_boardCount,
                                size_t                  t_globalStride);
 
+
+__global__ void chooseChildren_ver2(const CELL_TYPE        *t_boardsBuff,
+                                    const CONSTRAINTS_TYPE *t_constraintsBuff,
+                                    uint32_t               *t_childrenBuff,
+                                    uint16_t               *t_cellNumsBuff,
+                                    size_t                  t_boardCount,
+                                    size_t                  t_globalStride,
+                                    uint32_t               *t_globalWorkCounter);
+
 __device__ void findMostConstrainedCell(const DeviceBoard       &t_board,
                                         const DeviceConstraints &t_constraints,
                                         uint16_t                &t_cellIdx,
                                         uint16_t                &t_minChildNum);
+
+__host__ int findMCC_CPU(const Board &t_board, const BoardConstraints &t_constraints);
+
 
 __device__ __forceinline__ void createAndAlignInBuff(CELL_TYPE         *t_outBoardsBuff,
                                                      CONSTRAINTS_TYPE  *t_outConstraintsBuff,

@@ -12,14 +12,3 @@ FetchContent_MakeAvailable(spdlog)
 # ------------------------------------------------------------------------------ #
 #  Interface Library
 # ------------------------------------------------------------------------------ #
-
-add_library(
-        libSpdlog
-        INTERFACE
-)
-
-target_link_libraries(
-        libSpdlog
-        INTERFACE
-        spdlog::spdlog
-)

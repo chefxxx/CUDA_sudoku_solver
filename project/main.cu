@@ -1,10 +1,11 @@
 #include <iostream>
 
+#include "io_manager.h"
 #include "sudoku.cuh"
 
 void usage()
 {
-    std::cerr << "USAGE: ./sudoku <method> <count> <input.txt> <output.txt>\n";
+    std::cerr << "USAGE: ./sudoku <method> <count> <input_file.csv> <output_file.csv>\n";
     exit(EXIT_FAILURE);
 }
 
@@ -24,6 +25,12 @@ int main(const int argc, const char **argv)
     const std::string inputFileName  = argv[3];
     const std::string outputFileName = argv[4];
 
+    // ---------------
+    // Read input file
+    // ---------------
+    spdlog::info("Reading input file...");
+    const auto encodedBoards = readInput(inputFileName, count);
+
     // ----------
     // Run solver
     // ----------
@@ -31,8 +38,11 @@ int main(const int argc, const char **argv)
     // TODO: CPU solver
     if (method == "cpu")
         return EXIT_SUCCESS;
-    if (method == "gpu")
-        solve(inputFileName, outputFileName, count);
+    if (method == "gpu") {
+        const auto result = solveGPU(encodedBoards, count);
+        spdlog::info("Writing output to the file...");
+        writeOutput(outputFileName, result, MAX_GEN_BOARDS, count);
+    }
 
     return EXIT_SUCCESS;
 }

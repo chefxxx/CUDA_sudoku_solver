@@ -5,9 +5,11 @@
 #ifndef SUDOKU_BIT_OPERATIONS_H
 #define SUDOKU_BIT_OPERATIONS_H
 
-#include <bit>
-
 #include "defines.h"
+
+#if __cplusplus >= 202002L
+#include <bit>
+#endif
 
 constexpr CONSTRAINTS_TYPE MIN_LSB = 1u;
 
@@ -32,7 +34,11 @@ __device__ __host__ __forceinline__ int popCount(const CONSTRAINTS_TYPE a)
 #if defined(__CUDA_ARCH__)
     return __popc(a);
 #else
+#if __cplusplus >= 202002L
     return std::popcount(a);
+#else
+    return __builtin_popcount(a);
+#endif
 #endif
 }
 
@@ -42,7 +48,11 @@ __device__ __host__ __forceinline__ int getLsb(const CONSTRAINTS_TYPE a)
 #if defined(__CUDA_ARCH__)
     return __ffs(a) - 1; //__ffs() is 1-based, so - 1
 #else
+#if __cplusplus >= 202002L
     return std::countr_zero(a);
+#else
+    return __builtin_ctz(a);
+#endif
 #endif
 }
 

@@ -23,10 +23,10 @@ constexpr int CONSTRAINTS_N    = 3;
 // ------------------------
 // Main gpu solver settings
 // ------------------------
-constexpr int THREADS_PER_BLOCK = 128;
-constexpr int BLOCKS_PER_GRID   = 128;
-constexpr int MAX_GEN_BOARDS    = 4194304;
-constexpr int MAX_GENERATIONS   = 25;
+constexpr int THREADS_PER_BLOCK  = 128;
+constexpr int BLOCKS_PER_GRID    = 128;
+constexpr int MAX_GEN_BOARDS     = 4194304;
+constexpr int MAX_ZEROS          = 100;
 
 // -------------
 // Buffers sizes
@@ -37,5 +37,17 @@ constexpr int MAX_GENERATIONS   = 25;
 #define CONSTRAINTS_BUFF_SZ(t_count) (CONSTRAINTS_BUFF_N(t_count) * sizeof(CONSTRAINTS_TYPE))
 #define ROOTS_BUFF_N(t_count)        (t_count)
 #define ROOTS_BUFF_SZ(t_count)       ((t_count) * sizeof(uint32_t))
+
+// ---------------
+// Macro debugging
+// ---------------
+#ifdef NDEBUG
+#define CUDA_CHECK_KERNEL()
+#define CUDA_SYNC_CHECK()
+#else
+#define CUDA_CHECK_KERNEL() getLastCudaError("Kernel failed...")
+#define CUDA_SYNC_CHECK()   checkCudaErrors(cudaDeviceSynchronize())
+#endif
+
 
 #endif // SUDOKU_BOARD_DEFINES_H

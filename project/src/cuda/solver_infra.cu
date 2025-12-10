@@ -7,7 +7,8 @@
 
 #include "board_infra.cuh"
 #include "solver_infra.cuh"
-#include "spdlog_macros.h"
+#include "spdlog/spdlog.h"
+
 
 __host__ std::optional<std::vector<CELL_TYPE>> convertLineToNumbers(const std::string_view t_line)
 {
@@ -17,7 +18,7 @@ __host__ std::optional<std::vector<CELL_TYPE>> convertLineToNumbers(const std::s
         const auto c   = t_line[i];
         const auto num = c - '0';
         if (num < 0 || num > 9) {
-            myLog::warn(fmt::format("Not valid character {} found!", num));
+            spdlog::error("Not valid character {} found!", num);
             return std::nullopt;
         }
         numbers.emplace_back(num);
@@ -25,19 +26,20 @@ __host__ std::optional<std::vector<CELL_TYPE>> convertLineToNumbers(const std::s
     return std::make_optional(numbers);
 }
 
-__host__ std::tuple<std::vector<CELL_TYPE>, std::vector<CONSTRAINTS_TYPE>, int>
+__host__ std::tuple<std::vector<CELL_TYPE>, std::vector<CONSTRAINTS_TYPE>, int, int>
          convertAndAlignSerial(const std::vector<std::string> &t_encodedBoards, const size_t t_stride)
 {
     int                           globalIdx = 0;
     std::vector<CELL_TYPE>        globalBoards(t_stride * SUDOKU_BITPACK_N, 0);
     std::vector<CONSTRAINTS_TYPE> globalConstraints(t_stride * CONSTRAINTS_N * SUDOKU_SIZE, 0);
+    int minZeros = MAX_ZEROS;
 
     for (const auto &board : t_encodedBoards) {
         const auto values = convertLineToNumbers(board);
         if (values.has_value()) {
             BoardConstraints tmpC(values.value());
             if (!tmpC.isValid) {
-                myLog::warn("Not valid board found!");
+                spdlog::warn("Not valid board found!");
             }
             else {
                 // save constraints to buffer
@@ -49,10 +51,44 @@ __host__ std::tuple<std::vector<CELL_TYPE>, std::vector<CONSTRAINTS_TYPE>, int>
 
                 // create board and save it to buffer
                 const Board tmpB(values.value());
+                if (tmpB.innerCount < minZeros) {
+                    minZeros = tmpB.innerCount;
+                }
                 saveBoardToBuffer(globalBoards.data(), globalIdx, tmpB.inside.data(), t_stride);
                 globalIdx++;
             }
         }
     }
-    return std::make_tuple(globalBoards, globalConstraints, globalIdx);
+    return std::make_tuple(globalBoards, globalConstraints, globalIdx, minZeros);
+}
+
+std::tuple<std::vector<Board>, std::vector<BoardConstraints>> createCPU(const std::vector<std::string> &t_encodedBoards)
+{
+    std::vector<Board> boards;
+    std::vector<BoardConstraints> constraints;
+    for (const auto &board : t_encodedBoards) {
+        const auto values = convertLineToNumbers(board);
+        const BoardConstraints tmpC(values.value());
+        if (!tmpC.isValid) {
+            spdlog::warn("Not valid board found!");
+        }
+        else {
+            const Board tmpB(values.value());
+            boards.push_back(tmpB);
+            constraints.push_back(tmpC);
+        }
+    }
+    return std::make_tuple(boards, constraints);
+}
+
+int countEmptyCPU(const Board &t_board)
+{
+    int emptyCount = 0;
+    for (int i = 0; i < SUDOKU_SIZE * SUDOKU_SIZE; ++i) {
+        const auto value = t_board.getValue(i);
+        if (value == 0) {
+            ++emptyCount;
+        }
+    }
+    return emptyCount;
 }

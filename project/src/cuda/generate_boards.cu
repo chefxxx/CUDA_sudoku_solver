@@ -29,6 +29,32 @@ __global__ void chooseChildren(const CELL_TYPE        *t_boardsBuff,
     }
 }
 
+__global__ void chooseChildren_ver2(const CELL_TYPE        *t_boardsBuff,
+                                    const CONSTRAINTS_TYPE *t_constraintsBuff,
+                                    uint32_t               *t_childrenBuff,
+                                    uint16_t               *t_cellNumsBuff,
+                                    const size_t            t_boardCount,
+                                    const size_t            t_globalStride,
+                                    uint32_t               *t_globalWorkCounter)
+{
+    DeviceBoard       board{};
+    DeviceConstraints constraints{};
+
+    while (true) {
+        const size_t work = atomicAdd(t_globalWorkCounter, 1);
+
+        if (work >= t_boardCount)
+            break;
+
+        board.initBoard(work, t_boardsBuff, t_globalStride);
+        constraints.initConstraints(work, t_constraintsBuff, t_globalStride);
+        uint16_t cellIdx, minChildNum;
+        findMostConstrainedCell(board, constraints, cellIdx, minChildNum);
+        t_cellNumsBuff[work] = cellIdx;
+        t_childrenBuff[work] = minChildNum;
+    }
+}
+
 __global__ void createChildren(const CELL_TYPE        *t_inBoardsBuff,
                                CELL_TYPE              *t_outBoardsBuff,
                                const CONSTRAINTS_TYPE *t_inConstraintsBuff,
@@ -64,12 +90,50 @@ __global__ void createChildren(const CELL_TYPE        *t_inBoardsBuff,
     }
 }
 
+__global__ void createChildren_ver2(const CELL_TYPE        *t_inBoardsBuff,
+                                    CELL_TYPE              *t_outBoardsBuff,
+                                    const CONSTRAINTS_TYPE *t_inConstraintsBuff,
+                                    CONSTRAINTS_TYPE       *t_outConstraintsBuff,
+                                    const uint32_t         *t_inRootsBuff,
+                                    uint32_t               *t_outRootsBuff,
+                                    const uint32_t         *t_offsetBuff,
+                                    const uint16_t         *t_cellNumsBuff,
+                                    const size_t            t_boardCount,
+                                    const size_t            t_globalStride,
+                                    uint32_t               *t_globalWorkCounter)
+{
+    DeviceBoard       board{};
+    DeviceConstraints constraints{};
+
+    while (true) {
+        const size_t work = atomicAdd(t_globalWorkCounter, 1);
+
+        if (work >= t_boardCount)
+            break;
+
+        board.initBoard(work, t_inBoardsBuff, t_globalStride);
+        constraints.initConstraints(work, t_inConstraintsBuff, t_globalStride);
+        const uint32_t offset = t_offsetBuff[work];
+        const uint32_t root   = t_inRootsBuff[work];
+        const uint16_t cell   = t_cellNumsBuff[work];
+        createAndAlignInBuff(t_outBoardsBuff,
+                 t_outConstraintsBuff,
+                 t_outRootsBuff,
+                 offset,
+                 root,
+                 cell,
+                 board,
+                 constraints,
+                 t_globalStride);
+    }
+}
+
 __device__ void findMostConstrainedCell(const DeviceBoard       &t_board,
                                         const DeviceConstraints &t_constraints,
                                         uint16_t                &t_cellIdx,
                                         uint16_t                &t_minChildNum)
 {
-    t_cellIdx     = 0;
+    t_cellIdx     = -1;
     t_minChildNum = 10;
 #pragma unroll
     for (int i = 0; i < SUDOKU_SIZE * SUDOKU_SIZE; ++i) {
@@ -85,4 +149,25 @@ __device__ void findMostConstrainedCell(const DeviceBoard       &t_board,
             }
         }
     }
+}
+
+// Duplicate code due to lack of time to refactor infrastructure...
+int findMCC_CPU(const Board &t_board, const BoardConstraints &t_constraints)
+{
+    int foundIdx = -1;
+    int minChildNum = 10;
+    for (int i = 0; i < SUDOKU_SIZE * SUDOKU_SIZE; ++i) {
+        const auto value = t_board.getValue(i);
+        if (!value) {
+            const auto         idx  = getConstraintsIndexesInfra(i);
+            const CONSTRAINTS_TYPE mask = t_constraints.constraints[row][idx.row] & t_constraints.constraints[col][idx.col]
+                                        & t_constraints.constraints[square][idx.square];
+            const auto childNum = popCount(mask);
+            if (childNum < minChildNum) {
+                minChildNum = childNum;
+                foundIdx = i;
+            }
+        }
+    }
+    return foundIdx;
 }

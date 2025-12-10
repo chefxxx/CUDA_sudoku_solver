@@ -12,6 +12,8 @@ Board::Board(const std::vector<CELL_TYPE> &t_numbers)
 {
     for (int i = 0; i < SUDOKU_SIZE * SUDOKU_SIZE; ++i) {
         setValue(i, t_numbers[i]);
+        if (t_numbers[i] == 0)
+            innerCount++;
     }
 }
 
@@ -82,3 +84,28 @@ std::tuple<int, int, int> BoardConstraints::getConstraintsIndexes(const int t_Bo
     const auto coords = getConstraintsIndexesInfra(t_BoardIdx);
     return std::make_tuple(coords.row, coords.col, coords.square);
 }
+
+CONSTRAINTS_TYPE BoardConstraints::getConstraintsMask(const int t_BoardIdx) const
+{
+    const auto [row, col, square] = getConstraintsIndexes(t_BoardIdx);
+    return constraints[0][row] & constraints[1][col] & constraints[2][square];
+}
+
+void BoardConstraints::updateConstraints(const int t_value, const int t_idx)
+{
+    const auto [row, col, square] = getConstraintsIndexes(t_idx);
+    resetBitAtIdx(constraints[0][row], t_value);
+    resetBitAtIdx(constraints[1][col], t_value);
+    resetBitAtIdx(constraints[2][square], t_value);
+}
+
+void BoardConstraints::resetConstraints(const int t_value, const int t_idx)
+{
+    const auto [row, col, square] = getConstraintsIndexes(t_idx);
+    setBitAtIdx(constraints[0][row], t_value);
+    setBitAtIdx(constraints[1][col], t_value);
+    setBitAtIdx(constraints[2][square], t_value);
+}
+
+
+
