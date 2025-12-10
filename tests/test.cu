@@ -11,10 +11,11 @@ using DoubleMicros = std::chrono::duration<double, std::micro>;
 class CPU_vs_GPU_Test : public ::testing::Test
 {
     public:
-    const int RESULTS_THE_SAME_TEST_SIZE = 30000;
-    const std::string RESULTS_THE_SAME_TEST_FILE = "../../sample_files/sudoku_data.csv";
+    const int RESULTS_THE_SAME_TEST_SIZE = 2e6;
+    const std::string RESULTS_THE_SAME_TEST_FILE = "../../sample_files/puzzles.csv";
+    //"../../sample_files/sudoku_data.csv";
 
-    const int GPU_MASSIVE_TEST = 5000000;
+    const int GPU_MASSIVE_TEST = 2e6;
     const std::string PUZZLES_FILE = "../../sample_files/puzzles.csv";
     const std::string SOLUTIONS_FILE = "../../sample_files/solutions.csv";
 };
