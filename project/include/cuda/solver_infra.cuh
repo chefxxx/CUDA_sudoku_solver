@@ -13,8 +13,8 @@
 #include "board_infra.cuh"
 
 __host__ std::optional<std::vector<CELL_TYPE>> convertLineToNumbers(std::string_view t_line);
-__host__                                       std::tuple<std::vector<CELL_TYPE>, std::vector<CONSTRAINTS_TYPE>, int>
-convertAndAlignSerial(const std::vector<std::string> &t_encodedBoards, size_t t_stride);
+__host__ std::tuple<std::vector<CELL_TYPE>, std::vector<CONSTRAINTS_TYPE>, int, int>
+         convertAndAlignSerial(const std::vector<std::string> &t_encodedBoards, size_t t_stride);
 
 __device__ __host__ __forceinline__ void saveConstraintsToBuffer(CONSTRAINTS_TYPE *t_buff,
                                                                  const size_t      t_constraintOffset,

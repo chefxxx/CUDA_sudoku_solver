@@ -29,6 +29,8 @@ __device__ __forceinline__ void solveOneBoard(DeviceBoard       &t_board,
             t_masksBuff[emptyIdx++] = 0;
         }
     }
+    if (emptyIdx == 0)
+        return;
 
     t_masksBuff[0] = t_constraints.getConstraintsMask(t_emptyBuff[0]);
     uint16_t value;

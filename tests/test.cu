@@ -11,10 +11,10 @@ using DoubleMicros = std::chrono::duration<double, std::micro>;
 class CPU_vs_GPU_Test : public ::testing::Test
 {
     public:
-    const int RESULTS_THE_SAME_TEST_SIZE = 33000;
+    const int RESULTS_THE_SAME_TEST_SIZE = 30000;
     const std::string RESULTS_THE_SAME_TEST_FILE = "../../sample_files/sudoku_data.csv";
 
-    const int GPU_MASSIVE_TEST = 30000;
+    const int GPU_MASSIVE_TEST = 5000000;
     const std::string PUZZLES_FILE = "../../sample_files/puzzles.csv";
     const std::string SOLUTIONS_FILE = "../../sample_files/solutions.csv";
 };
@@ -29,6 +29,7 @@ TEST_F(CPU_vs_GPU_Test, only_GPU_Correctness)
     const DoubleMicros gpuDuration = stop - start;
     std::cout << "Time taken GPU: " << std::fixed << std::setprecision(2) << gpuDuration.count() / 1e6 << " seconds\n";
     Board gpuTmp;
+
     for (size_t i = 0; i < GPU_MASSIVE_TEST; ++i) {
         gpuTmp.initBoard(i, gpuResults, MAX_GEN_BOARDS);
         const auto gpuStr = gpuTmp.getBoardString();

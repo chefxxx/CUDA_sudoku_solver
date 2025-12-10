@@ -10,7 +10,7 @@
 #include <tuple>
 #include <vector>
 
-#include "../cuda/board_infra.cuh"
+#include "board_infra.cuh"
 
 struct Board
 {
@@ -22,6 +22,8 @@ struct Board
     [[nodiscard]] CELL_TYPE   getValue(int t_idx) const;
     void initBoard(size_t t_globalIdx, const std::vector<CELL_TYPE> &t_boardsBuff, size_t t_stride);
     std::array<CELL_TYPE, SUDOKU_BITPACK_N> inside{};
+
+    int innerCount = 0;
 };
 
 struct BoardConstraints

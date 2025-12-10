@@ -35,7 +35,7 @@ solveGPU(const std::vector<std::string> &t_encodedBoards, const int t_count)
     // Create buffers on CPU
     // ---------------------
     spdlog::info("Storing boards to CPU buffers...");
-    auto [h_boardsBuff, h_constraintsBuff, initCreatedNum] = convertAndAlignSerial(t_encodedBoards, MAX_GEN_BOARDS);
+    auto [h_boardsBuff, h_constraintsBuff, initCreatedNum, MIN_ZEROS] = convertAndAlignSerial(t_encodedBoards, MAX_GEN_BOARDS);
     std::vector<uint32_t> h_rootsBuff(MAX_GEN_BOARDS);
     std::iota(h_rootsBuff.begin(), h_rootsBuff.begin() + initCreatedNum, 0);
     spdlog::info(fmt::format("Created {} boards out of {}...", initCreatedNum, t_count));
@@ -75,12 +75,16 @@ solveGPU(const std::vector<std::string> &t_encodedBoards, const int t_count)
     // init work counter
     // -----------------
     const auto d_workCounter = mem_cuda::make_unique<uint32_t>();
+    const auto MAX_GENERATIONS = MIN_ZEROS - 1;
+    spdlog::info("Setting MAX_GENERATIONS for BFS gen to {}...", MAX_GENERATIONS);
 
     spdlog::info("Executing board generation loop...");
     for (int i = 0; i < MAX_GENERATIONS; ++i) {
         reset_counter<<<1, 1>>>(d_workCounter.get());
         CUDA_CHECK_KERNEL();
         CUDA_SYNC_CHECK();
+
+
 
         chooseChildren_ver2<<<THREADS_PER_BLOCK, BLOCKS_PER_GRID>>>(d_boardsBuff_A.get(),
                                                                     d_constraintsBuff_A.get(),

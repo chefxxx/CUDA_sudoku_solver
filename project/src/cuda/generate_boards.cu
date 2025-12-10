@@ -50,8 +50,8 @@ __global__ void chooseChildren_ver2(const CELL_TYPE        *t_boardsBuff,
         constraints.initConstraints(work, t_constraintsBuff, t_globalStride);
         uint16_t cellIdx, minChildNum;
         findMostConstrainedCell(board, constraints, cellIdx, minChildNum);
-        t_childrenBuff[work] = minChildNum;
         t_cellNumsBuff[work] = cellIdx;
+        t_childrenBuff[work] = minChildNum;
     }
 }
 
@@ -117,14 +117,14 @@ __global__ void createChildren_ver2(const CELL_TYPE        *t_inBoardsBuff,
         const uint32_t root   = t_inRootsBuff[work];
         const uint16_t cell   = t_cellNumsBuff[work];
         createAndAlignInBuff(t_outBoardsBuff,
-                             t_outConstraintsBuff,
-                             t_outRootsBuff,
-                             offset,
-                             root,
-                             cell,
-                             board,
-                             constraints,
-                             t_globalStride);
+                 t_outConstraintsBuff,
+                 t_outRootsBuff,
+                 offset,
+                 root,
+                 cell,
+                 board,
+                 constraints,
+                 t_globalStride);
     }
 }
 
@@ -133,8 +133,7 @@ __device__ void findMostConstrainedCell(const DeviceBoard       &t_board,
                                         uint16_t                &t_cellIdx,
                                         uint16_t                &t_minChildNum)
 {
-    // TODO: handle solved boards cases...
-    t_cellIdx     = 0;
+    t_cellIdx     = -1;
     t_minChildNum = 10;
 #pragma unroll
     for (int i = 0; i < SUDOKU_SIZE * SUDOKU_SIZE; ++i) {

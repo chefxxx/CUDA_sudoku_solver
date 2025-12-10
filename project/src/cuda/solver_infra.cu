@@ -26,12 +26,13 @@ __host__ std::optional<std::vector<CELL_TYPE>> convertLineToNumbers(const std::s
     return std::make_optional(numbers);
 }
 
-__host__ std::tuple<std::vector<CELL_TYPE>, std::vector<CONSTRAINTS_TYPE>, int>
+__host__ std::tuple<std::vector<CELL_TYPE>, std::vector<CONSTRAINTS_TYPE>, int, int>
          convertAndAlignSerial(const std::vector<std::string> &t_encodedBoards, const size_t t_stride)
 {
     int                           globalIdx = 0;
     std::vector<CELL_TYPE>        globalBoards(t_stride * SUDOKU_BITPACK_N, 0);
     std::vector<CONSTRAINTS_TYPE> globalConstraints(t_stride * CONSTRAINTS_N * SUDOKU_SIZE, 0);
+    int minZeros = MAX_ZEROS;
 
     for (const auto &board : t_encodedBoards) {
         const auto values = convertLineToNumbers(board);
@@ -50,12 +51,15 @@ __host__ std::tuple<std::vector<CELL_TYPE>, std::vector<CONSTRAINTS_TYPE>, int>
 
                 // create board and save it to buffer
                 const Board tmpB(values.value());
+                if (tmpB.innerCount < minZeros) {
+                    minZeros = tmpB.innerCount;
+                }
                 saveBoardToBuffer(globalBoards.data(), globalIdx, tmpB.inside.data(), t_stride);
                 globalIdx++;
             }
         }
     }
-    return std::make_tuple(globalBoards, globalConstraints, globalIdx);
+    return std::make_tuple(globalBoards, globalConstraints, globalIdx, minZeros);
 }
 
 std::tuple<std::vector<Board>, std::vector<BoardConstraints>> createCPU(const std::vector<std::string> &t_encodedBoards)
