@@ -4,6 +4,7 @@
 
 #include <cuda_profiler_api.h>
 #include <numeric>
+#include <thread>
 #include <thrust/execution_policy.h>
 #include <thrust/reduce.h>
 #include <thrust/scan.h>
@@ -34,11 +35,11 @@ solveGPU(const std::vector<std::string> &t_encodedBoards, const int t_count)
     // ---------------------
     // Create buffers on CPU
     // ---------------------
-    spdlog::info("Storing boards to CPU buffers...");
+    std::cout << "Storing boards to CPU buffers...\n";
     auto [h_boardsBuff, h_constraintsBuff, initCreatedNum, MIN_ZEROS] = convertAndAlignSerial(t_encodedBoards, MAX_GEN_BOARDS);
     std::vector<uint32_t> h_rootsBuff(MAX_GEN_BOARDS);
     std::iota(h_rootsBuff.begin(), h_rootsBuff.begin() + initCreatedNum, 0);
-    spdlog::info(fmt::format("Created {} boards out of {}...", initCreatedNum, t_count));
+    std::cout << "Creating boards...\n";
 
     // -------------------------------------------------------------------------------
     // Allocate memory on GPU
@@ -46,7 +47,7 @@ solveGPU(const std::vector<std::string> &t_encodedBoards, const int t_count)
     // Preallocate big buffers in order to avoid resizing when generating new boards.
     // Two buffers are used to read current boards and write new children.
     // -------------------------------------------------------------------------------
-    spdlog::info("Allocating GPU memory...");
+    std::cout << "Allocating GPU memory...\n";
     auto [d_boardsBuff_A, d_boardsBuff_B] = allocateGPU_Pair<CELL_TYPE>(BOARD_BUFF_N(MAX_GEN_BOARDS));
     auto [d_constraintsBuff_A, d_constraintsBuff_B] =
         allocateGPU_Pair<CONSTRAINTS_TYPE>(CONSTRAINTS_BUFF_N(MAX_GEN_BOARDS));
@@ -56,7 +57,7 @@ solveGPU(const std::vector<std::string> &t_encodedBoards, const int t_count)
     // ------------------
     // Copy memory to GPU
     // ------------------
-    spdlog::info("Copying data to GPU...");
+    std::cout << "Copying data to GPU...\n";
     copyToGPU(d_boardsBuff_A,
               d_constraintsBuff_A,
               d_rootsBuff_A,
@@ -76,9 +77,9 @@ solveGPU(const std::vector<std::string> &t_encodedBoards, const int t_count)
     // -----------------
     const auto d_workCounter = mem_cuda::make_unique<uint32_t>();
     const auto MAX_GENERATIONS = MIN_ZEROS - 1;
-    spdlog::info("Setting MAX_GENERATIONS for BFS gen to {}...", MAX_GENERATIONS);
+    std::cout << "Setting MAX_GENERATIONS for BFS gen to {}...\n";
 
-    spdlog::info("Executing board generation loop...");
+    std::cout << "Executing board generation loop...\n";
     for (int i = 0; i < MAX_GENERATIONS; ++i) {
         reset_counter<<<1, 1>>>(d_workCounter.get());
         CUDA_CHECK_KERNEL();
@@ -99,9 +100,7 @@ solveGPU(const std::vector<std::string> &t_encodedBoards, const int t_count)
         // Reduce and exclusive scan to get new number of boards and offsets
         nextNum = thrust::reduce(thrust::device, d_childrenCountBuff.get(), d_childrenCountBuff.get() + currentNum);
         if (nextNum > MAX_GEN_BOARDS) {
-            spdlog::info(
-                "Stopping at {} generations, board generation limit of {} boards exceeded!", i, MAX_GEN_BOARDS);
-            break;
+            std::cout << "Stopping at generations, board generation limit of boards exceeded!\n";
         }
 
         thrust::exclusive_scan(thrust::device,
@@ -136,11 +135,11 @@ solveGPU(const std::vector<std::string> &t_encodedBoards, const int t_count)
     }
 
 
-    spdlog::info("Generated {} boards...", currentNum);
+    std::cout << "Generated boards...\n";
     std::vector<uint32_t> h_solutions(t_count, 0);
     const auto            d_solutions = allocateAndCopyGPU_FromHostVector(h_solutions);
 
-    spdlog::info("Running main solver kernel...");
+    std::cout << "Running main solver kernel...\n";
     reset_counter<<<1, 1>>>(d_workCounter.get());
     CUDA_CHECK_KERNEL();
     CUDA_SYNC_CHECK();
@@ -156,7 +155,7 @@ solveGPU(const std::vector<std::string> &t_encodedBoards, const int t_count)
     CUDA_CHECK_KERNEL();
     CUDA_SYNC_CHECK();
 
-    spdlog::info("Copying results to the host...");
+    std::cout << "Copying results to the host...\n";
     checkCudaErrors(cudaMemcpy(h_boardsBuff.data(), d_boardsBuff_B.get(), BOARD_BUFF_SZ(MAX_GEN_BOARDS), cudaMemcpyDeviceToHost));
     checkCudaErrors(cudaMemcpy(h_solutions.data(), d_solutions.get(), h_solutions.size() * sizeof(uint32_t), cudaMemcpyDeviceToHost));
 
@@ -186,7 +185,7 @@ std::vector<Board> solveCPU(const std::vector<std::string> &t_encodedBoards, con
         threads.emplace_back([&, startIdx, endIdx]() {
             for (int j = startIdx; j < endIdx; ++j) {
                 if (!solveOneCPU(boards[j], constraints[j])) {
-                    spdlog::warn("Failed to solve board {} on CPU!", j);
+                    std::cout << "Failed to solve board on CPU!\n";
                 }
             }
         });

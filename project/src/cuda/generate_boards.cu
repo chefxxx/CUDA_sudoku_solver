@@ -133,7 +133,7 @@ __device__ void findMostConstrainedCell(const DeviceBoard       &t_board,
                                         uint16_t                &t_cellIdx,
                                         uint16_t                &t_minChildNum)
 {
-    t_cellIdx     = -1;
+    t_cellIdx     = 0;
     t_minChildNum = 10;
 #pragma unroll
     for (int i = 0; i < SUDOKU_SIZE * SUDOKU_SIZE; ++i) {

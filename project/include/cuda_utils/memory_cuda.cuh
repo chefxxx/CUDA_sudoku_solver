@@ -9,7 +9,6 @@
 #include <cassert>
 #include <cuda_runtime_api.h>
 #include <memory>
-#include <spdlog/spdlog.h>
 #include <type_traits>
 
 #include "helper_cuda.h"
@@ -101,7 +100,7 @@ public:
 #endif
     {
         if (mDevPtr) {
-            spdlog::info("Destroying mem_cuda::unique_ptr and releasing memory...");
+            std::cout << "Destroying mem_cuda::unique_ptr and releasing memory...\n";
             get_deleter()(get());
         }
     }
@@ -229,7 +228,7 @@ struct control_block
         if (mRefCount.fetch_sub(1, std::memory_order_acq_rel) == 1) {
             std::atomic_thread_fence(std::memory_order_acquire);
             mDeleter(mDevPtr);
-            spdlog::info("Releasing mem_cuda::shared_ptr memory...");
+            std::cout << "Releasing mem_cuda::shared_ptr memory...\n";
             release_weak_ref();
         }
     }
@@ -240,7 +239,7 @@ struct control_block
     {
         if (mWeakRefCount.fetch_sub(1, std::memory_order_acq_rel) == 1) {
             std::atomic_thread_fence(std::memory_order_acquire);
-            spdlog::info("Releasing mem_cuda::control_block memory...");
+            std::cout << "Releasing mem_cuda::control_block memory...\n";
             delete this;
         }
     }
@@ -309,7 +308,7 @@ public:
 
     ~shared_ptr()
     {
-        spdlog::info("Destroying mem_cuda::shared_ptr...");
+        std::cout << "Destroying mem_cuda::shared_ptr...\n";
         _cleanup();
     }
 

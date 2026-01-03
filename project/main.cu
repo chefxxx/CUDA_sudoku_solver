@@ -28,7 +28,7 @@ int main(const int argc, const char **argv)
     // ---------------
     // Read input file
     // ---------------
-    spdlog::info("Reading input file...");
+    std::cout << "Reading input file...\n";
     const auto encodedBoards = readInput(inputFileName, count);
 
     // ----------
@@ -40,7 +40,7 @@ int main(const int argc, const char **argv)
         return EXIT_SUCCESS;
     if (method == "gpu") {
         const auto result = solveGPU(encodedBoards, count);
-        spdlog::info("Writing output to the file...");
+        std::cout << "Writing output to the file...\n";
         writeOutput(outputFileName, result, MAX_GEN_BOARDS, count);
     }
 

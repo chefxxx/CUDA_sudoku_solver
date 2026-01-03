@@ -16,6 +16,7 @@ file(GLOB SOURCES
 message("Loading CUDA library...")
 
 add_library(${CUDA_LIB} SHARED ${SOURCES})
+set_target_properties(${CUDA_LIB} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
 set(CMAKE_CUDA_ARCHITECTURES native)
 
@@ -31,7 +32,7 @@ target_include_directories(${CUDA_LIB} PUBLIC
 )
 
 # TODO: linking here to CUDA::cudart breaks on cluster, but without it code does not work
-target_link_libraries(${CUDA_LIB} PUBLIC spdlog::spdlog CUDA::cudart)
+target_link_libraries(${CUDA_LIB} PUBLIC CUDA::cudart)
 
 set_target_properties(${CUDA_LIB} PROPERTIES
         CUDA_SEPARABLE_COMPILATION ON
@@ -60,13 +61,15 @@ message("Build type " "${CMAKE_BUILD_TYPE}")
 message("Using host compiler " ${CMAKE_CXX_COMPILER_ID})
 
 # C++ compile options
-target_compile_options(${CUDA_LIB} PUBLIC
-        $<$<AND:$<CONFIG:Debug>,$<COMPILE_LANGUAGE:CXX>>: -g -O0 -Wall -Wextra -pedantic -Wshadow -Wnon-virtual-dtor -Werror>
-        $<$<AND:$<CONFIG:Release>,$<COMPILE_LANGUAGE:CXX>>: -O3 -march=native -funroll-loops>
-)
+if (NOT ${CMAKE_HOST_WIN32})
+    target_compile_options(${CUDA_LIB} PUBLIC
+            $<$<AND:$<CONFIG:Debug>,$<COMPILE_LANGUAGE:CXX>>: -g -O0 -Wall -Wextra -pedantic -Wshadow -Wnon-virtual-dtor -Werror>
+            $<$<AND:$<CONFIG:Release>,$<COMPILE_LANGUAGE:CXX>>: -O3 -march=native -funroll-loops>
+    )
 
-# CUDA compile options
-target_compile_options(${CUDA_LIB} PUBLIC
-        $<$<AND:$<CONFIG:Debug>,$<COMPILE_LANGUAGE:CUDA>>: -v -g3 -fno-omit-frame-pointer -G -O0>
-        $<$<AND:$<CONFIG:Release>,$<COMPILE_LANGUAGE:CUDA>>: -lineinfo --ptxas-options=-v -Xptxas -O3>
-)
+    # CUDA compile options
+    target_compile_options(${CUDA_LIB} PUBLIC
+            $<$<AND:$<CONFIG:Debug>,$<COMPILE_LANGUAGE:CUDA>>: -v -g3 -fno-omit-frame-pointer -G -O0>
+            $<$<AND:$<CONFIG:Release>,$<COMPILE_LANGUAGE:CUDA>>: -lineinfo --ptxas-options=-v -Xptxas -O3>
+    )
+endif ()
