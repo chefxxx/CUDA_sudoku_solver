@@ -20,7 +20,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CUDA_STANDARD 20)
 set(CMAKE_CUDA_STANDARD_REQUIRED ON)
 
+# CUDA toolkit setting
 find_package(CUDAToolkit REQUIRED)
+
+if(WIN32)
+    message("Windows system detected...")
+    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+endif()
 
 # enable linking static libs to project
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)

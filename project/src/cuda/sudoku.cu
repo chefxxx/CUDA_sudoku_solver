@@ -77,15 +77,13 @@ solveGPU(const std::vector<std::string> &t_encodedBoards, const int t_count)
     // -----------------
     const auto d_workCounter = mem_cuda::make_unique<uint32_t>();
     const auto MAX_GENERATIONS = MIN_ZEROS - 1;
-    std::cout << "Setting MAX_GENERATIONS for BFS gen to {}...\n";
+    std::cout << "Setting MAX_GENERATIONS for BFS gen to " << MAX_GENERATIONS << "...\n";
 
     std::cout << "Executing board generation loop...\n";
     for (int i = 0; i < MAX_GENERATIONS; ++i) {
         reset_counter<<<1, 1>>>(d_workCounter.get());
         CUDA_CHECK_KERNEL();
         CUDA_SYNC_CHECK();
-
-
 
         chooseChildren_ver2<<<THREADS_PER_BLOCK, BLOCKS_PER_GRID>>>(d_boardsBuff_A.get(),
                                                                     d_constraintsBuff_A.get(),
