@@ -38,16 +38,5 @@ constexpr int MAX_ZEROS          = 100;
 #define ROOTS_BUFF_N(t_count)        (t_count)
 #define ROOTS_BUFF_SZ(t_count)       ((t_count) * sizeof(uint32_t))
 
-// ---------------
-// Macro debugging
-// ---------------
-#ifdef NDEBUG
-#define CUDA_CHECK_KERNEL()
-#define CUDA_SYNC_CHECK()
-#else
-#define CUDA_CHECK_KERNEL() getLastCudaError("Kernel failed...")
-#define CUDA_SYNC_CHECK()   checkCudaErrors(cudaDeviceSynchronize())
-#endif
-
 
 #endif // SUDOKU_BOARD_DEFINES_H

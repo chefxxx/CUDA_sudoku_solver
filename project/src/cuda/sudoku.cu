@@ -14,6 +14,7 @@
 #include "io_manager.h"
 #include "solver_infra.cuh"
 #include "sudoku.cuh"
+#include "logger.h"
 
 void copyToGPU(const mem_cuda::unique_ptr<CELL_TYPE>        &t_dBoards,
                const mem_cuda::unique_ptr<CONSTRAINTS_TYPE> &t_dConstraints,
@@ -33,13 +34,33 @@ __host__ std::vector<CELL_TYPE>
 solveGPU(const std::vector<std::string> &t_encodedBoards, const int t_count)
 {
     // ---------------------
+    // Time management utils
+    // ---------------------
+    auto startTimer = []() {
+        return std::chrono::high_resolution_clock::now();
+    };
+
+    auto stopTimer = [](auto start) {
+        auto end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> elapsed = end - start;
+        std::ostringstream oss;
+        oss << std::fixed << std::setprecision(3) << " (" << elapsed.count() << "s)";
+        return oss.str();
+    };
+
+
+    // ---------------------
     // Create buffers on CPU
     // ---------------------
-    std::cout << "Storing boards to CPU buffers...\n";
+    logger::info("Reading the input file...\n");
+
+    const auto timer1 = startTimer();
     auto [h_boardsBuff, h_constraintsBuff, initCreatedNum, MIN_ZEROS] = convertAndAlignSerial(t_encodedBoards, MAX_GEN_BOARDS);
     std::vector<uint32_t> h_rootsBuff(MAX_GEN_BOARDS);
+    std::string time1 = stopTimer(timer1);
     std::iota(h_rootsBuff.begin(), h_rootsBuff.begin() + initCreatedNum, 0);
-    std::cout << "Creating boards...\n";
+
+    logger::info("Reading the input file - Finished! {}\n", time1);
 
     // -------------------------------------------------------------------------------
     // Allocate memory on GPU
@@ -47,17 +68,24 @@ solveGPU(const std::vector<std::string> &t_encodedBoards, const int t_count)
     // Preallocate big buffers in order to avoid resizing when generating new boards.
     // Two buffers are used to read current boards and write new children.
     // -------------------------------------------------------------------------------
-    std::cout << "Allocating GPU memory...\n";
+    logger::info("Allocating GPU memory...\n");
+
+    const auto timer2= startTimer();
     auto [d_boardsBuff_A, d_boardsBuff_B] = allocateGPU_Pair<CELL_TYPE>(BOARD_BUFF_N(MAX_GEN_BOARDS));
     auto [d_constraintsBuff_A, d_constraintsBuff_B] =
         allocateGPU_Pair<CONSTRAINTS_TYPE>(CONSTRAINTS_BUFF_N(MAX_GEN_BOARDS));
     auto [d_rootsBuff_A, d_rootsBuff_B]              = allocateGPU_Pair<uint32_t>(ROOTS_BUFF_N(MAX_GEN_BOARDS));
     const auto [d_childrenCountBuff, d_cellNumsBuff] = allocateGPU_AnySameSize<uint32_t, uint16_t>(MAX_GEN_BOARDS);
+    std::string time2 = stopTimer(timer2);
+
+    logger::info("Allocating GPU memory - Finished! {}\n", time2);
 
     // ------------------
     // Copy memory to GPU
     // ------------------
-    std::cout << "Copying data to GPU...\n";
+    logger::info("Copying data to GPU...\n");
+
+    const auto timer3 = startTimer();
     copyToGPU(d_boardsBuff_A,
               d_constraintsBuff_A,
               d_rootsBuff_A,
@@ -65,6 +93,9 @@ solveGPU(const std::vector<std::string> &t_encodedBoards, const int t_count)
               h_constraintsBuff,
               h_rootsBuff,
               MAX_GEN_BOARDS);
+    std::string time3 = stopTimer(timer3);
+
+    logger::info("Copying data to GPU - Finished! {}\n", time3);
 
     // -----------------------------
     // Execute board generation loop
@@ -77,13 +108,14 @@ solveGPU(const std::vector<std::string> &t_encodedBoards, const int t_count)
     // -----------------
     const auto d_workCounter = mem_cuda::make_unique<uint32_t>();
     const auto MAX_GENERATIONS = MIN_ZEROS - 1;
-    std::cout << "Setting MAX_GENERATIONS for BFS gen to " << MAX_GENERATIONS << "...\n";
 
-    std::cout << "Executing board generation loop...\n";
+    logger::info("Solving boards...\n");
+
+    const auto timer4 = startTimer();
     for (int i = 0; i < MAX_GENERATIONS; ++i) {
         reset_counter<<<1, 1>>>(d_workCounter.get());
-        CUDA_CHECK_KERNEL();
-        CUDA_SYNC_CHECK();
+        getLastCudaError("Kernel failed...");
+        checkCudaErrors(cudaDeviceSynchronize());
 
         chooseChildren_ver2<<<THREADS_PER_BLOCK, BLOCKS_PER_GRID>>>(d_boardsBuff_A.get(),
                                                                     d_constraintsBuff_A.get(),
@@ -92,13 +124,13 @@ solveGPU(const std::vector<std::string> &t_encodedBoards, const int t_count)
                                                                     currentNum,
                                                                     MAX_GEN_BOARDS,
                                                                     d_workCounter.get());
-        CUDA_CHECK_KERNEL();
-        CUDA_SYNC_CHECK();
+        getLastCudaError("Kernel failed...");
+        checkCudaErrors(cudaDeviceSynchronize());
 
         // Reduce and exclusive scan to get new number of boards and offsets
         nextNum = thrust::reduce(thrust::device, d_childrenCountBuff.get(), d_childrenCountBuff.get() + currentNum);
         if (nextNum > MAX_GEN_BOARDS) {
-            std::cout << "Stopping at generations, board generation limit of boards exceeded!\n";
+            logger::warn("Stopping at generations, board generation limit of boards exceeded!\n");
         }
 
         thrust::exclusive_scan(thrust::device,
@@ -107,8 +139,8 @@ solveGPU(const std::vector<std::string> &t_encodedBoards, const int t_count)
                                d_childrenCountBuff.get());
 
         reset_counter<<<1, 1>>>(d_workCounter.get());
-        CUDA_CHECK_KERNEL();
-        CUDA_SYNC_CHECK();
+        getLastCudaError("Kernel failed...");
+        checkCudaErrors(cudaDeviceSynchronize());
 
         createChildren_ver2<<<THREADS_PER_BLOCK, BLOCKS_PER_GRID>>>(d_boardsBuff_A.get(),
                                                                     d_boardsBuff_B.get(),
@@ -121,9 +153,8 @@ solveGPU(const std::vector<std::string> &t_encodedBoards, const int t_count)
                                                                     currentNum,
                                                                     MAX_GEN_BOARDS,
                                                                     d_workCounter.get());
-        CUDA_CHECK_KERNEL();
-        CUDA_SYNC_CHECK();
-
+        getLastCudaError("Kernel failed...");
+        checkCudaErrors(cudaDeviceSynchronize());
 
         // update buffers
         d_boardsBuff_A.swap(d_boardsBuff_B);
@@ -133,14 +164,12 @@ solveGPU(const std::vector<std::string> &t_encodedBoards, const int t_count)
     }
 
 
-    std::cout << "Generated boards...\n";
     std::vector<uint32_t> h_solutions(t_count, 0);
     const auto            d_solutions = allocateAndCopyGPU_FromHostVector(h_solutions);
 
-    std::cout << "Running main solver kernel...\n";
     reset_counter<<<1, 1>>>(d_workCounter.get());
-    CUDA_CHECK_KERNEL();
-    CUDA_SYNC_CHECK();
+    getLastCudaError("Kernel failed...");
+    checkCudaErrors(cudaDeviceSynchronize());
 
     solveSudokuBoards_ver2<<<THREADS_PER_BLOCK, BLOCKS_PER_GRID>>>(d_boardsBuff_A.get(),
                                                                    d_boardsBuff_B.get(),
@@ -150,12 +179,19 @@ solveGPU(const std::vector<std::string> &t_encodedBoards, const int t_count)
                                                                    currentNum,
                                                                    MAX_GEN_BOARDS,
                                                                    d_workCounter.get());
-    CUDA_CHECK_KERNEL();
-    CUDA_SYNC_CHECK();
+    getLastCudaError("Kernel failed...");
+    checkCudaErrors(cudaDeviceSynchronize());
+    std::string time4 = stopTimer(timer4);
 
-    std::cout << "Copying results to the host...\n";
+    logger::info("Solving boards - Finished! {}\n", time4);
+    logger::info("Copying results to the host...\n");
+
+    const auto timer5 = startTimer();
     checkCudaErrors(cudaMemcpy(h_boardsBuff.data(), d_boardsBuff_B.get(), BOARD_BUFF_SZ(MAX_GEN_BOARDS), cudaMemcpyDeviceToHost));
     checkCudaErrors(cudaMemcpy(h_solutions.data(), d_solutions.get(), h_solutions.size() * sizeof(uint32_t), cudaMemcpyDeviceToHost));
+    std::string time5 = stopTimer(timer5);
+
+    logger::info("Copying results to the host - Finished! {}\n", time5);
 
     return h_boardsBuff;
 }
