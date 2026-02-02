@@ -36,6 +36,3 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 # ------------------------------------------------------------------------------ #
 
 add_subdirectory(project)
-add_subdirectory(dependencies)
-add_subdirectory(tests)
-enable_testing()

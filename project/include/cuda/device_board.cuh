@@ -12,7 +12,6 @@
 
 struct DeviceBoard
 {
-    __device__                      DeviceBoard() = default;
     __device__ __forceinline__ void setValue(const int t_idx, CELL_TYPE const t_num)
     {
         setValueInfra(cells, t_idx, t_num);
@@ -31,7 +30,6 @@ struct DeviceBoard
 
 struct DeviceConstraints
 {
-    __device__ DeviceConstraints() = default;
     __device__ __forceinline__ void
     initConstraints(const size_t t_workId, const CONSTRAINTS_TYPE *t_constraintsBuff, const size_t t_stride)
     {
